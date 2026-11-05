@@ -10,6 +10,7 @@ on:
       - '.github/workflows/live-deployment-diagnostics.yml'
       - 'src/lib/appiex-html-polish.mjs'
       - 'styles/appiex-editorial-polish.css'
+      - 'vercel.json'
 
 permissions:
   contents: read
