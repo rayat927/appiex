@@ -4,11 +4,26 @@
 // DELETE /api/visitors   -> admin only: wipe all history (fresh reset)
 import fs from 'fs';
 import { NextResponse } from 'next/server';
+import { hasValidAdminSession } from '../../../lib/admin-session.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const ADMIN_KEY = process.env.ADMIN_KEY;
+
+// Browser dashboards authenticate using a short-lived HttpOnly signed cookie,
+// issued only after the middleware accepts the administrator's credentials.
+// Service-to-service callers may continue to use the private x-admin-key.
+async function isAuthorizedAdmin(request, requireSameOrigin = false) {
+  const suppliedKey = request.headers.get('x-admin-key');
+  if (ADMIN_KEY && suppliedKey && suppliedKey === ADMIN_KEY) return true;
+  if (!(await hasValidAdminSession(request))) return false;
+  if (!requireSameOrigin) return true;
+
+  // Mutating cookie-authenticated calls must come from this exact origin.
+  const origin = request.headers.get('origin') || '';
+  return origin === new URL(request.url).origin;
+}
 // --- OWASP / CLOUDFLARE SECURITY HARDENING ---
 const rateLimitMap = new Map();
 const authFailMap = new Map();
@@ -296,8 +311,7 @@ export async function GET(request) {
     return sendJson(request, 403, { ok: false, error: 'Access temporarily blocked due to repeated auth failures.' });
   }
 
-  const key = request.headers.get('x-admin-key');
-  if (!ADMIN_KEY || key !== ADMIN_KEY) {
+  if (!(await isAuthorizedAdmin(request))) {
     recordAuthFailure(clientIp);
     return sendJson(request, 401, { ok: false, error: 'unauthorized' });
   }
@@ -335,8 +349,7 @@ export async function DELETE(request) {
     return sendJson(request, 403, { ok: false, error: 'Access temporarily blocked due to repeated auth failures.' });
   }
 
-  const key = request.headers.get('x-admin-key');
-  if (key !== ADMIN_KEY) {
+  if (!(await isAuthorizedAdmin(request, true))) {
     recordAuthFailure(clientIp);
     return sendJson(request, 401, { ok: false, error: 'unauthorized' });
   }
