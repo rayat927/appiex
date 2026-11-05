@@ -27,7 +27,13 @@ async def check_page(browser, path, width, height):
     result.update(path=path, viewport=width, status=response.status if response else None, pageErrors=errors[:3])
     if response is None or response.status >= 400: raise AssertionError(f"HTTP bad {path}: {result}")
     if path == "/refer":
-        if not result["cssLinked"]: raise AssertionError("Refer missing local CSS link")
+        if not result["cssLinked"]:
+            probe = await page.goto(BASE + path + "?layout_audit=20261105_static_fallback_v2", wait_until="domcontentloaded", timeout=45000)
+            probe_link = await page.evaluate("""() => !!document.querySelector('link[href="/styles/tailwind.generated.css"]')""")
+            print("DEPLOY_PROBE", json.dumps({"status":probe.status if probe else None,
+              "cssLinkedWithCacheBust":probe_link,
+              "responseHeaders":dict(probe.headers) if probe else {}}),flush=True)
+            raise AssertionError("Refer missing local CSS link on published website")
         if result["gridDisplay"] != "grid": raise AssertionError(f"Referral commission layout not grid: {result}")
         if width >= 1024 and result["milestonePosition"] != "absolute":
             raise AssertionError(f"Referral milestone desktop positioning missing: {result}")
