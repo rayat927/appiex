@@ -121,7 +121,25 @@ function improveHtml(html, slug) {
         '<a href="#' + section.id + '">' + escapeText(section.title) + '</a>').join('');
       const toc = '<details class="appiex-article-toc"><summary>On this page · Jump to a section</summary>' +
         '<nav aria-label="Article table of contents">' + links + '</nav></details>';
-      html = html.replace(/<article(?:\s|>)/i, match => toc + '\n' + match);
+      // The same TOC is available as a compact mobile disclosure and as a
+      // desktop sticky navigation, with a restrained service CTA on the right.
+      const articleEndsBeforeMain = /<\/article>\s*<\/main>/i.test(html);
+      if (articleEndsBeforeMain) {
+        const left = '<aside class="appiex-modern-side appiex-modern-side-left" aria-label="Article navigation">' +
+          '<div class="appiex-modern-side-inner"><strong>IN THIS GUIDE</strong><nav aria-label="Sections">' +
+          links + '</nav></div></aside>';
+        const right = '<aside class="appiex-modern-side appiex-modern-side-right">' +
+          '<div class="appiex-modern-side-inner"><span>BUILD WITH APPIEX</span>' +
+          '<h2>Turn ideas into a better product.</h2>' +
+          '<p>Need help planning a website, software product, or AI workflow?</p>' +
+          '<a href="/#contact">Discuss your project →</a></div></aside>';
+        html = html.replace(/<article(?:\s|>)/i,
+          match => toc + '\n<div class="appiex-modern-grid">' + left + match);
+        html = html.replace(/<\/article>(?=\s*<\/main>)/i,
+          '</article>' + right + '</div>');
+      } else {
+        html = html.replace(/<article(?:\s|>)/i, match => toc + '\n' + match);
+      }
     }
   }
 
