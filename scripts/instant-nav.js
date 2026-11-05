@@ -1312,105 +1312,15 @@
   // 5. True Zero-Reload SPA Route Navigation (zion-miz style)
   let isNavigating = false;
   let navTimer = null;
-  async function navigateSPA(targetUrl, isPopState = false) {
-    if (isNavigating && !isPopState) return;
-    isNavigating = true;
-    clearTimeout(navTimer);
-    navTimer = setTimeout(() => { isNavigating = false; }, 650);
-
-    // Close mobile drawer immediately if open
-    if (window.__closeMobileDrawer) {
-      try { window.__closeMobileDrawer(); } catch(e) {}
-    }
-
-    const currentMain = document.querySelector('main');
-    const cleanUrl = targetUrl.pathname + targetUrl.search;
-
-    // Start 60fps GPU exit animation
-    if (currentMain) {
-      currentMain.classList.add('appiex-spa-leaving');
-    }
-
-    // Retrieve from memory or fetch immediately
-    let html = pageCache.get(cleanUrl) || pageCache.get(targetUrl.href);
-    if (!html) {
-      try {
-        const resp = await fetch(targetUrl.href, { priority: 'high' });
-        if (!resp.ok) throw new Error('Fetch failed');
-        html = await resp.text();
-        pageCache.set(cleanUrl, html);
-        pageCache.set(targetUrl.href, html);
-      } catch (err) {
-        isNavigating = false;
-        if (!isPopState) window.location.href = targetUrl.href;
-        return;
-      }
-    }
-
-    // Wait 120ms for buttery exit
-    await new Promise(r => setTimeout(r, 120));
-
-    try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const newMain = doc.querySelector('main');
-
-      if (!newMain || !currentMain) {
-        // Fallback for standalone pages without <main> (e.g. /gaming)
-        isNavigating = false;
-        if (!isPopState) window.location.href = targetUrl.href;
-        return;
-      }
-
-      // Update Document Title
-      if (doc.title) {
-        document.title = doc.title;
-      }
-
-      // Push history state
-      if (!isPopState) {
-        history.pushState({ url: targetUrl.href }, '', targetUrl.href);
-      }
-
-      // Swap Main Content & Classes
-      currentMain.className = newMain.className;
-      currentMain.id = newMain.id;
-      currentMain.innerHTML = newMain.innerHTML;
-
-      // Scroll to Top Instantly
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-
-      // Trigger 60fps GPU Enter Reveal via requestAnimationFrame (zion-miz pattern)
-      currentMain.classList.remove('appiex-spa-leaving');
-      currentMain.classList.add('appiex-spa-entering');
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          currentMain.classList.remove('appiex-spa-entering');
-          currentMain.classList.add('appiex-spa-revealed');
-          setTimeout(() => {
-            currentMain.classList.remove('appiex-spa-revealed');
-            isNavigating = false;
-          }, 320);
-        });
-      });
-
-      // Re-initialize dynamic page components
-      reinitPage(currentMain);
-
-    } catch (err) {
-      isNavigating = false;
-      if (!isPopState) window.location.href = targetUrl.href;
-    }
+  // Each legacy HTML page owns its complete document, CSS and scripts.
+  // Never replace <main> from another document: that leaves previous-page
+  // styles, metadata and initialization in place and changes the layout.
+  function navigateSPA(targetUrl) {
+    const destination = targetUrl instanceof URL ? targetUrl.href : String(targetUrl);
+    window.location.assign(destination);
   }
 
-  // Handle Browser Back / Forward buttons (SPA Popstate)
-  window.addEventListener('popstate', () => {
-    try {
-      const url = new URL(location.href);
-      navigateSPA(url, true);
-    } catch(e) {}
-  });
+  // Native browser history restores the full page on Back/Forward.
 
   // Global Intercept on Internal Links
   document.addEventListener('click', (e) => {
@@ -1455,9 +1365,9 @@
         return;
       }
 
-      // Trigger Instant Buttery SPA Navigation!
-      e.preventDefault();
-      navigateSPA(targetUrl);
+      // Follow normal cross-page links without preventing default navigation.
+      // A full document load is required for page-specific CSS and JS.
+      return;
 
     } catch (err) {}
   });
