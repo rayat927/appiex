@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import { ADMIN_COOKIE_NAME, ADMIN_SESSION_MAX_AGE, signAdminSession, hasValidAdminSession } from './lib/admin-session.js';
 
-export function middleware(request) {
+export async function middleware(request) {
   const { pathname, search } = request.nextUrl;
 
   // Server-side protection for the legacy admin UI. The old HTML password gate
@@ -15,11 +16,16 @@ export function middleware(request) {
       'Vary': 'Authorization'
     };
 
-    if (!user || !password) {
+    if (!user || !password || !process.env.ADMIN_KEY) {
       return new NextResponse('Admin access is not configured.', {
         status: 503,
         headers: secureHeaders
       });
+    }
+
+    // Signed cookie avoids exposing the privileged API key to client JS.
+    if (await hasValidAdminSession(request)) {
+      return NextResponse.next({ headers: secureHeaders });
     }
 
     const authorization = request.headers.get('authorization') || '';
@@ -44,7 +50,21 @@ export function middleware(request) {
         }
       });
     }
-    return NextResponse.next({ headers: secureHeaders });
+    const session = await signAdminSession();
+    if (!session) {
+      return new NextResponse('Admin access is not configured.', {
+        status: 503, headers: secureHeaders
+      });
+    }
+    const response = NextResponse.next({ headers: secureHeaders });
+    response.cookies.set(ADMIN_COOKIE_NAME, session, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      path: '/',
+      maxAge: ADMIN_SESSION_MAX_AGE
+    });
+    return response;
   }
 
   // Block sensitive dotfiles or backup extensions (OWASP / Cloudflare Security)
