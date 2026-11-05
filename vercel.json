@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
@@ -84,16 +83,6 @@
       ],
       "destination": "https://appiex.com/:path*",
       "permanent": true
-    }
-  ],
-  "builds": [
-    {
-      "src": "api/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "**",
-      "use": "@vercel/static"
     }
   ],
   "headers": [
@@ -192,98 +181,5 @@
       ]
     }
   ],
-  "routes": [
-    {
-      "src": "/(?:\\.env.*|.*\\.(?:bak|sql|log|md)|scratch/.*|\\.git.*)",
-      "status": 404
-    },
-    {
-      "src": "/home(?:\\.html)?",
-      "status": 308,
-      "headers": {
-        "Location": "/"
-      }
-    },
-    {
-      "src": "/index\\.html",
-      "status": 308,
-      "headers": {
-        "Location": "/"
-      }
-    },
-    {
-      "src": "/pages/product-design(?:\\.html)?",
-      "status": 308,
-      "headers": {
-        "Location": "/ui-ux-3d-design"
-      }
-    },
-    {
-      "src": "/pages/contacts(?:\\.html)?",
-      "status": 308,
-      "headers": {
-        "Location": "/#contact"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "headers": {
-        "X-Content-Type-Options": "nosniff",
-        "Referrer-Policy": "strict-origin-when-cross-origin",
-        "X-Frame-Options": "SAMEORIGIN",
-        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
-      },
-      "continue": true
-    },
-    {
-      "src": "/(google[a-zA-Z0-9]+\\.html)",
-      "dest": "/$1"
-    },
-    {
-      "src": "/((?!google[a-zA-Z0-9]+)[a-zA-Z0-9_/-]+)\\.html",
-      "status": 308,
-      "headers": {
-        "Location": "/$1"
-      }
-    },
-    {
-      "src": "/(?:admin|login|profile|gaming|collections|resume|rafsan_page|scratch_cuberto_live)(?:\\.html)?",
-      "headers": {
-        "X-Robots-Tag": "noindex, nofollow, noarchive"
-      },
-      "continue": true
-    },
-    {
-      "src": "/(assets|images|styles|fonts|_astro|_nuxt|three|gltf|models|videos|audio|data|svg)/(.*)",
-      "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
-      },
-      "continue": true
-    },
-    {
-      "src": "/(scripts|admin/assets)/(.*)",
-      "headers": {
-        "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800"
-      },
-      "continue": true
-    },
-    {
-      "src": "/(?:services|projects|refer|partners|digital-strategy|web-development|ui-ux-3d-design|ai-automation|seo-marketing|blog|login|team|case-studies|ecommerce-development|n8n-automation|whatsapp-automation|isp-software-development|website-redesign)?",
-      "headers": {
-        "Cache-Control": "public, max-age=60, s-maxage=3600, stale-while-revalidate=86400"
-      },
-      "continue": true
-    },
-    {
-      "src": "/api/visitors",
-      "dest": "/api/visitors.js"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(_nuxt|three|gltf|models|videos|audio|data|svg|images)/(.*)",
-      "dest": "https://kprverse.com/$1/$2"
-    }
-  ]
+  "framework": "nextjs"
 }
