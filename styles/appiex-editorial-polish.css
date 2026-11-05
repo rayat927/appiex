@@ -204,3 +204,60 @@ body.appiex-modern-article main > article :is(section,aside) a {text-underline-o
   #best-agency-matrix .grid > .group,#specialized-service-hubs .grid > a {transition:none!important;transform:none!important;}
   html {scroll-behavior:auto!important;}
 }
+
+/* Standalone buyer guides receive the same three-column editorial hierarchy. */
+body.appiex-modern-article main:has(.appiex-modern-grid) {
+  max-width:1510px!important;
+  width:calc(100% - clamp(28px,5vw,96px))!important;
+  padding-left:0!important;padding-right:0!important;
+}
+.appiex-modern-grid {
+  display:grid;grid-template-columns:minmax(190px,.82fr) minmax(0,2.75fr) minmax(190px,.86fr);
+  align-items:start;gap:clamp(20px,2.8vw,44px);
+}
+body.appiex-modern-article .appiex-modern-grid > article {min-width:0;max-width:850px;}
+body.appiex-modern-article .appiex-modern-grid > article section {min-width:0;}
+body.appiex-modern-article .appiex-modern-grid > article :is(table,pre) {max-width:100%;overflow-x:auto;}
+.appiex-modern-grid .appiex-modern-side {min-width:0;}
+.appiex-modern-grid .appiex-modern-side-inner {
+  position:sticky;top:115px;padding:23px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(160deg,rgba(255,255,255,.053),rgba(255,255,255,.012));
+}
+.appiex-modern-side-left strong,.appiex-modern-side-right span {
+  display:block;color:#ff5576;font-size:.72rem;font-weight:800;letter-spacing:.13em;
+  font-family:'JetBrains Mono',monospace;margin-bottom:15px;
+}
+.appiex-modern-side-left nav {display:grid;gap:4px;}
+.appiex-modern-side-left nav a {
+  display:block;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);
+  font-size:.84rem;line-height:1.55;color:#bdc6d5;text-decoration:none;
+}
+.appiex-modern-side-left nav a:hover,.appiex-modern-side-left nav a:focus-visible {color:#ff7390;}
+.appiex-modern-side-right h2 {
+  font-family:'Space Grotesk',system-ui,sans-serif;font-weight:750!important;
+  color:#fff!important;font-size:1.35rem!important;line-height:1.3!important;
+}
+.appiex-modern-side-right p {margin:14px 0 22px;line-height:1.7;font-size:.88rem;color:#bdc6d5;}
+.appiex-modern-side-right a {
+  display:inline-flex;justify-content:center;width:100%;padding:13px 15px;
+  border-radius:999px;background:#ff3656;color:#fff!important;
+  font-size:.83rem;font-weight:800;text-decoration:none;
+}
+.appiex-modern-side-right a:hover {background:#ee2546;}
+body.appiex-modern-article:has(.appiex-modern-grid) .appiex-article-toc {display:none;}
+#reviews-faq-section [class~="space-y-3.5"] > div {
+  border:1px solid rgba(255,255,255,.13)!important;
+  background:linear-gradient(140deg,rgba(255,255,255,.04),rgba(255,255,255,.008))!important;
+  border-radius:20px!important;padding:clamp(19px,2vw,27px)!important;
+}
+.footer-huge-title {font-size:clamp(4.2rem,11vw,12rem)!important;line-height:.87!important;letter-spacing:-.07em!important;}
+@media (max-width:1199px) {
+  .appiex-modern-grid {grid-template-columns:minmax(0,1fr);gap:0;}
+  .appiex-modern-grid .appiex-modern-side {display:none;}
+  body.appiex-modern-article:has(.appiex-modern-grid) .appiex-article-toc {display:block;}
+  body.appiex-modern-article .appiex-modern-grid > article {max-width:850px;margin-inline:auto;}
+}
+@media (max-width:700px) {
+  .footer-huge-title {font-size:clamp(3.5rem,17vw,6.5rem)!important;letter-spacing:-.055em!important;}
+}
