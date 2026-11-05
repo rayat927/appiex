@@ -1158,30 +1158,8 @@
       }, 600);
     }
 
-    // 3. Dynamic Admin CMS Override Sync (If edited in Admin SEO Blog Command Center)
-    (function syncAdminBlogEdits() {
-      try {
-        var raw = localStorage.getItem('appiex_blog_cms_articles');
-        if (!raw) return;
-        var list = JSON.parse(raw);
-        var match = list.find(function(item) { return item.slug === CURRENT_ARTICLE_SLUG; });
-        if (match) {
-          if (match.title) {
-            document.title = (match.metaTitle || match.title) + ' | Appiex Engineering Blog';
-            var h1 = document.getElementById('cms-article-h1');
-            if (h1) h1.textContent = match.title;
-          }
-          if (match.metaDescription) {
-            var brief = document.getElementById('cms-article-brief');
-            if (brief) brief.textContent = match.metaDescription;
-          }
-          if (match.customBodyHtml) {
-            var bodyEl = document.getElementById('cms-article-body');
-            if (bodyEl) bodyEl.innerHTML = match.customBodyHtml;
-          }
-        }
-      } catch (e) {}
-    })();
+    // Published article content is canonical. Local browser-only CMS drafts
+    // must not override its headline or body for individual visitors.
 
     updateArticleEstimate();
   </script>
