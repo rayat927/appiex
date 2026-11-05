@@ -24,7 +24,7 @@ jobs:
         run: npm ci
       - name: Check migration, SEO URLs, and security
         run: npm run check:migration
-      - name: Test admin authentication and visitor API
-        run: node scripts/verify-admin-security.mjs
       - name: Build Next.js production bundle
         run: npm run build
+      - name: Test admin authentication and visitor API
+        run: node scripts/verify-admin-security.mjs
