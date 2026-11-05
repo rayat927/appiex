@@ -8,6 +8,7 @@ on:
       - '**/*.html'
       - 'tailwind.config.cjs'
       - 'styles/tailwind-input.css'
+      - 'scripts/link-static-tailwind.mjs'
       - '.github/workflows/compile-static-css.yml'
   workflow_dispatch:
 permissions:
@@ -24,6 +25,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Link local stylesheet on every legacy Tailwind page
+        run: node scripts/link-static-tailwind.mjs
       - name: Generate complete local stylesheet
         run: npx --yes tailwindcss@3.4.17 -i styles/tailwind-input.css -o styles/tailwind.generated.css --minify
       - name: Verify expected referral layout utilities are present
@@ -48,6 +51,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add styles/tailwind.generated.css
+          git add -u -- '*.html'
           if ! git diff --cached --quiet; then
             git commit -m "build: update local Tailwind CSS for all static pages"
             git push
