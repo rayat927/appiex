@@ -23,6 +23,7 @@ check(vercel.framework === 'nextjs', 'Vercel uses the Next.js framework preset')
 check(!vercel.builds && !vercel.routes, 'No legacy Vercel builds or routing catch-all');
 check(/\bnext build\b/.test(pkg.scripts?.build || ''), 'Build runs Next.js');
 check(fs.existsSync(path.join(root, 'src/app/[[...slug]]/route.js')), 'Legacy HTML handler exists');
+check(fs.existsSync(path.join(root, 'middleware.js')) && !fs.existsSync(path.join(root, 'src/middleware.js')), 'Root middleware is detected and src duplicate is absent');
 check(/<link rel="canonical" href="https:\/\/appiex\.com\/">/.test(homepage), 'Homepage canonical is preserved');
 check(homepage.includes('G-DF198MPZGT'), 'GA4 measurement ID is preserved');
 check(!/Planet Jupiter/i.test(homepage), 'Homepage H1 uses business-relevant copy');
