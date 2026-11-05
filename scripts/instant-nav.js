@@ -1060,6 +1060,9 @@
 
   // Ensure Tailwind JIT Runtime is Available Globally for Instant SPA Swaps
   function ensureTailwindRuntime() {
+    // Production pages already ship compiled Tailwind; never inject the
+    // heavyweight browser-side Tailwind compiler when the stylesheet exists.
+    if (document.querySelector('link[href*="tailwind.generated.css"]')) return;
     if (typeof window.tailwind !== 'undefined') return;
     if (document.querySelector('script[src*="cdn.tailwindcss.com"]')) return;
     const twScript = document.createElement('script');
@@ -1128,53 +1131,6 @@
   }
   injectGpuStyles();
 
-  // Inject Clean Speculation Rules (Prerender Clean Extensionless Next.js Routes)
-  function injectCleanSpeculationRules() {
-    if (document.getElementById('appiex-clean-speculation-rules')) return;
-    if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('speculationrules')) return;
-    try {
-      const spec = document.createElement('script');
-      spec.type = 'speculationrules';
-      spec.id = 'appiex-clean-speculation-rules';
-      spec.textContent = JSON.stringify({
-        prerender: [
-          {
-            source: 'list',
-            urls: [
-              '/',
-              '/services',
-              '/projects',
-              '/refer',
-              '/partners',
-              '/digital-strategy',
-              '/web-development',
-              '/ui-ux-3d-design',
-              '/ai-automation',
-              '/seo-marketing',
-              '/blog',
-              '/login',
-              '/team',
-              '/case-studies'
-            ],
-            eagerness: 'immediate'
-          },
-          {
-            source: 'document',
-            where: {
-              and: [
-                { href_matches: '/*' },
-                { not: { href_matches: '/admin*' } },
-                { not: { href_matches: '/gaming*' } }
-              ]
-            },
-            eagerness: 'moderate'
-          }
-        ]
-      });
-      document.head.appendChild(spec);
-    } catch (e) {}
-  }
-
   // Normalize any path to clean extensionless Next.js route
   function toCleanPath(pathname) {
     if (!pathname) return '/';
@@ -1238,7 +1194,6 @@
   window.addEventListener('DOMContentLoaded', () => {
     optimizeScrollingPerformance();
     ensureTailwindRuntime();
-    injectCleanSpeculationRules();
     // Cache current initial page in memory
     try {
       const curClean = toCleanPath(location.pathname);
@@ -1264,16 +1219,7 @@
         return pendingFetches.get(cleanPath);
       }
 
-      if (!prefetchedUrls.has(cleanPath)) {
-        prefetchedUrls.add(cleanPath);
-        const link = document.createElement('link');
-        link.rel = 'prefetch';
-        link.href = cleanPath;
-        link.as = 'document';
-        document.head.appendChild(link);
-      }
-
-      const fetchPromise = fetch(cleanPath, { priority: 'high', credentials: 'same-origin' })
+      const fetchPromise = fetch(cleanPath, { credentials: 'same-origin' })
         .then(res => {
           if (!res.ok) throw new Error('Fetch failed');
           return res.text();
@@ -1297,48 +1243,25 @@
     }
   }
 
-  // Idle Prefetch Top Pages into Memory Cache
-  if (typeof window !== 'undefined') {
-    const idlePrefetch = () => {
-      ensureTailwindRuntime();
-      injectCleanSpeculationRules();
-      const topPages = [
-        '/',
-        '/services',
-        '/projects',
-        '/refer',
-        '/partners',
-        '/digital-strategy',
-        '/web-development',
-        '/ui-ux-3d-design',
-        '/ai-automation',
-        '/seo-marketing',
-        '/blog',
-        '/login',
-        '/team',
-        '/case-studies'
-      ];
-      topPages.forEach((p, idx) => {
-        setTimeout(() => prefetch(p), idx * 55);
-      });
-    };
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(idlePrefetch, { timeout: 600 });
-    } else {
-      setTimeout(idlePrefetch, 250);
-    }
-  }
-
   // Hover, Pointerdown & Touch Prefetch Triggers
-  const onHoverOrDown = (e) => {
-    const a = e.target.closest('a');
-    if (a && a.href && a.origin === location.origin) {
-      prefetch(a.href);
-    }
+  let hoverPrefetchTimer = null;
+  const getLocalLink = (event) => {
+    const target = event.target;
+    const anchor = target && target.closest ? target.closest('a') : null;
+    return anchor && anchor.href && anchor.origin === location.origin ? anchor : null;
   };
-  document.addEventListener('mouseover', onHoverOrDown, { passive: true });
-  document.addEventListener('pointerdown', onHoverOrDown, { passive: true });
-  document.addEventListener('touchstart', onHoverOrDown, { passive: true });
+  document.addEventListener('mouseover', (event) => {
+    const anchor = getLocalLink(event);
+    if (!anchor) return;
+    clearTimeout(hoverPrefetchTimer);
+    hoverPrefetchTimer = setTimeout(() => prefetch(anchor.href), 180);
+  }, { passive: true });
+  const onPointerIntent = (event) => {
+    const anchor = getLocalLink(event);
+    if (anchor) prefetch(anchor.href);
+  };
+  document.addEventListener('pointerdown', onPointerIntent, { passive: true });
+  document.addEventListener('touchstart', onPointerIntent, { passive: true });
 
   // ========================================================
   // 5. 0.001s FULL-DOCUMENT (<head> + <body>) INSTANT SWAP
