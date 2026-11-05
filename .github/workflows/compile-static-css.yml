@@ -1,0 +1,56 @@
+name: Compile static Tailwind styles
+on:
+  push:
+    branches:
+      - main
+      - fix/static-layout-stability-20261105
+    paths:
+      - '**/*.html'
+      - 'tailwind.config.cjs'
+      - 'styles/tailwind-input.css'
+      - '.github/workflows/compile-static-css.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  compile-css:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Generate complete local stylesheet
+        run: npx tailwindcss -i styles/tailwind-input.css -o styles/tailwind.generated.css --minify
+      - name: Verify expected referral layout utilities are present
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const css = fs.readFileSync('styles/tailwind.generated.css','utf8');
+          const required = ['.md\\:absolute', '.md\\:h-\\[1880px\\]', '.lg\\:grid-cols-4'];
+          for (const selector of required) {
+            if (!css.includes(selector)) {
+              throw new Error('Missing Tailwind selector: '+selector);
+            }
+          }
+          for (const page of ['refer.html','partners.html','blog.html']) {
+            if (!fs.readFileSync(page,'utf8').includes('/styles/tailwind.generated.css')) {
+              throw new Error('Missing local Tailwind link: '+page);
+            }
+          }
+          NODE
+      - name: Commit compiled CSS back to current branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add styles/tailwind.generated.css
+          if ! git diff --cached --quiet; then
+            git commit -m "build: update local Tailwind CSS for all static pages"
+            git push
+          fi
