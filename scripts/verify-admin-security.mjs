@@ -1,74 +1,114 @@
 /**
- * Integration-style tests for admin middleware and visitors API.
- * Run with Node >=22 after npm ci; uses only local in-memory Request objects.
+ * HTTP integration tests against a real production-mode Next.js server.
+ * Runs locally in CI after npm run build. No production credentials are used.
  */
 import assert from 'node:assert/strict';
-import { NextRequest } from 'next/server';
+import { spawn } from 'node:child_process';
+import { setTimeout as delay } from 'node:timers/promises';
 
-process.env.ADMIN_KEY = 'ci-only-long-api-test-key-not-for-production-45a';
-process.env.APPIEX_ADMIN_USER = 'ci-admin-user';
-process.env.APPIEX_ADMIN_PASSWORD = 'ci-only-long-password-never-use-in-production';
+const base = 'http://127.0.0.1:3187';
+const TEST_ENV = {
+  ...process.env,
+  ADMIN_KEY: 'ci-only-long-api-test-key-not-for-production-45a',
+  APPIEX_ADMIN_USER: 'ci-admin-user',
+  APPIEX_ADMIN_PASSWORD: 'ci-only-long-password-never-use-in-production'
+};
+const errors = [];
+function spawnServer(env) {
+  const child = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--port', '3187', '--hostname', '127.0.0.1'], {
+    env: { ...env, NODE_ENV: 'production' },
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+  for (const stream of [child.stdout, child.stderr]) {
+    stream.on('data', (chunk) => {
+      const out = chunk.toString();
+      if (/error|uncaught/i.test(out)) errors.push(out.slice(0, 700));
+    });
+  }
+  return child;
+}
+async function ready(child) {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    if (child.exitCode !== null) throw new Error('Next.js stopped unexpectedly: ' + errors.join('\n'));
+    try {
+      const res = await fetch(base + '/robots.txt');
+      if (res.status === 200) return;
+    } catch {}
+    await delay(300);
+  }
+  throw new Error('Next.js server did not start');
+}
+async function stop(child) {
+  if (!child || child.exitCode !== null) return;
+  child.kill('SIGTERM');
+  await Promise.race([new Promise(resolve => child.once('exit', resolve)), delay(5000)]);
+  if (child.exitCode === null) child.kill('SIGKILL');
+}
+const api = async (path, options={}) => fetch(base + path, { redirect: 'follow', ...options });
+let server;
+try {
+  // With missing credentials, admin must be inaccessible.
+  const noSecrets = { ...process.env };
+  delete noSecrets.ADMIN_KEY;
+  delete noSecrets.APPIEX_ADMIN_USER;
+  delete noSecrets.APPIEX_ADMIN_PASSWORD;
+  server = spawnServer(noSecrets);
+  await ready(server);
+  let r = await api('/admin');
+  assert.equal(r.status, 503, 'Admin must fail closed without secrets');
+  await stop(server);
 
-const { middleware } = await import('../src/middleware.js');
-const { GET, DELETE, POST } = await import('../src/app/api/visitors/route.js');
-const { ADMIN_COOKIE_NAME, hasValidAdminSession } = await import('../src/lib/admin-session.js');
-const request = (path, init = {}) => new NextRequest('https://appiex.com' + path, init);
+  server = spawnServer(TEST_ENV);
+  await ready(server);
 
-let r = await middleware(request('/admin'));
-assert.equal(r.status, 401, 'Unauthorized dashboard must challenge');
-assert.match(r.headers.get('WWW-Authenticate') || '', /^Basic /);
+  r = await api('/admin');
+  assert.equal(r.status, 401, 'Anonymous admin must be denied');
+  assert.match(r.headers.get('www-authenticate') || '', /Basic/i);
 
-r = await middleware(request('/admin', { headers: {
-  authorization: 'Basic ' + btoa('ci-admin-user:bad-password')
-}}));
-assert.equal(r.status, 401, 'Wrong password denied');
+  r = await api('/admin', {
+    headers: { Authorization: 'Basic ' + Buffer.from('ci-admin-user:wrong').toString('base64') }
+  });
+  assert.equal(r.status, 401, 'Wrong admin password must be denied');
 
-r = await middleware(request('/admin', { headers: {
-  authorization: 'Basic ' + btoa(process.env.APPIEX_ADMIN_USER + ':' + process.env.APPIEX_ADMIN_PASSWORD)
-}}));
-assert.equal(r.status, 200, 'Valid credentials allow admin');
-assert.match(r.headers.get('set-cookie') || '', /HttpOnly/i);
-assert.match(r.headers.get('set-cookie') || '', /SameSite=Strict/i);
-assert.match(r.headers.get('set-cookie') || '', /Secure/i);
-const setCookie = r.headers.get('set-cookie');
-const cookie = setCookie.split(';')[0];
-assert.ok(cookie.startsWith(ADMIN_COOKIE_NAME + '='));
+  const authHeader = 'Basic ' + Buffer.from(TEST_ENV.APPIEX_ADMIN_USER + ':' + TEST_ENV.APPIEX_ADMIN_PASSWORD).toString('base64');
+  r = await api('/admin', { headers: { Authorization: authHeader } });
+  assert.equal(r.status, 200, 'Correct admin credentials must succeed');
+  assert.match(r.headers.get('cache-control') || '', /no-store/i, 'Admin HTML must not be cached');
+  const setCookie = r.headers.get('set-cookie') || '';
+  assert.match(setCookie, /HttpOnly/i);
+  assert.match(setCookie, /SameSite=Strict/i);
+  assert.match(setCookie, /Secure/i);
+  const cookie = setCookie.split(';')[0];
+  assert.ok(cookie.startsWith('__Host-appiex_admin='));
 
-const adminRequest = request('/admin', { headers: { cookie } });
-assert.equal(await hasValidAdminSession(adminRequest), true, 'Signed admin cookie authenticates');
-r = await middleware(adminRequest);
-assert.equal(r.status, 200, 'Signed session allows dashboard');
-assert.match(r.headers.get('Cache-Control') || '', /no-store/);
+  r = await api('/admin', { headers: { Cookie: cookie } });
+  assert.equal(r.status, 200, 'Signed cookie must authorize browser admin');
+  assert.match(r.headers.get('cache-control') || '', /no-store/i);
 
-r = await GET(request('/api/visitors'));
-assert.equal(r.status, 401, 'Unauthenticated API GET denied');
+  r = await api('/api/visitors');
+  assert.equal(r.status, 401, 'Anonymous visitor API must be denied');
+  r = await api('/api/visitors', { headers: { Cookie: cookie } });
+  assert.equal(r.status, 200, 'Admin browser cookie must allow visitor API GET');
+  assert.match(r.headers.get('cache-control') || '', /no-store/i);
 
-r = await GET(request('/api/visitors', { headers: { cookie } }));
-assert.equal(r.status, 200, 'Authenticated browser can read visitor telemetry');
-assert.match(r.headers.get('Cache-Control') || '', /no-store/);
+  r = await api('/api/visitors', { headers: { 'x-admin-key': TEST_ENV.ADMIN_KEY } });
+  assert.equal(r.status, 200, 'Server private API key must still work');
 
-r = await GET(request('/api/visitors', { headers: { 'x-admin-key': process.env.ADMIN_KEY } }));
-assert.equal(r.status, 200, 'Private server-side API key still works');
+  r = await api('/api/visitors', {
+    method: 'DELETE', headers: { Cookie: cookie, Origin: 'https://evil.example' }
+  });
+  assert.equal(r.status, 401, 'Authenticated cookie cannot delete from foreign origin');
 
-r = await DELETE(request('/api/visitors', {
-  method: 'DELETE',
-  headers: { cookie, origin: 'https://evil.example' }
-}));
-assert.equal(r.status, 401, 'Cookie-authenticated DELETE blocks foreign origins');
+  r = await api('/api/visitors', {
+    method: 'DELETE', headers: { Cookie: cookie, Origin: base }
+  });
+  assert.equal(r.status, 200, 'Authenticated same-origin admin can reset telemetry');
 
-r = await DELETE(request('/api/visitors', {
-  method: 'DELETE',
-  headers: { cookie, origin: 'https://appiex.com' }
-}));
-assert.equal(r.status, 200, 'Cookie-authenticated same-origin DELETE works');
+  const tampered = cookie.slice(0, -1) + (cookie.endsWith('A') ? 'B' : 'A');
+  r = await api('/api/visitors', { headers: { Cookie: tampered } });
+  assert.equal(r.status, 401, 'Tampered admin session must be denied');
 
-r = await GET(request('/api/visitors', {
-  headers: { cookie: cookie.replace(/.$/, cookie.endsWith('A') ? 'B' : 'A') }
-}));
-assert.equal(r.status, 401, 'Tampered cookie is rejected');
-
-delete process.env.ADMIN_KEY;
-r = await middleware(request('/admin'));
-assert.equal(r.status, 503, 'Admin fails closed when key unconfigured');
-assert.equal(await hasValidAdminSession(adminRequest), false, 'Session fails closed without secret');
-console.log('Admin authentication, signed sessions, API access, and cache controls passed.');
+  console.log('PASS: live admin fail-closed, login, signed cookies, protected API, CSRF and caching');
+} finally {
+  await stop(server);
+}
