@@ -500,43 +500,7 @@
 </style>
 
   <!-- Speculation Rules for Instant 0.1s Sub-Second Preloading -->
-  <script type="speculationrules">
-  {
-    "prerender": [
-      {
-        "source": "list",
-        "urls": [
-          "/",
-          "/projects",
-          "/services",
-          "/refer",
-          "/partners",
-          "/case-studies",
-          "/web-development",
-          "/ui-ux-3d-design",
-          "/ai-automation",
-          "/seo-marketing",
-          "/digital-strategy",
-          "/blog",
-          "/login",
-          "/team"
-        ],
-        "eagerness": "immediate"
-      },
-      {
-        "source": "document",
-        "where": {
-          "and": [
-            { "href_matches": "/*" },
-            { "not": { "href_matches": "/admin*" } },
-            { "not": { "href_matches": "/gaming*" } }
-          ]
-        },
-        "eagerness": "moderate"
-      }
-    ]
-  }
-  </script>
+  <!-- Lightweight navigation prefetch runs on user intent via instant-nav.js -->
   <link rel="stylesheet" href="/styles/seo-links.css?v=20261031_restore">
 
   <!-- Buttery Smooth Page Transition Engine (Pre-Paint Curtain Hold + View Transitions) -->
