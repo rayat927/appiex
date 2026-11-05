@@ -3,7 +3,7 @@
 Updated 6 November 2026. This research plan contains 71 **candidate phrases**, not verified top-ranking terms.
 
 ## Scope and constraints
-- The uploaded master CSV contains **600,000 keyword candidates**, many mechanically generated. A complete canonical mapping of all 600,000 rows was prepared as a downloadable compressed CSV for research. **None of those candidates is automatically published on a website page**, because publishing all would be keyword stuffing and create doorway-page risk.
+- The uploaded master CSV contains **600,000 keyword candidates**. A separate 630,000-row workbook contributes **30,000 additional unique candidates**; the other CSV inventories are entirely duplicated within the original 600,000. The complete **630,000 distinct candidates** were exported to a compressed offline keyword library with canonical mapping. **None of those candidates is automatically published on a website page**, because publishing all would be keyword stuffing and create doorway-page risk.
 - This repository file (`seo/2026-11-06-emerging-buyer-keywords.csv`) holds a smaller operational shortlist for commercial, comparative and informational content.
 - No Google Search Console query export, verified Ahrefs/Google Ads keyword volumes, local rank trackers or confirmed conversion values were available. All volumes/difficulty fields remain unmeasured.
 - Existing canonical pages are prioritized over proposed geo/industry duplicates. Country labels mean research targets, not established offices or ranking markets.
