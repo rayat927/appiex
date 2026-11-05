@@ -37,7 +37,19 @@
           }
         }
         if (!mine) return;
-        var payload = JSON.stringify({ record: mine, heartbeat: !!isHeartbeat });
+        // Share only operational page-visit information. Do not transmit
+        // login identities, contact details, or client-submitted PII.
+        var safeRecord = {};
+        [
+          'id', 'visitorUUID', 'sessionUUID', 'page', 'pageTitle',
+          'referrer', 'device', 'browser', 'type', 'isNewOpen',
+          'pageJourney'
+        ].forEach(function(key) {
+          if (Object.prototype.hasOwnProperty.call(mine, key)) {
+            safeRecord[key] = mine[key];
+          }
+        });
+        var payload = JSON.stringify({ record: safeRecord, heartbeat: !!isHeartbeat });
         fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
