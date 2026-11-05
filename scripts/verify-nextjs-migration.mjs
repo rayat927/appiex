@@ -27,11 +27,15 @@ check(/<link rel="canonical" href="https:\/\/appiex\.com\/">/.test(homepage), 'H
 check(homepage.includes('G-DF198MPZGT'), 'GA4 measurement ID is preserved');
 check(!/Planet Jupiter/i.test(homepage), 'Homepage H1 uses business-relevant copy');
 
-for (const file of ['api/visitors.js', 'src/app/api/visitors/route.js']) {
+check(!fs.existsSync(path.join(root, 'api/visitors.js')), 'Legacy API duplicate removed');
+for (const file of ['src/app/api/visitors/route.js']) {
   const source = read(file);
   check(!/ADMIN_KEY\s*=\s*process\.env\.ADMIN_KEY\s*\|\|/.test(source), file + ' fails closed without admin credentials');
   check(!/ntfy\.sh/.test(source), file + ' has no public visitor-data stream');
 }
+const adminHandler = read('src/app/[[...slug]]/route.js');
+check(adminHandler.includes('private, no-store, max-age=0'), 'Admin HTML is never publicly cached');
+check(fs.existsSync(path.join(root, 'src/lib/admin-session.js')), 'Signed admin session implementation exists');
 
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
 check(urls.length > 0, 'Sitemap has URLs');
