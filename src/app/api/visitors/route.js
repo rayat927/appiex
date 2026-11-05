@@ -22,7 +22,15 @@ async function isAuthorizedAdmin(request, requireSameOrigin = false) {
 
   // Mutating cookie-authenticated calls must come from this exact origin.
   const origin = request.headers.get('origin') || '';
-  return origin === new URL(request.url).origin;
+  const requestUrl = new URL(request.url);
+  const requestHost = request.headers.get('host') || requestUrl.host;
+  const protocol = request.headers.get('x-forwarded-proto') ||
+    requestUrl.protocol.replace(':', '');
+  // The Host header represents the browser-visible origin when a platform
+  // internally rewrites request.url (e.g. Next.js behind a reverse proxy).
+  // Cookies are host-only, Secure and SameSite=Strict; cross-origin DELETE
+  // requests are rejected even when a signed cookie is present.
+  return origin === protocol + '://' + requestHost;
 }
 // --- OWASP / CLOUDFLARE SECURITY HARDENING ---
 const rateLimitMap = new Map();
