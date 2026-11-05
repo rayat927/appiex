@@ -1,0 +1,26 @@
+name: Verify live Appiex layouts
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-live-layout.yml'
+      - 'scripts/verify-live-layout.py'
+      - 'styles/tailwind.generated.css'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Check deployed static pages at desktop and mobile sizes
+        run: python scripts/verify-live-layout.py
