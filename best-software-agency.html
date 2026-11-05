@@ -289,14 +289,101 @@
   <link rel="stylesheet" href="/styles/seo-links.css?v=20261031_restore">
 
   <!-- Buttery Smooth Page Transition Engine (Pre-Paint Curtain Hold + View Transitions) -->
-  
+  <script id="appiex-prepaint-curtain-script">
+    (function() {
+      try {
+        if (sessionStorage.getItem('appiex_curtain_active') === '1') {
+          window.__appiexFadeCurtain = true;
+          document.documentElement.classList.add('appiex-page-entering');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style id="appiex-cuberto-curtain-style">
-    @view-transition { navigation: auto; }
-    ::view-transition-old(root) { animation: none !important; }
-    ::view-transition-new(root) { animation: none !important; }
-    #appiex-cuberto-curtain { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+    @view-transition {
+      navigation: auto;
+    }
+    ::view-transition-old(root) {
+      animation: appiexVtFadeOut 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    ::view-transition-new(root) {
+      animation: appiexVtFadeIn 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes appiexVtFadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.992); }
+    }
+    @keyframes appiexVtFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #appiex-cuberto-curtain {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 99999999 !important;
+      background: #030408 !important;
+      background-image: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255, 42, 77, 0.28) 0%, rgba(185, 28, 28, 0.12) 42%, rgba(3, 4, 8, 0.98) 75%, #030408 100%) !important;
+      pointer-events: none !important;
+      display: block !important;
+      opacity: 0;
+      visibility: hidden;
+      transform: translate3d(0, 0, 0);
+      will-change: opacity, visibility;
+      transition: opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.52s;
+    }
+    .appiex-curtain-ambient {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      width: min(90vw, 76rem);
+      height: 36rem;
+      background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(255, 42, 77, 0.34) 0%, rgba(185, 28, 28, 0.15) 42%, transparent 75%);
+      filter: blur(55px);
+      pointer-events: none;
+      opacity: 0.9;
+      transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    html.appiex-page-entering #appiex-cuberto-curtain,
+    #appiex-cuberto-curtain.is-holding {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transition: none !important;
+    }
+    #appiex-cuberto-curtain.is-active {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s !important;
+    }
+    #appiex-cuberto-curtain.is-active .appiex-curtain-ambient {
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+    #appiex-cuberto-curtain.is-fading {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transition: opacity 0.54s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.54s !important;
+    }
+    body.appiex-body-leaving > main,
+    body.appiex-body-leaving > section,
+    body.appiex-body-leaving > article {
+      opacity: 0.25 !important;
+      transform: translate3d(0, -6px, 0) scale(0.994) !important;
+      transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), transform 0.24s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    }
+    body.appiex-body-entering > main,
+    body.appiex-body-entering > section,
+    body.appiex-body-entering > article {
+      animation: appiexMainReveal 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes appiexMainReveal {
+      0% { opacity: 0.01; transform: translate3d(0, 10px, 0); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
   </style>
-  <script src="/scripts/instant-nav.js?v=20261105_0001s" defer></script>
+  <script src="/scripts/instant-nav.js" defer></script>
 
 </head>
 <body class="relative min-h-screen">
@@ -316,10 +403,10 @@
 
       <nav class="rafsan-capsule-nav" aria-label="Main Navigation">
         <a href="/#home" class="rafsan-nav-item">Home</a>
-        <a href="/services" class="rafsan-nav-item">Services</a>
-        <a href="/refer" class="rafsan-nav-item">Refer</a>
-        <a href="/partners" class="rafsan-nav-item">Partnership</a>
-        <a href="/projects" class="rafsan-nav-item">Projects</a>
+        <a href="services.html" class="rafsan-nav-item">Services</a>
+        <a href="refer.html" class="rafsan-nav-item">Refer</a>
+        <a href="partners.html" class="rafsan-nav-item">Partnership</a>
+        <a href="projects.html" class="rafsan-nav-item">Projects</a>
         <a href="/#contact" class="rafsan-nav-item">Contact</a>
       </nav>
 
@@ -484,7 +571,7 @@
           <a href="/#contact" class="px-5 py-2.5 rounded-full bg-[#FF2A4D] hover:bg-red-600 text-white font-semibold text-xs transition-colors">
             Consult With Appiex &rarr;
           </a>
-          <a href="/projects" class="px-5 py-2.5 rounded-full border border-white/20 hover:border-white text-white text-xs transition-colors">
+          <a href="projects.html" class="px-5 py-2.5 rounded-full border border-white/20 hover:border-white text-white text-xs transition-colors">
             View Live Portfolio
           </a>
         </div>
@@ -651,7 +738,7 @@
         <a href="/#contact" class="px-8 py-3.5 rounded-full bg-[#FF2A4D] hover:bg-red-600 text-white font-bold text-sm transition-all duration-300 shadow-lg shadow-red-500/25">
           Book Free Technical Discovery Call
         </a>
-        <a href="/refer" class="px-6 py-3.5 rounded-full border border-white/20 hover:border-white text-white font-medium text-sm transition-colors">
+        <a href="refer.html" class="px-6 py-3.5 rounded-full border border-white/20 hover:border-white text-white font-medium text-sm transition-colors">
           Join Referral Program (Up to 15% USD)
         </a>
       </div>
@@ -675,10 +762,10 @@
         <div>
           <h4 class="text-xs font-bold tracking-[0.18em] uppercase text-slate-400 mb-5 font-mono">SERVICES</h4>
           <ul class="space-y-3 text-sm text-slate-300/80">
-            <li><a href="/web-development" class="hover:text-white transition-colors">Custom Web Development</a></li>
-            <li><a href="/ui-ux-3d-design" class="hover:text-white transition-colors">3D Spatial &amp; WebGL</a></li>
-            <li><a href="/ai-automation" class="hover:text-white transition-colors">AI Workflow Automation</a></li>
-            <li><a href="/seo-marketing" class="hover:text-white transition-colors">Technical SEO &amp; GEO</a></li>
+            <li><a href="web-development.html" class="hover:text-white transition-colors">Custom Web Development</a></li>
+            <li><a href="ui-ux-3d-design.html" class="hover:text-white transition-colors">3D Spatial &amp; WebGL</a></li>
+            <li><a href="ai-automation.html" class="hover:text-white transition-colors">AI Workflow Automation</a></li>
+            <li><a href="seo-marketing.html" class="hover:text-white transition-colors">Technical SEO &amp; GEO</a></li>
           </ul>
         </div>
         <div>
@@ -686,16 +773,16 @@
           <ul class="space-y-3 text-sm text-slate-300/80">
             <li><a href="/#home" class="hover:text-white transition-colors">About Appiex</a></li>
             <li><a href="/best-software-agency" class="hover:text-white transition-colors text-[#FF2A4D]" aria-current="page">Software Companies Comparison</a></li>
-            <li><a href="/refer" class="hover:text-white transition-colors">Referral Partner Program</a></li>
-            <li><a href="/partners" class="hover:text-white transition-colors">Agency Partnerships</a></li>
+            <li><a href="refer.html" class="hover:text-white transition-colors">Referral Partner Program</a></li>
+            <li><a href="partners.html" class="hover:text-white transition-colors">Agency Partnerships</a></li>
           </ul>
         </div>
         <div>
           <h4 class="text-xs font-bold tracking-[0.18em] uppercase text-slate-400 mb-5 font-mono">RESOURCES</h4>
           <ul class="space-y-3 text-sm text-slate-300/80">
-            <li><a href="/case-studies" class="hover:text-white transition-colors">Watch24 BD Case Study</a></li>
-            <li><a href="/projects" class="hover:text-white transition-colors">Live Client Projects</a></li>
-            <li><a href="/team" class="hover:text-white transition-colors">Core Leadership Team</a></li>
+            <li><a href="case-studies.html" class="hover:text-white transition-colors">Watch24 BD Case Study</a></li>
+            <li><a href="projects.html" class="hover:text-white transition-colors">Live Client Projects</a></li>
+            <li><a href="team.html" class="hover:text-white transition-colors">Core Leadership Team</a></li>
             <li><a href="llms.txt" class="hover:text-white transition-colors">LLMs &amp; AI Entity Data</a></li>
           </ul>
         </div>

@@ -398,14 +398,101 @@
 </style>
 
   <!-- Buttery Smooth Page Transition Engine (Pre-Paint Curtain Hold + View Transitions) -->
-  
+  <script id="appiex-prepaint-curtain-script">
+    (function() {
+      try {
+        if (sessionStorage.getItem('appiex_curtain_active') === '1') {
+          window.__appiexFadeCurtain = true;
+          document.documentElement.classList.add('appiex-page-entering');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style id="appiex-cuberto-curtain-style">
-    @view-transition { navigation: auto; }
-    ::view-transition-old(root) { animation: none !important; }
-    ::view-transition-new(root) { animation: none !important; }
-    #appiex-cuberto-curtain { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+    @view-transition {
+      navigation: auto;
+    }
+    ::view-transition-old(root) {
+      animation: appiexVtFadeOut 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    ::view-transition-new(root) {
+      animation: appiexVtFadeIn 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes appiexVtFadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.992); }
+    }
+    @keyframes appiexVtFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #appiex-cuberto-curtain {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 99999999 !important;
+      background: #030408 !important;
+      background-image: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255, 42, 77, 0.28) 0%, rgba(185, 28, 28, 0.12) 42%, rgba(3, 4, 8, 0.98) 75%, #030408 100%) !important;
+      pointer-events: none !important;
+      display: block !important;
+      opacity: 0;
+      visibility: hidden;
+      transform: translate3d(0, 0, 0);
+      will-change: opacity, visibility;
+      transition: opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.52s;
+    }
+    .appiex-curtain-ambient {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      width: min(90vw, 76rem);
+      height: 36rem;
+      background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(255, 42, 77, 0.34) 0%, rgba(185, 28, 28, 0.15) 42%, transparent 75%);
+      filter: blur(55px);
+      pointer-events: none;
+      opacity: 0.9;
+      transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    html.appiex-page-entering #appiex-cuberto-curtain,
+    #appiex-cuberto-curtain.is-holding {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transition: none !important;
+    }
+    #appiex-cuberto-curtain.is-active {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s !important;
+    }
+    #appiex-cuberto-curtain.is-active .appiex-curtain-ambient {
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+    #appiex-cuberto-curtain.is-fading {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transition: opacity 0.54s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.54s !important;
+    }
+    body.appiex-body-leaving > main,
+    body.appiex-body-leaving > section,
+    body.appiex-body-leaving > article {
+      opacity: 0.25 !important;
+      transform: translate3d(0, -6px, 0) scale(0.994) !important;
+      transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), transform 0.24s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    }
+    body.appiex-body-entering > main,
+    body.appiex-body-entering > section,
+    body.appiex-body-entering > article {
+      animation: appiexMainReveal 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes appiexMainReveal {
+      0% { opacity: 0.01; transform: translate3d(0, 10px, 0); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
   </style>
-  <script src="/scripts/instant-nav.js?v=20261105_0001s" defer></script>
+  <script src="/scripts/instant-nav.js" defer></script>
 
 
 <script>
@@ -467,34 +554,34 @@
     <div class="rafsan-nav-container">
       
       <!-- 1. Brand Logo (Left) -->
-      <a href="/#home" class="rafsan-brand" aria-label="Appiex">
-        <img src="./images/appiex-logo.png" alt="APPIEX" class="brand-logo-img" loading="lazy" decoding="async">
+      <a href="index.html#home" class="rafsan-brand" aria-label="Appiex">
+        <img src="./images/appiex-logo.png" alt="APPIEX" class="brand-logo-img">
         <span class="rafsan-brand-bold">Appiex</span>
       </a>
 
       <!-- 2. Floating Capsule Navbar (Center) -->
       <nav class="rafsan-capsule-nav" aria-label="Main Navigation">
         <div class="rafsan-capsule-pill" id="rafsan-capsule-pill"></div>
-        <a href="/#home" class="rafsan-nav-item" data-section="home">Home</a>
-        <a href="/#services" class="rafsan-nav-item" data-section="services">Services</a>
-        <a href="/#refer" class="rafsan-nav-item" data-section="refer">Refer</a>
-        <a href="/partners" class="rafsan-nav-item" data-section="partners">Partnership</a>
-        <a href="/#projects" class="rafsan-nav-item active" data-section="projects">Projects</a>
-        <a href="/#contact" class="rafsan-nav-item" data-section="contact">Contact</a>
+        <a href="index.html#home" class="rafsan-nav-item" data-section="home">Home</a>
+        <a href="index.html#services" class="rafsan-nav-item" data-section="services">Services</a>
+        <a href="index.html#refer" class="rafsan-nav-item" data-section="refer">Refer</a>
+        <a href="partners.html" class="rafsan-nav-item" data-section="partners">Partnership</a>
+        <a href="index.html#projects" class="rafsan-nav-item active" data-section="projects">Projects</a>
+        <a href="index.html#contact" class="rafsan-nav-item" data-section="contact">Contact</a>
       </nav>
 
       <!-- 3. Action Buttons (Right) -->
       <div class="rafsan-nav-actions">
         <!-- GitHub Icon -->
-        <a href="/blog" class="rafsan-blog-btn" aria-label="Blog">Blog</a>
+        <a href="blog.html" class="rafsan-blog-btn" aria-label="Blog">Blog</a>
         
         <!-- Hire Us Button -->
-        <a href="/login" class="rafsan-hire-btn" id="nav-login-btn">Login</a>
+        <a href="login.html" class="rafsan-hire-btn" id="nav-login-btn">Login</a>
       </div>
 
       <!-- 4. Mobile Hamburger -->
       <div class="rafsan-mobile-wrap">
-        <a href="/login" class="rafsan-hire-btn" id="mobile-wrap-login-btn">Login</a>
+        <a href="login.html" class="rafsan-hire-btn" id="mobile-wrap-login-btn">Login</a>
         <button type="button" class="rafsan-mobile-toggle" id="rafsan-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16" />
@@ -605,7 +692,7 @@
                   </svg>
                 </a>
                 <a
-                  href="/case-studies#watch24"
+                  href="case-studies.html#watch24"
                   class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                 >
                   <span>Case Study</span>
@@ -627,10 +714,10 @@
           <!-- Right Column (Image Mockup) -->
           <div class="lg:col-span-6 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black/60 flex items-center justify-center p-2 group">
             <img
-              src="./images/watch24bd.webp"
+              src="./images/watch24bd.jpg"
               alt="Watch24 BD"
               class="w-full aspect-[16/9] object-contain group-hover:scale-[1.03] transition-transform duration-500"
-            / loading="lazy" decoding="async">
+            />
           </div>
         </div>
       </article>
@@ -702,7 +789,7 @@
                   </svg>
                 </a>
                 <a
-                  href="/case-studies#timedune"
+                  href="case-studies.html#timedune"
                   class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                 >
                   <span>Case Study</span>
@@ -724,10 +811,10 @@
           <!-- Right Column (Image Mockup) -->
           <div class="lg:col-span-6 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black/60 flex items-center justify-center p-2 group">
             <img
-              src="./images/timedune.webp"
+              src="./images/timedune.jpg"
               alt="TimeDune Commerce"
               class="w-full aspect-[16/9] object-contain group-hover:scale-[1.03] transition-transform duration-500"
-            / loading="lazy" decoding="async">
+            />
           </div>
         </div>
       </article>
@@ -799,7 +886,7 @@
                   </svg>
                 </a>
                 <a
-                  href="/case-studies#mamunwifi"
+                  href="case-studies.html#mamunwifi"
                   class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                 >
                   <span>Case Study</span>
@@ -821,10 +908,10 @@
           <!-- Right Column (Image Mockup) -->
           <div class="lg:col-span-6 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black/60 flex items-center justify-center p-2 group">
             <img
-              src="./images/mamun-wifi.webp"
+              src="./images/mamun-wifi.jpg"
               alt="Mamun WiFi Portal"
               class="w-full aspect-[16/9] object-contain group-hover:scale-[1.03] transition-transform duration-500"
-            / loading="lazy" decoding="async">
+            />
           </div>
         </div>
       </article>
@@ -896,7 +983,7 @@
                   </svg>
                 </a>
                 <a
-                  href="/case-studies#timedune"
+                  href="case-studies.html#timedune"
                   class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                 >
                   <span>Case Study</span>
@@ -918,10 +1005,10 @@
           <!-- Right Column (Image Mockup) -->
           <div class="lg:col-span-6 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black/60 flex items-center justify-center p-2 group">
             <img
-              src="./images/libas-nafs.webp"
+              src="./images/libas-nafs.jpg"
               alt="Libas-e-Nafs Couture"
               class="w-full aspect-[16/9] object-contain group-hover:scale-[1.03] transition-transform duration-500"
-            / loading="lazy" decoding="async">
+            />
           </div>
         </div>
       </article>
@@ -993,7 +1080,7 @@
                   </svg>
                 </a>
                 <a
-                  href="/case-studies#watchshopbd"
+                  href="case-studies.html#watchshopbd"
                   class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                 >
                   <span>Case Study</span>
@@ -1015,10 +1102,10 @@
           <!-- Right Column (Image Mockup) -->
           <div class="lg:col-span-6 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black/60 flex items-center justify-center p-2 group">
             <img
-              src="./images/ghorerbazar.webp"
+              src="./images/ghorerbazar.jpg"
               alt="Ghorer Bazar Market"
               class="w-full aspect-[16/9] object-contain group-hover:scale-[1.03] transition-transform duration-500"
-            / loading="lazy" decoding="async">
+            />
           </div>
         </div>
       </article>
@@ -1090,7 +1177,7 @@
                   </svg>
                 </a>
                 <a
-                  href="/case-studies#watchshopbd"
+                  href="case-studies.html#watchshopbd"
                   class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                 >
                   <span>Case Study</span>
@@ -1112,10 +1199,10 @@
           <!-- Right Column (Image Mockup) -->
           <div class="lg:col-span-6 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black/60 flex items-center justify-center p-2 group">
             <img
-              src="./images/product_watchshopbd.webp"
+              src="./images/product_watchshopbd.png"
               alt="WatchShopBD Horology"
               class="w-full aspect-[16/9] object-contain group-hover:scale-[1.03] transition-transform duration-500"
-            / loading="lazy" decoding="async">
+            />
           </div>
         </div>
       </article>
@@ -1187,7 +1274,7 @@
                   </svg>
                 </a>
                 <a
-                  href="/case-studies#nexuspay"
+                  href="case-studies.html#nexuspay"
                   class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                 >
                   <span>Case Study</span>
@@ -1209,10 +1296,10 @@
           <!-- Right Column (Image Mockup) -->
           <div class="lg:col-span-6 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black/60 flex items-center justify-center p-2 group">
             <img
-              src="./images/acc_security_shield.webp"
+              src="./images/acc_security_shield.png"
               alt="NexusPay Edge FinTech"
               class="w-full aspect-[16/9] object-contain group-hover:scale-[1.03] transition-transform duration-500"
-            / loading="lazy" decoding="async">
+            />
           </div>
         </div>
       </article>
@@ -1284,7 +1371,7 @@
                   </svg>
                 </a>
                 <a
-                  href="/case-studies#pulse-ai"
+                  href="case-studies.html#pulse-ai"
                   class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                 >
                   <span>Case Study</span>
@@ -1306,10 +1393,10 @@
           <!-- Right Column (Image Mockup) -->
           <div class="lg:col-span-6 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black/60 flex items-center justify-center p-2 group">
             <img
-              src="./images/acc_cloud_turbo.webp"
+              src="./images/acc_cloud_turbo.png"
               alt="Pulse Cloud AI Assistant"
               class="w-full aspect-[16/9] object-contain group-hover:scale-[1.03] transition-transform duration-500"
-            / loading="lazy" decoding="async">
+            />
           </div>
         </div>
       </article>
@@ -1381,7 +1468,7 @@
                   </svg>
                 </a>
                 <a
-                  href="/case-studies#cyberguard"
+                  href="case-studies.html#cyberguard"
                   class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                 >
                   <span>Case Study</span>
@@ -1403,10 +1490,10 @@
           <!-- Right Column (Image Mockup) -->
           <div class="lg:col-span-6 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black/60 flex items-center justify-center p-2 group">
             <img
-              src="./images/acc_ui_kit.webp"
+              src="./images/acc_ui_kit.png"
               alt="CyberGuard SOC Dashboard"
               class="w-full aspect-[16/9] object-contain group-hover:scale-[1.03] transition-transform duration-500"
-            / loading="lazy" decoding="async">
+            />
           </div>
         </div>
       </article>
@@ -1478,7 +1565,7 @@
                   </svg>
                 </a>
                 <a
-                  href="/case-studies#apexrealty"
+                  href="case-studies.html#apexrealty"
                   class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                 >
                   <span>Case Study</span>
@@ -1500,10 +1587,10 @@
           <!-- Right Column (Image Mockup) -->
           <div class="lg:col-span-6 relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black/60 flex items-center justify-center p-2 group">
             <img
-              src="./images/product_timedune.webp"
+              src="./images/product_timedune.png"
               alt="ApexRealty Spatial Estates"
               class="w-full aspect-[16/9] object-contain group-hover:scale-[1.03] transition-transform duration-500"
-            / loading="lazy" decoding="async">
+            />
           </div>
         </div>
       </article>
@@ -1523,7 +1610,7 @@
             <span>WHATSAPP ARCHITECT HOTLINE</span>
             <span>↗</span>
           </a>
-          <a href="/case-studies" class="w-full sm:w-auto px-7 py-3.5 rounded-full border border-white/20 hover:border-white text-white font-bold text-xs tracking-wider uppercase transition-all">
+          <a href="case-studies.html" class="w-full sm:w-auto px-7 py-3.5 rounded-full border border-white/20 hover:border-white text-white font-bold text-xs tracking-wider uppercase transition-all">
             EXPLORE CASE STUDIES
           </a>
         </div>
@@ -1536,15 +1623,15 @@
   <footer class="relative z-10 border-t border-white/10 bg-black/60 backdrop-blur-xl mt-auto py-12 px-4 sm:px-6">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-400">
       <div class="flex items-center gap-4">
-        <a href="/" class="appiex-brand">
-          <img src="./images/appiex-logo.png" alt="APPIEX" class="h-8" loading="lazy" decoding="async">
+        <a href="index.html" class="appiex-brand">
+          <img src="./images/appiex-logo.png" alt="APPIEX" class="h-8">
         </a>
         <span>© 2026 APPIEX Systems. All rights reserved.</span>
       </div>
       <div class="flex items-center gap-6 font-mono text-[11px]">
-        <a href="/" class="hover:text-white transition-colors">HOME</a>
-        <a href="/collections" class="hover:text-white transition-colors text-red-400">COLLECTIONS</a>
-        <a href="/case-studies" class="hover:text-white transition-colors">CASE STUDIES</a>
+        <a href="index.html" class="hover:text-white transition-colors">HOME</a>
+        <a href="collections.html" class="hover:text-white transition-colors text-red-400">COLLECTIONS</a>
+        <a href="case-studies.html" class="hover:text-white transition-colors">CASE STUDIES</a>
         <a href="https://wa.me/8801917354847" target="_blank" class="hover:text-emerald-400 transition-colors">DIRECT HOTLINE: 01917-354847</a>
       </div>
     </div>
@@ -1622,7 +1709,8 @@
       if (typeof Lenis !== 'undefined' && !window.lenis) {
         // Smooth Lenis initialized with syncTouch: false for silky momentum
       const isTouch = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || ('ontouchstart' in window);
-    const lenis = (window.innerWidth <= 1024 || ("ontouchstart" in window)) ? null : new Lenis({ duration: 0.75,
+    const lenis = new Lenis({
+      duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       smoothWheel: true,
@@ -1654,7 +1742,7 @@
 
           function transformToProfileCircle(el) {
             if (!el) return;
-            el.href = '/profile';
+            el.href = 'profile.html';
             el.title = userName + ' - Profile';
             el.setAttribute('aria-label', userName + ' Profile');
             el.innerText = '';
@@ -1735,7 +1823,7 @@
       </div>
 
       <nav class="cyber-nav-list">
-        <a href="/" class="cyber-nav-item active" data-section="home">
+        <a href="/index.html" class="cyber-nav-item active" data-section="home">
           HOME
           <span class="badge-page">PAGE&#10;001</span>
         </a>
@@ -1759,11 +1847,11 @@
           </div>
         </div>
 
-        <a href="/refer" class="cyber-nav-item" data-section="refer">REFER</a>
-        <a href="/partners" class="cyber-nav-item" data-section="partners">PARTNERSHIP</a>
-        <a href="/projects" class="cyber-nav-item" data-section="projects">PROJECTS</a>
-        <a href="/#contact" class="cyber-nav-item" data-section="contact">CONTACT</a>
-        <a href="/team" class="cyber-nav-item">ABOUT</a>
+        <a href="/refer.html" class="cyber-nav-item" data-section="refer">REFER</a>
+        <a href="/partners.html" class="cyber-nav-item" data-section="partners">PARTNERSHIP</a>
+        <a href="/projects.html" class="cyber-nav-item" data-section="projects">PROJECTS</a>
+        <a href="/index.html#contact" class="cyber-nav-item" data-section="contact">CONTACT</a>
+        <a href="/team.html" class="cyber-nav-item">ABOUT</a>
       </nav>
 
       <div class="cyber-meta-section">
@@ -1784,8 +1872,8 @@
           <span>ACTIONS</span>
         </div>
         <div class="cyber-meta-content">
-          <a href="/login">LOGIN</a>
-          <a href="/#contact">BOOK A MEETING</a>
+          <a href="/login.html">LOGIN</a>
+          <a href="/index.html#contact">BOOK A MEETING</a>
         </div>
       </div>
 

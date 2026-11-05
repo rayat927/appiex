@@ -34,14 +34,101 @@
   <script src="/scripts/visitor-tracker.js?v=20261029_v5" defer></script>
 
   <!-- Buttery Smooth Page Transition Engine (Pre-Paint Curtain Hold + View Transitions) -->
-  
+  <script id="appiex-prepaint-curtain-script">
+    (function() {
+      try {
+        if (sessionStorage.getItem('appiex_curtain_active') === '1') {
+          window.__appiexFadeCurtain = true;
+          document.documentElement.classList.add('appiex-page-entering');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style id="appiex-cuberto-curtain-style">
-    @view-transition { navigation: auto; }
-    ::view-transition-old(root) { animation: none !important; }
-    ::view-transition-new(root) { animation: none !important; }
-    #appiex-cuberto-curtain { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+    @view-transition {
+      navigation: auto;
+    }
+    ::view-transition-old(root) {
+      animation: appiexVtFadeOut 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    ::view-transition-new(root) {
+      animation: appiexVtFadeIn 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes appiexVtFadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.992); }
+    }
+    @keyframes appiexVtFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #appiex-cuberto-curtain {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 99999999 !important;
+      background: #030408 !important;
+      background-image: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255, 42, 77, 0.28) 0%, rgba(185, 28, 28, 0.12) 42%, rgba(3, 4, 8, 0.98) 75%, #030408 100%) !important;
+      pointer-events: none !important;
+      display: block !important;
+      opacity: 0;
+      visibility: hidden;
+      transform: translate3d(0, 0, 0);
+      will-change: opacity, visibility;
+      transition: opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.52s;
+    }
+    .appiex-curtain-ambient {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      width: min(90vw, 76rem);
+      height: 36rem;
+      background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(255, 42, 77, 0.34) 0%, rgba(185, 28, 28, 0.15) 42%, transparent 75%);
+      filter: blur(55px);
+      pointer-events: none;
+      opacity: 0.9;
+      transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    html.appiex-page-entering #appiex-cuberto-curtain,
+    #appiex-cuberto-curtain.is-holding {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transition: none !important;
+    }
+    #appiex-cuberto-curtain.is-active {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s !important;
+    }
+    #appiex-cuberto-curtain.is-active .appiex-curtain-ambient {
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+    #appiex-cuberto-curtain.is-fading {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transition: opacity 0.54s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.54s !important;
+    }
+    body.appiex-body-leaving > main,
+    body.appiex-body-leaving > section,
+    body.appiex-body-leaving > article {
+      opacity: 0.25 !important;
+      transform: translate3d(0, -6px, 0) scale(0.994) !important;
+      transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), transform 0.24s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    }
+    body.appiex-body-entering > main,
+    body.appiex-body-entering > section,
+    body.appiex-body-entering > article {
+      animation: appiexMainReveal 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes appiexMainReveal {
+      0% { opacity: 0.01; transform: translate3d(0, 10px, 0); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
   </style>
-  <script src="/scripts/instant-nav.js?v=20261105_0001s" defer></script>
+  <script src="/scripts/instant-nav.js" defer></script>
 
 </head>
 <body class="bg-[#030408] text-slate-100 font-['Montserrat',sans-serif] min-h-screen selection:bg-rose-600 selection:text-white">
@@ -50,17 +137,17 @@
   <!-- Top Navigation -->
   <header class="w-full border-b border-white/10 bg-[#05070e]/90 backdrop-blur-xl sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-      <a href="/"><img src="/images/appiex-wordmark-white.png" alt="Appiex" class="h-7"></a>
+      <a href="/index.html"><img src="/images/appiex-wordmark-white.png" alt="Appiex" class="h-7"></a>
       <nav class="hidden md:flex items-center gap-2 text-xs font-bold">
-        <a href="/blog" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">All 6 Ecosystems</a>
-        <a href="/blog/digital-strategy" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">Digital Strategy</a>
-        <a href="/blog/web-development" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">Web Development</a>
-        <a href="/blog/ui-ux-3d-design" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">UI/UX &amp; 3D</a>
-        <a href="/blog/ai-automation" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">AI Automation</a>
-        <a href="/blog/seo-marketing" class="px-3.5 py-1.5 rounded-full bg-[#FF2A4D] text-white">SEO &amp; Marketing</a>
-        <a href="/blog/gaming-3d-worlds" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">Gaming &amp; 3D</a>
+        <a href="/blog.html" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">All 6 Ecosystems</a>
+        <a href="/blog/digital-strategy/index.html" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">Digital Strategy</a>
+        <a href="/blog/web-development/index.html" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">Web Development</a>
+        <a href="/blog/ui-ux-3d-design/index.html" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">UI/UX &amp; 3D</a>
+        <a href="/blog/ai-automation/index.html" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">AI Automation</a>
+        <a href="/blog/seo-marketing/index.html" class="px-3.5 py-1.5 rounded-full bg-[#FF2A4D] text-white">SEO &amp; Marketing</a>
+        <a href="/blog/gaming-3d-worlds/index.html" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-slate-300">Gaming &amp; 3D</a>
       </nav>
-      <a href="/seo-marketing" class="px-4 py-2 rounded-full bg-[#FF2A4D] text-white text-xs font-extrabold shadow-lg shadow-rose-600/30">
+      <a href="/seo-marketing.html" class="px-4 py-2 rounded-full bg-[#FF2A4D] text-white text-xs font-extrabold shadow-lg shadow-rose-600/30">
         Explore Service &rarr;
       </a>
     </div>
@@ -70,8 +157,8 @@
 
     <!-- Breadcrumb -->
     <nav aria-label="Breadcrumb" class="text-xs text-slate-400 flex items-center gap-2">
-      <a href="/" class="hover:text-white">Home</a> <span>/</span>
-      <a href="/blog" class="hover:text-white">Blog</a> <span>/</span>
+      <a href="/index.html" class="hover:text-white">Home</a> <span>/</span>
+      <a href="/blog.html" class="hover:text-white">Blog</a> <span>/</span>
       <span class="text-rose-400 font-bold">SEO &amp; Growth Engineering Insights</span>
     </nav>
 
@@ -89,8 +176,8 @@
       <p class="text-base md:text-lg text-slate-300 max-w-4xl leading-relaxed">Original data studies, Next.js/JavaScript technical SEO checklists, topic cluster blueprints, and foundational Google Search + AI Overviews optimization strategies.</p>
 
       <div class="pt-2 flex flex-wrap items-center gap-6 text-xs text-slate-300 border-t border-white/10">
-        <div>Lead Author: <a href="/authors/tanvir-rahman" class="text-white font-bold underline hover:text-rose-400">Tanvir Rahman</a></div>
-        <div>Technical Reviewer: <a href="/authors/adil-alim" class="text-white font-bold underline hover:text-rose-400">Adil Alim</a></div>
+        <div>Lead Author: <a href="/authors/tanvir-rahman.html" class="text-white font-bold underline hover:text-rose-400">Tanvir Rahman</a></div>
+        <div>Technical Reviewer: <a href="/authors/adil-alim.html" class="text-white font-bold underline hover:text-rose-400">Adil Alim</a></div>
         <div>Published Guides in Cluster: <strong class="text-emerald-400">5 Articles</strong></div>
       </div>
     </section>
@@ -105,7 +192,7 @@
         </div>
         <div class="pt-3 flex items-center justify-between border-t border-white/10">
           <span class="text-xs text-slate-400">Updated Oct 2026</span>
-          <a href="/blog/technical-seo-checklist-for-business-websites" class="px-4 py-2 rounded-full bg-[#FF2A4D] text-white text-xs font-bold">Read Pillar Guide &rarr;</a>
+          <a href="/blog/technical-seo-checklist-for-business-websites.html" class="px-4 py-2 rounded-full bg-[#FF2A4D] text-white text-xs font-bold">Read Pillar Guide &rarr;</a>
         </div>
       </div>
 
@@ -117,7 +204,7 @@
         </div>
         <div class="pt-3 flex items-center justify-between border-t border-white/10">
           <span class="text-xs text-emerald-400 font-bold">Non-Commodity Original Study</span>
-          <a href="/blog/we-audited-100-software-agency-websites-seo-problems" class="px-4 py-2 rounded-full bg-emerald-500 text-slate-950 text-xs font-extrabold">Explore Research Data &rarr;</a>
+          <a href="/blog/we-audited-100-software-agency-websites-seo-problems.html" class="px-4 py-2 rounded-full bg-emerald-500 text-slate-950 text-xs font-extrabold">Explore Research Data &rarr;</a>
         </div>
       </div>
     </section>
@@ -235,11 +322,11 @@
     <section class="space-y-6">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl md:text-3xl font-extrabold text-white">All Guides &amp; Case Studies in SEO &amp; Growth Engineering Insights (5)</h2>
-        <a href="/blog" class="text-xs font-bold text-rose-400 hover:underline">View All 65 Articles &rarr;</a>
+        <a href="/blog.html" class="text-xs font-bold text-rose-400 hover:underline">View All 65 Articles &rarr;</a>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
-          <a href="/blog/we-audited-100-software-agency-websites-seo-problems" class="group p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/50 transition flex flex-col justify-between">
+          <a href="/blog/we-audited-100-software-agency-websites-seo-problems.html" class="group p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/50 transition flex flex-col justify-between">
             <div>
               <div class="overflow-hidden rounded-xl mb-4 border border-white/10 aspect-video bg-slate-900">
                 <img src="/images/blog/01766875a3310148382f688ac5efc17b_312689010f_ZGbqSe.webp" alt="We Audited 100 Software Agency Websites — Here Are the Most Common SEO Problems" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
@@ -256,7 +343,7 @@
             </div>
           </a>
         
-          <a href="/blog/common-website-seo-mistakes-businesses-make" class="group p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/50 transition flex flex-col justify-between">
+          <a href="/blog/common-website-seo-mistakes-businesses-make.html" class="group p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/50 transition flex flex-col justify-between">
             <div>
               <div class="overflow-hidden rounded-xl mb-4 border border-white/10 aspect-video bg-slate-900">
                 <img src="/images/blog/article_5_1_49e6aa2703_i2smm.webp" alt="Common Website SEO Mistakes Businesses Make (And How to Fix Them)" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
@@ -273,7 +360,7 @@
             </div>
           </a>
         
-          <a href="/blog/technical-seo-checklist-for-business-websites" class="group p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/50 transition flex flex-col justify-between">
+          <a href="/blog/technical-seo-checklist-for-business-websites.html" class="group p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/50 transition flex flex-col justify-between">
             <div>
               <div class="overflow-hidden rounded-xl mb-4 border border-white/10 aspect-video bg-slate-900">
                 <img src="/images/blog/01766875a3310148382f688ac5efc17b_312689010f_ZGbqSe.webp" alt="Technical SEO Checklist for Business Websites: Core Web Vitals, Schema &amp; Crawlability" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
@@ -290,7 +377,7 @@
             </div>
           </a>
         
-          <a href="/blog/best-ui-ux-design-agencies-in-the-usa-2026" class="group p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/50 transition flex flex-col justify-between">
+          <a href="/blog/best-ui-ux-design-agencies-in-the-usa-2026.html" class="group p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/50 transition flex flex-col justify-between">
             <div>
               <div class="overflow-hidden rounded-xl mb-4 border border-white/10 aspect-video bg-slate-900">
                 <img src="/images/blog/article_5_1_49e6aa2703_i2smm.webp" alt="Best UI/UX Design Agencies in the USA (2026)" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
@@ -307,7 +394,7 @@
             </div>
           </a>
         
-          <a href="/blog/how-prepare-your-design-portfolio-behance" class="group p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/50 transition flex flex-col justify-between">
+          <a href="/blog/how-prepare-your-design-portfolio-behance.html" class="group p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-rose-500/50 transition flex flex-col justify-between">
             <div>
               <div class="overflow-hidden rounded-xl mb-4 border border-white/10 aspect-video bg-slate-900">
                 <img src="/images/blog/01766875a3310148382f688ac5efc17b_312689010f_ZGbqSe.webp" alt="How to Prepare Your Design Portfolio on Behance" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
@@ -335,8 +422,8 @@
         <p class="text-xs text-slate-300">Typical Investment: $1,500 – $6,500 • Sprint Delivery: 4-Week Technical Sprint + Ongoing Growth • 100% IP Ownership</p>
       </div>
       <div class="flex flex-wrap gap-3">
-        <a href="/seo-marketing" class="px-6 py-3 rounded-full bg-[#FF2A4D] text-white text-xs font-extrabold">Appiex Technical SEO, Topic Clusters &amp; Conversion Engineering &rarr;</a>
-        <a href="/case-studies" class="px-6 py-3 rounded-full bg-white/10 text-white text-xs font-bold">Verified Case Studies</a>
+        <a href="/seo-marketing.html" class="px-6 py-3 rounded-full bg-[#FF2A4D] text-white text-xs font-extrabold">Appiex Technical SEO, Topic Clusters &amp; Conversion Engineering &rarr;</a>
+        <a href="/case-studies.html" class="px-6 py-3 rounded-full bg-white/10 text-white text-xs font-bold">Verified Case Studies</a>
       </div>
     </section>
 

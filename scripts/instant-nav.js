@@ -41,7 +41,7 @@
   };
 
 
-  // 1. Ensure 0.001s Instant View Transitions & Zero-Blocking Curtain Styles
+  // 1. Ensure Curtain DOM & Buttery GPU Styles Exist on Every Page
   function ensureCurtainAndStyles() {
     if (!document.getElementById('appiex-cuberto-curtain-style')) {
       const style = document.createElement('style');
@@ -51,81 +51,149 @@
           navigation: auto;
         }
         ::view-transition-old(root) {
-          animation: appiexVtFadeOut 0.04s ease-out both !important;
+          animation: appiexVtFadeOut 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
         ::view-transition-new(root) {
-          animation: appiexVtFadeIn 0.06s ease-out both !important;
+          animation: appiexVtFadeIn 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         @keyframes appiexVtFadeOut {
-          from { opacity: 1; }
-          to { opacity: 0; }
+          from { opacity: 1; transform: scale(1); }
+          to { opacity: 0; transform: scale(0.992); }
         }
         @keyframes appiexVtFadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
-        #appiex-cuberto-curtain,
-        html.appiex-page-entering #appiex-cuberto-curtain,
-        #appiex-cuberto-curtain.is-holding,
-        #appiex-cuberto-curtain.is-active,
-        #appiex-cuberto-curtain.is-fading {
-          display: none !important;
-          opacity: 0 !important;
-          visibility: hidden !important;
+        #appiex-cuberto-curtain {
+          position: fixed !important;
+          inset: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          z-index: 99999999 !important;
+          background: #030408 !important;
+          background-image: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255, 42, 77, 0.28) 0%, rgba(185, 28, 28, 0.12) 42%, rgba(3, 4, 8, 0.98) 75%, #030408 100%) !important;
           pointer-events: none !important;
+          display: block !important;
+          opacity: 0;
+          visibility: hidden;
+          transform: translate3d(0, 0, 0);
+          will-change: opacity, visibility;
+          transition: opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.52s;
+        }
+        .appiex-curtain-ambient {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) scale(1);
+          width: min(90vw, 76rem);
+          height: 36rem;
+          background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(255, 42, 77, 0.34) 0%, rgba(185, 28, 28, 0.15) 42%, transparent 75%);
+          filter: blur(55px);
+          pointer-events: none;
+          opacity: 0.9;
+          transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        /* Instant hold before paint when arriving from a link click */
+        html.appiex-page-entering #appiex-cuberto-curtain,
+        #appiex-cuberto-curtain.is-holding {
+          opacity: 1 !important;
+          visibility: visible !important;
           transition: none !important;
         }
+        /* Outgoing fade-out when leaving current page */
+        #appiex-cuberto-curtain.is-active {
+          opacity: 1 !important;
+          visibility: visible !important;
+          transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s !important;
+        }
+        #appiex-cuberto-curtain.is-active .appiex-curtain-ambient {
+          transform: translate(-50%, -50%) scale(1.06);
+        }
+        /* Incoming buttery fade-out reveal on new page */
+        #appiex-cuberto-curtain.is-fading {
+          opacity: 0 !important;
+          visibility: hidden !important;
+          transition: opacity 0.54s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.54s !important;
+        }
+        /* Subtle page body motion during transition */
         body.appiex-body-leaving > main,
         body.appiex-body-leaving > section,
-        body.appiex-body-leaving > article,
+        body.appiex-body-leaving > article {
+          opacity: 0.25 !important;
+          transform: translate3d(0, -6px, 0) scale(0.994) !important;
+          transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), transform 0.24s cubic-bezier(0.22, 1, 0.36, 1) !important;
+        }
         body.appiex-body-entering > main,
         body.appiex-body-entering > section,
         body.appiex-body-entering > article {
-          opacity: 1 !important;
-          transform: none !important;
-          animation: none !important;
-          transition: none !important;
+          animation: appiexMainReveal 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes appiexMainReveal {
+          0% { opacity: 0.01; transform: translate3d(0, 10px, 0); }
+          100% { opacity: 1; transform: translate3d(0, 0, 0); }
         }
       `;
       document.head.appendChild(style);
-    } else {
-      const existing = document.getElementById('appiex-cuberto-curtain-style');
-      existing.textContent = `
-        @view-transition { navigation: auto; }
-        ::view-transition-old(root) { animation: none !important; }
-        ::view-transition-new(root) { animation: none !important; }
-        #appiex-cuberto-curtain,
-        html.appiex-page-entering #appiex-cuberto-curtain,
-        #appiex-cuberto-curtain.is-holding,
-        #appiex-cuberto-curtain.is-active,
-        #appiex-cuberto-curtain.is-fading {
-          display: none !important;
-          opacity: 0 !important;
-          visibility: hidden !important;
-          pointer-events: none !important;
-          transition: none !important;
-        }
-      `;
     }
-    try { sessionStorage.removeItem('appiex_curtain_active'); } catch(e) {}
-    document.documentElement.classList.remove('appiex-page-entering');
-    return null;
+
+    let curtain = document.getElementById('appiex-cuberto-curtain');
+    if (!curtain && document.body) {
+      curtain = document.createElement('div');
+      curtain.id = 'appiex-cuberto-curtain';
+      curtain.setAttribute('aria-hidden', 'true');
+      curtain.innerHTML = '<div class="appiex-curtain-ambient"></div>';
+      document.body.prepend(curtain);
+    }
+    return curtain;
   }
 
-  // 2. Instant 0.001s Page Reveal (Zero Curtain Blocking)
+  // 2. Trigger Buttery Smooth Reveal on Page Arrival
   function revealArrivingPage() {
-    ensureCurtainAndStyles();
+    const curtain = ensureCurtainAndStyles();
     const holdStyle = document.getElementById('curtain-initial-hold');
-    if (holdStyle && holdStyle.parentNode) holdStyle.parentNode.removeChild(holdStyle);
-    document.documentElement.classList.remove('appiex-page-entering');
-    if (document.body) {
-      document.body.classList.remove('appiex-body-leaving', 'appiex-body-entering');
-    }
-    const curtain = document.getElementById('appiex-cuberto-curtain');
-    if (curtain) {
-      curtain.classList.remove('is-holding', 'is-active', 'is-fading');
-      curtain.style.setProperty('display', 'none', 'important');
+
+    if (
+      sessionStorage.getItem('appiex_curtain_active') === '1' ||
+      window.__appiexFadeCurtain ||
+      document.documentElement.classList.contains('appiex-page-entering')
+    ) {
+      sessionStorage.removeItem('appiex_curtain_active');
+      window.__appiexFadeCurtain = false;
+
+      if (curtain) {
+        curtain.classList.add('is-holding');
+        // Force synchronous browser layout reflow so opacity: 1 is committed before transitioning to 0
+        void curtain.offsetHeight;
+      }
+
+      if (document.body) {
+        document.body.classList.remove('appiex-body-leaving');
+        document.body.classList.add('appiex-body-entering');
+      }
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (holdStyle && holdStyle.parentNode) {
+            holdStyle.parentNode.removeChild(holdStyle);
+          }
+          document.documentElement.classList.remove('appiex-page-entering');
+          if (curtain) {
+            curtain.classList.remove('is-holding', 'is-active');
+            curtain.classList.add('is-fading');
+          }
+          setTimeout(() => {
+            if (curtain) curtain.classList.remove('is-fading');
+            if (document.body) document.body.classList.remove('appiex-body-entering');
+          }, 580);
+        });
+      });
+    } else {
+      if (holdStyle && holdStyle.parentNode) holdStyle.parentNode.removeChild(holdStyle);
+      document.documentElement.classList.remove('appiex-page-entering');
+      if (curtain) {
+        curtain.classList.remove('is-holding', 'is-active', 'is-fading');
+      }
     }
   }
 
@@ -778,7 +846,7 @@
       mobileWrap = document.createElement('div');
       mobileWrap.className = 'rafsan-mobile-wrap';
       mobileWrap.innerHTML = `
-        <a href="/login" class="rafsan-hire-btn" id="mobile-wrap-login-btn">Login</a>
+        <a href="/login.html" class="rafsan-hire-btn" id="mobile-wrap-login-btn">Login</a>
         <button type="button" class="rafsan-mobile-toggle" id="rafsan-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
           <span class="hamburger-box">
             <span class="hamburger-line line-top"></span>
@@ -817,7 +885,7 @@
       </div>
 
       <nav class="cyber-nav-list">
-        <a href="/" class="cyber-nav-item active" data-section="home">
+        <a href="/index.html" class="cyber-nav-item active" data-section="home">
           HOME
           <span class="badge-page">PAGE&#10;001</span>
         </a>
@@ -841,11 +909,11 @@
           </div>
         </div>
 
-        <a href="/refer" class="cyber-nav-item" data-section="refer">REFER</a>
-        <a href="/partners" class="cyber-nav-item" data-section="partners">PARTNERSHIP</a>
-        <a href="/projects" class="cyber-nav-item" data-section="projects">PROJECTS</a>
-        <a href="/#contact" class="cyber-nav-item" data-section="contact">CONTACT</a>
-        <a href="/team" class="cyber-nav-item">ABOUT</a>
+        <a href="/refer.html" class="cyber-nav-item" data-section="refer">REFER</a>
+        <a href="/partners.html" class="cyber-nav-item" data-section="partners">PARTNERSHIP</a>
+        <a href="/projects.html" class="cyber-nav-item" data-section="projects">PROJECTS</a>
+        <a href="/index.html#contact" class="cyber-nav-item" data-section="contact">CONTACT</a>
+        <a href="/team.html" class="cyber-nav-item">ABOUT</a>
       </nav>
 
       <div class="cyber-meta-section">
@@ -866,8 +934,8 @@
           <span>ACTIONS</span>
         </div>
         <div class="cyber-meta-content">
-          <a href="/login">LOGIN</a>
-          <a href="/#contact">BOOK A MEETING</a>
+          <a href="/login.html">LOGIN</a>
+          <a href="/index.html#contact">BOOK A MEETING</a>
         </div>
       </div>
 
@@ -1000,16 +1068,7 @@
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
-            try {
-              const tUrl = new URL(drawerLink.href, location.href);
-              if (tUrl.origin !== location.origin || drawerLink.target === '_blank') {
-                window.open(drawerLink.href, drawerLink.target || '_self');
-                return;
-              }
-              navigateInstant(toCleanPath(tUrl.pathname) + tUrl.search + tUrl.hash, true);
-            } catch (err) {
-              window.location.href = drawerLink.href;
-            }
+            window.location.href = drawerLink.href;
             return;
           }
         }
@@ -1050,53 +1109,18 @@
   }
 
   // ========================================================
-  // 4. 0.001s INSTANT MEMORY SPA & PRERENDER NAVIGATION ENGINE
-  //    (100% Preserves Every Page's <head> CSS, Tailwind Config,
-  //     3D WebGL Shaders, and Scripts with Clean Next.js URLs)
+  // 4. ZION-MIZ STYLE ULTRA-FAST SPA ROUTER & 60FPS ENGINE
   // ========================================================
+  const pageCache = new Map();
   const prefetchedUrls = new Set();
-  const htmlMemoryCache = new Map(); // cleanPath -> htmlString
-  const pendingFetches = new Map();  // cleanPath -> Promise<string>
 
-  // Ensure Tailwind JIT Runtime is Available Globally for Instant SPA Swaps
-  function ensureTailwindRuntime() {
-    if (typeof window.tailwind !== 'undefined') return;
-    if (document.querySelector('script[src*="cdn.tailwindcss.com"]')) return;
-    const twScript = document.createElement('script');
-    twScript.src = 'https://cdn.tailwindcss.com';
-    twScript.async = true;
-    twScript.onload = () => {
-      try {
-        window.tailwind.config = {
-          theme: {
-            extend: {
-              colors: {
-                appiexRed: '#FF2A4D',
-                appiexRedDark: '#DC2626',
-                appiexDark: '#030408',
-                appiexCard: '#080910'
-              },
-              fontFamily: {
-                sans: ['Google Sans', 'Suisse Intl', 'system-ui', 'sans-serif'],
-                montserrat: ['Montserrat', 'sans-serif'],
-                mono: ['JetBrains Mono', 'monospace'],
-                anton: ['Anton', 'sans-serif'],
-                oswald: ['Oswald', 'sans-serif']
-              }
-            }
-          }
-        };
-      } catch (e) {}
-    };
-    document.head.appendChild(twScript);
-  }
-
-  // Inject 120FPS / 60FPS GPU Acceleration & Anti-Lag Styles
-  function injectGpuStyles() {
-    if (document.getElementById('appiex-gpu-style')) return;
+  // Inject 60FPS GPU & SPA Transition Styles
+  function injectSpaStyles() {
+    if (document.getElementById('appiex-spa-style')) return;
     const style = document.createElement('style');
-    style.id = 'appiex-gpu-style';
+    style.id = 'appiex-spa-style';
     style.textContent = `
+      /* ZION-MIZ 60FPS HARDWARE ACCELERATION & BENTO TRANSITIONS */
       .shadow-box,
       .bento-card,
       .home-logo-card,
@@ -1104,438 +1128,291 @@
       .cyber-nav-item,
       .rafsan-capsule-nav,
       .CtaButton,
-      .project-item,
-      .project-card-wrapper,
-      .feedback-card {
+      .project-item {
         transform: translate3d(0, 0, 0);
         -webkit-backface-visibility: hidden;
         backface-visibility: hidden;
+        will-change: transform, opacity;
       }
-      /* Mobile 120Hz Anti-Lag GPU Optimizations */
-      @media (max-width: 1024px) {
-        html, body {
-          scroll-behavior: auto !important;
-          -webkit-overflow-scrolling: touch !important;
-        }
-        /* Cap expensive backdrop-filter blur radius on mobile GPUs */
-        .backdrop-blur-xl, .backdrop-blur-2xl, .backdrop-blur-3xl {
-          backdrop-filter: blur(8px) !important;
-          -webkit-backdrop-filter: blur(8px) !important;
-        }
+
+      .shadow-box,
+      .bento-card {
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+      .shadow-box:hover,
+      .bento-card:hover {
+        transform: translate3d(0, -4px, 0) !important;
+      }
+
+      /* SPA PAGE TRANSITION (0ms Instant Swap with Buttery 60fps Reveal) */
+      main.appiex-spa-leaving {
+        opacity: 0.15 !important;
+        transform: translate3d(0, -6px, 0) scale(0.996) !important;
+        transition: opacity 0.14s cubic-bezier(0.22, 1, 0.36, 1), transform 0.14s cubic-bezier(0.22, 1, 0.36, 1) !important;
+      }
+      main.appiex-spa-entering {
+        opacity: 0.01 !important;
+        transform: translate3d(0, 8px, 0) scale(0.996) !important;
+        transition: none !important;
+      }
+      main.appiex-spa-revealed {
+        opacity: 1 !important;
+        transform: translate3d(0, 0, 0) scale(1) !important;
+        transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
       }
     `;
     document.head.appendChild(style);
   }
-  injectGpuStyles();
+  injectSpaStyles();
 
-  // Inject Clean Speculation Rules (Prerender Clean Extensionless Next.js Routes)
-  function injectCleanSpeculationRules() {
-    if (document.getElementById('appiex-clean-speculation-rules')) return;
-    if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('speculationrules')) return;
-    try {
-      const spec = document.createElement('script');
-      spec.type = 'speculationrules';
-      spec.id = 'appiex-clean-speculation-rules';
-      spec.textContent = JSON.stringify({
-        prerender: [
-          {
-            source: 'list',
-            urls: [
-              '/',
-              '/services',
-              '/projects',
-              '/refer',
-              '/partners',
-              '/digital-strategy',
-              '/web-development',
-              '/ui-ux-3d-design',
-              '/ai-automation',
-              '/seo-marketing',
-              '/blog',
-              '/login',
-              '/team',
-              '/case-studies'
-            ],
-            eagerness: 'immediate'
-          },
-          {
-            source: 'document',
-            where: {
-              and: [
-                { href_matches: '/*' },
-                { not: { href_matches: '/admin*' } },
-                { not: { href_matches: '/gaming*' } }
-              ]
-            },
-            eagerness: 'moderate'
-          }
-        ]
-      });
-      document.head.appendChild(spec);
-    } catch (e) {}
-  }
-
-  // Normalize any path to clean extensionless Next.js route
-  function toCleanPath(pathname) {
-    if (!pathname) return '/';
-    let p = pathname.replace(/\/index\.html$/i, '/').replace(/\.html$/i, '');
-    if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
-    if (p === '/home') return '/';
-    return p || '/';
-  }
-
-  // Strip .html from browser address bar immediately on initial load if present
-  try {
-    if (location.pathname.endsWith('.html') || location.pathname === '/home') {
-      const cleanInitial = toCleanPath(location.pathname) + location.search + location.hash;
-      history.replaceState({ path: cleanInitial }, '', cleanInitial);
-    }
-  } catch (e) {}
-
-  // Disable Lenis on mobile/touch devices immediately if present to eliminate mobile scroll lag
-  function optimizeScrollingPerformance() {
-    const isTouch = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || ('ontouchstart' in window) || window.innerWidth <= 1024;
-    if (isTouch && window.lenis) {
-      try {
-        window.lenis.destroy();
-        window.lenis = null;
-        document.documentElement.classList.remove('lenis', 'lenis-smooth');
-      } catch (e) {}
-    }
-    initUniversalLazyVideos();
-  }
-
-  let universalVideoObserver = null;
-  function initUniversalLazyVideos() {
-    try {
-      if (!('IntersectionObserver' in window)) return;
-      if (universalVideoObserver) {
-        universalVideoObserver.disconnect();
-      }
-      universalVideoObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          const v = entry.target;
-          if (entry.isIntersecting) {
-            v.dataset.inView = 'true';
-            if (v.preload === 'none') {
-              v.preload = 'metadata';
-            }
-            const p = v.play();
-            if (p !== undefined) p.catch(() => {});
-          } else {
-            v.dataset.inView = 'false';
-            try { v.pause(); } catch (e) {}
-          }
-        });
-      }, { rootMargin: '200px 0px', threshold: 0.05 });
-
-      document.querySelectorAll('video').forEach((v) => {
-        universalVideoObserver.observe(v);
-      });
-    } catch (e) {}
-  }
-  optimizeScrollingPerformance();
-  window.addEventListener('DOMContentLoaded', () => {
-    optimizeScrollingPerformance();
-    ensureTailwindRuntime();
-    injectCleanSpeculationRules();
-    // Cache current initial page in memory
-    try {
-      const curClean = toCleanPath(location.pathname);
-      if (!htmlMemoryCache.has(curClean)) {
-        htmlMemoryCache.set(curClean, document.documentElement.outerHTML);
-      }
-    } catch (e) {}
-  });
-
-  // High-Priority Prefetch & In-Memory HTML Cache Engine
+  // High-Priority Prefetch Engine (fetches into memory in background)
   function prefetch(url) {
-    if (!url) return Promise.resolve(null);
+    if (!url) return;
     try {
       const u = new URL(url, location.href);
-      if (u.origin !== location.origin || u.pathname.includes('/admin') || u.pathname.includes('/gaming')) {
-        return Promise.resolve(null);
-      }
-      const cleanPath = toCleanPath(u.pathname);
-      if (htmlMemoryCache.has(cleanPath)) {
-        return Promise.resolve(htmlMemoryCache.get(cleanPath));
-      }
-      if (pendingFetches.has(cleanPath)) {
-        return pendingFetches.get(cleanPath);
-      }
+      if (u.origin !== location.origin || u.pathname.includes('/admin')) return;
+      const clean = u.pathname + u.search;
+      if (prefetchedUrls.has(clean)) return;
+      prefetchedUrls.add(clean);
 
-      if (!prefetchedUrls.has(cleanPath)) {
-        prefetchedUrls.add(cleanPath);
-        const link = document.createElement('link');
-        link.rel = 'prefetch';
-        link.href = cleanPath;
-        link.as = 'document';
-        document.head.appendChild(link);
-      }
+      // 1. Browser link rel prefetch
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = clean;
+      link.as = 'document';
+      document.head.appendChild(link);
 
-      const fetchPromise = fetch(cleanPath, { priority: 'high', credentials: 'same-origin' })
+      // 2. In-Memory SPA Cache
+      fetch(clean, { priority: 'high', cache: 'force-cache' })
         .then(res => {
-          if (!res.ok) throw new Error('Fetch failed');
-          return res.text();
+          if (res.ok) return res.text();
+          throw new Error('Prefetch error');
         })
         .then(html => {
-          if (html && html.includes('<body')) {
-            htmlMemoryCache.set(cleanPath, html);
-          }
-          pendingFetches.delete(cleanPath);
-          return html;
+          pageCache.set(clean, html);
+          pageCache.set(u.href, html);
         })
-        .catch(() => {
-          pendingFetches.delete(cleanPath);
-          return null;
-        });
-
-      pendingFetches.set(cleanPath, fetchPromise);
-      return fetchPromise;
-    } catch (e) {
-      return Promise.resolve(null);
-    }
+        .catch(() => {});
+    } catch (e) {}
   }
 
-  // Idle Prefetch Top Pages into Memory Cache
+  // Pre-cache current page in memory
+  if (typeof document !== 'undefined') {
+    const curPath = location.pathname + location.search;
+    pageCache.set(curPath, document.documentElement.outerHTML);
+    pageCache.set(location.href, document.documentElement.outerHTML);
+  }
+
+  // Idle Prefetch Top Pages (instantly available before click)
   if (typeof window !== 'undefined') {
     const idlePrefetch = () => {
-      ensureTailwindRuntime();
-      injectCleanSpeculationRules();
       const topPages = [
         '/',
-        '/services',
-        '/projects',
-        '/refer',
-        '/partners',
-        '/digital-strategy',
-        '/web-development',
-        '/ui-ux-3d-design',
-        '/ai-automation',
-        '/seo-marketing',
-        '/blog',
-        '/login',
-        '/team',
-        '/case-studies'
+        '/index.html',
+        '/services.html',
+        '/projects.html',
+        '/refer.html',
+        '/partners.html',
+        '/team.html',
+        '/blog.html',
+        '/best-software-agency.html'
       ];
       topPages.forEach((p, idx) => {
-        setTimeout(() => prefetch(p), idx * 55);
+        setTimeout(() => prefetch(p), idx * 120);
       });
     };
     if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(idlePrefetch, { timeout: 600 });
+      window.requestIdleCallback(idlePrefetch, { timeout: 1500 });
     } else {
-      setTimeout(idlePrefetch, 250);
+      setTimeout(idlePrefetch, 800);
     }
   }
 
-  // Hover, Pointerdown & Touch Prefetch Triggers
-  const onHoverOrDown = (e) => {
+  // Hover & Touch Prefetch Triggers
+  const onHover = (e) => {
     const a = e.target.closest('a');
     if (a && a.href && a.origin === location.origin) {
       prefetch(a.href);
     }
   };
-  document.addEventListener('mouseover', onHoverOrDown, { passive: true });
-  document.addEventListener('pointerdown', onHoverOrDown, { passive: true });
-  document.addEventListener('touchstart', onHoverOrDown, { passive: true });
+  document.addEventListener('mouseover', onHover, { passive: true });
 
-  // ========================================================
-  // 5. 0.001s FULL-DOCUMENT (<head> + <body>) INSTANT SWAP
-  // ========================================================
-  let isNavigating = false;
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchPrefetchTimer = null;
+  document.addEventListener('touchstart', (e) => {
+    if (!e.touches || !e.touches[0]) return;
+    const a = e.target.closest('a');
+    if (!a || !a.href || a.origin !== location.origin) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    clearTimeout(touchPrefetchTimer);
+    touchPrefetchTimer = setTimeout(() => {
+      prefetch(a.href);
+    }, 80);
+  }, { passive: true });
 
-  // Tag initial page-specific <head> styles so they can be cleanly swapped
-  function markInitialHeadStyles() {
-    document.head.querySelectorAll('style').forEach(s => {
-      if (
-        s.id === 'appiex-universal-mobile-css' ||
-        s.id === 'appiex-gpu-style' ||
-        s.id === 'appiex-cuberto-curtain-style' ||
-        (s.textContent && s.textContent.includes('tailwindcss'))
-      ) {
-        return;
-      }
-      if (!s.hasAttribute('data-spa-page-style')) {
-        s.setAttribute('data-spa-page-style', 'true');
+  document.addEventListener('touchmove', (e) => {
+    if (!e.touches || !e.touches[0]) return;
+    const dx = Math.abs(e.touches[0].clientX - touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    if (dx > 8 || dy > 8) {
+      clearTimeout(touchPrefetchTimer);
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', () => {
+    clearTimeout(touchPrefetchTimer);
+  }, { passive: true });
+
+  // Re-run interactive page features after instant SPA swap
+  function reinitPage(container) {
+    if (!container) return;
+
+    // 1. Re-initialize mobile nav toggles & drawer
+    if (typeof ensureMobileNavigation === 'function') {
+      ensureMobileNavigation();
+    }
+
+    // 2. Execute any embedded scripts in the newly swapped container
+    container.querySelectorAll('script').forEach(oldScript => {
+      const newScript = document.createElement('script');
+      Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+      newScript.textContent = oldScript.textContent;
+      oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
+
+    // 3. Autoplay active videos
+    container.querySelectorAll('video[autoplay]').forEach(v => {
+      try { v.play().catch(() => {}); } catch(err) {}
+    });
+
+    // 4. Smooth Lenis scroll recalculation
+    if (window.lenis) {
+      try {
+        window.lenis.resize();
+        window.lenis.scrollTo(0, { immediate: true });
+      } catch (err) {}
+    }
+
+    // 5. Update Navbar Active States to match new route
+    const currentPath = location.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '') || '/';
+    document.querySelectorAll('.rafsan-nav-item, .cyber-nav-item').forEach(el => {
+      const href = el.getAttribute('href');
+      if (!href) return;
+      const targetPath = href.replace(/\/index\.html$/, '/').replace(/\.html$/, '') || '/';
+      if (targetPath === currentPath || (currentPath === '/' && (href === '/' || href === 'index.html' || href === '#home'))) {
+        el.classList.add('active');
+      } else if (!href.startsWith('#')) {
+        el.classList.remove('active');
       }
     });
   }
-  markInitialHeadStyles();
 
-  function swapPageFromHtml(htmlString, targetUrlStr, pushHistory = true) {
+  // 5. True Zero-Reload SPA Route Navigation (zion-miz style)
+  let isNavigating = false;
+  let navTimer = null;
+  async function navigateSPA(targetUrl, isPopState = false) {
+    if (isNavigating && !isPopState) return;
+    isNavigating = true;
+    clearTimeout(navTimer);
+    navTimer = setTimeout(() => { isNavigating = false; }, 650);
+
+    // Close mobile drawer immediately if open
+    if (window.__closeMobileDrawer) {
+      try { window.__closeMobileDrawer(); } catch(e) {}
+    }
+
+    const currentMain = document.querySelector('main');
+    const cleanUrl = targetUrl.pathname + targetUrl.search;
+
+    // Start 60fps GPU exit animation
+    if (currentMain) {
+      currentMain.classList.add('appiex-spa-leaving');
+    }
+
+    // Retrieve from memory or fetch immediately
+    let html = pageCache.get(cleanUrl) || pageCache.get(targetUrl.href);
+    if (!html) {
+      try {
+        const resp = await fetch(targetUrl.href, { priority: 'high' });
+        if (!resp.ok) throw new Error('Fetch failed');
+        html = await resp.text();
+        pageCache.set(cleanUrl, html);
+        pageCache.set(targetUrl.href, html);
+      } catch (err) {
+        isNavigating = false;
+        if (!isPopState) window.location.href = targetUrl.href;
+        return;
+      }
+    }
+
+    // Wait 120ms for buttery exit
+    await new Promise(r => setTimeout(r, 120));
+
     try {
       const parser = new DOMParser();
-      const newDoc = parser.parseFromString(htmlString, 'text/html');
-      if (!newDoc || !newDoc.body) return false;
+      const doc = parser.parseFromString(html, 'text/html');
+      const newMain = doc.querySelector('main');
 
-      // 1. Cleanup current page resources (videos, Lenis, ScrollTrigger)
-      document.querySelectorAll('video').forEach(v => {
-        try { v.pause(); } catch (e) {}
-      });
-      if (window.lenis) {
-        try { window.lenis.destroy(); } catch (e) {}
-        window.lenis = null;
-      }
-      if (typeof ScrollTrigger !== 'undefined') {
-        try { ScrollTrigger.getAll().forEach(t => t.kill()); } catch (e) {}
+      if (!newMain || !currentMain) {
+        // Fallback for standalone pages without <main> (e.g. /gaming)
+        isNavigating = false;
+        if (!isPopState) window.location.href = targetUrl.href;
+        return;
       }
 
-      // 2. Update Document Title & Canonical
-      if (newDoc.title) {
-        document.title = newDoc.title;
+      // Update Document Title
+      if (doc.title) {
+        document.title = doc.title;
       }
 
-      // 3. Sync <head> Stylesheets (<link rel="stylesheet">)
-      const existingLinks = new Set(
-        Array.from(document.head.querySelectorAll('link[rel="stylesheet"]')).map(l => l.getAttribute('href'))
-      );
-      newDoc.head.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-        const href = link.getAttribute('href');
-        if (href && !existingLinks.has(href)) {
-          const clonedLink = link.cloneNode(true);
-          document.head.appendChild(clonedLink);
-        }
-      });
-
-      // 4. Sync <head> Page-Specific <style> Blocks (100% Preserves Exact Page Design)
-      markInitialHeadStyles();
-      const oldPageStyles = Array.from(document.head.querySelectorAll('style[data-spa-page-style="true"]'));
-      newDoc.head.querySelectorAll('style').forEach(styleEl => {
-        if (styleEl.id === 'appiex-cuberto-curtain-style' || styleEl.id === 'appiex-universal-mobile-css' || styleEl.id === 'appiex-gpu-style') {
-          return;
-        }
-        const newStyle = document.createElement('style');
-        if (styleEl.id) newStyle.id = styleEl.id;
-        newStyle.setAttribute('data-spa-page-style', 'true');
-        newStyle.textContent = styleEl.textContent;
-        document.head.appendChild(newStyle);
-      });
-      oldPageStyles.forEach(s => {
-        if (s.parentNode) s.parentNode.removeChild(s);
-      });
-
-      // 5. Execute any <head> pre-hydration scripts (like refer.html CMS hydration)
-      newDoc.head.querySelectorAll('script:not([src]):not([type="application/ld+json"]):not([type="speculationrules"])').forEach(scr => {
-        if (scr.id === 'appiex-prepaint-curtain-script') return;
-        if (scr.textContent && scr.textContent.includes('tailwind.config')) {
-          try { (0, eval)(scr.textContent); } catch (e) {}
-        }
-      });
-
-      // 6. Swap <body> Class & InnerHTML in 0.001s
-      document.body.className = newDoc.body.className || 'font-sans antialiased';
-      document.body.classList.remove('menu-open', 'appiex-body-leaving', 'appiex-body-entering');
-      document.body.innerHTML = newDoc.body.innerHTML;
-
-      // Hide any legacy curtain inside swapped body
-      const swappedCurtain = document.getElementById('appiex-cuberto-curtain');
-      if (swappedCurtain) {
-        swappedCurtain.style.setProperty('display', 'none', 'important');
+      // Push history state
+      if (!isPopState) {
+        history.pushState({ url: targetUrl.href }, '', targetUrl.href);
       }
 
-      // 7. Update Browser URL & Scroll Position Instantly (0ms)
-      const parsedTarget = new URL(targetUrlStr, location.origin);
-      const cleanHref = toCleanPath(parsedTarget.pathname) + parsedTarget.search + parsedTarget.hash;
-      if (pushHistory) {
-        history.pushState({ path: cleanHref }, '', cleanHref);
-      }
+      // Swap Main Content & Classes
+      currentMain.className = newMain.className;
+      currentMain.id = newMain.id;
+      currentMain.innerHTML = newMain.innerHTML;
 
-      if (parsedTarget.hash) {
-        const hashEl = document.querySelector(parsedTarget.hash);
-        if (hashEl) hashEl.scrollIntoView();
-        else window.scrollTo(0, 0);
-      } else {
-        window.scrollTo(0, 0);
-      }
+      // Scroll to Top Instantly
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 
-      // 8. Re-initialize Universal Mobile Navigation & Re-Execute Body Inline Scripts
-      ensureMobileNavigation();
+      // Trigger 60fps GPU Enter Reveal via requestAnimationFrame (zion-miz pattern)
+      currentMain.classList.remove('appiex-spa-leaving');
+      currentMain.classList.add('appiex-spa-entering');
 
-      const bodyScripts = Array.from(document.body.querySelectorAll('script'));
-      const externalPromises = [];
-
-      bodyScripts.forEach(oldScript => {
-        const src = oldScript.getAttribute('src');
-        if (src) {
-          // Skip already loaded global libraries to avoid re-downloading
-          if (
-            src.includes('instant-nav.js') ||
-            src.includes('gsap.min.js') ||
-            src.includes('ScrollTrigger.min.js') ||
-            src.includes('lenis.min.js') ||
-            src.includes('visitor-tracker.js') ||
-            src.includes('seo-conversion-tracker.js')
-          ) {
-            return;
-          }
-          // Load page-specific external script (e.g. swiper, firebase-config, video-storage-engine) if not already loaded
-          const cleanSrc = src.replace(/^\.\//, '/');
-          const alreadyLoaded = Array.from(document.scripts).some(s => s !== oldScript && s.src && s.src.includes(cleanSrc.split('?')[0]));
-          if (!alreadyLoaded) {
-            const p = new Promise(resolve => {
-              const s = document.createElement('script');
-              s.src = src;
-              s.onload = resolve;
-              s.onerror = resolve;
-              document.body.appendChild(s);
-            });
-            externalPromises.push(p);
-          }
-        }
-      });
-
-      const runInlineScripts = () => {
-        bodyScripts.forEach(oldScript => {
-          if (oldScript.getAttribute('src')) return;
-          const type = oldScript.getAttribute('type');
-          if (type && type !== 'text/javascript' && type !== 'module') return;
-          const code = oldScript.textContent;
-          if (!code || !code.trim()) return;
-
-          try {
-            // Transform DOMContentLoaded listeners inside inline scripts so they run immediately on SPA swap
-            const transformedCode = code.replace(
-              /document\.addEventListener\s*\(\s*['"]DOMContentLoaded['"]\s*,\s*/g,
-              '(function(fn){ try { fn(); } catch(e){ console.warn(e); } })('
-            );
-            const newScript = document.createElement('script');
-            newScript.textContent = transformedCode;
-            oldScript.parentNode.replaceChild(newScript, oldScript);
-          } catch (err) {
-            console.warn('SPA script exec warning:', err);
-          }
-        });
-
-        optimizeScrollingPerformance();
-        if (typeof ScrollTrigger !== 'undefined') {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          currentMain.classList.remove('appiex-spa-entering');
+          currentMain.classList.add('appiex-spa-revealed');
           setTimeout(() => {
-            try { ScrollTrigger.refresh(); } catch (e) {}
-          }, 60);
-        }
-      };
+            currentMain.classList.remove('appiex-spa-revealed');
+            isNavigating = false;
+          }, 320);
+        });
+      });
 
-      if (externalPromises.length > 0) {
-        Promise.all(externalPromises).then(runInlineScripts);
-      } else {
-        runInlineScripts();
-      }
+      // Re-initialize dynamic page components
+      reinitPage(currentMain);
 
-      return true;
     } catch (err) {
-      console.warn('SPA swap fallback:', err);
-      return false;
+      isNavigating = false;
+      if (!isPopState) window.location.href = targetUrl.href;
     }
   }
 
-  // Navigate to URL in 0.001s (Uses Memory Cache if ready, otherwise Native Instant Navigation)
-  // Legacy pages need their own CSS, scripts and initialization.
-  // Native document navigation is intentional until this site is fully
-  // converted to a single framework-managed client router.
-  function navigateInstant(rawHref) {
-    window.location.assign(new URL(rawHref, location.href).href);
-  }
+  // Handle Browser Back / Forward buttons (SPA Popstate)
+  window.addEventListener('popstate', () => {
+    try {
+      const url = new URL(location.href);
+      navigateSPA(url, true);
+    } catch(e) {}
+  });
 
+  // Global Intercept on Internal Links
   document.addEventListener('click', (e) => {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
@@ -1549,20 +1426,25 @@
       const targetUrl = new URL(a.href, location.href);
       if (targetUrl.origin !== location.origin) return;
 
-      const normCurrent = toCleanPath(location.pathname);
-      const normTarget = toCleanPath(targetUrl.pathname);
+      // Allow /admin and /gaming to use native loading
+      if (targetUrl.pathname.includes('/admin') || targetUrl.pathname.includes('/gaming')) {
+        return;
+      }
 
-      // Same-page hash scroll
+      // Normalize paths to compare same-page anchor links
+      const normCurrent = location.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '') || '/';
+      const normTarget = targetUrl.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '') || '/';
+
       if (normCurrent === normTarget && targetUrl.hash) {
         const targetEl = document.querySelector(targetUrl.hash);
         if (targetEl) {
           e.preventDefault();
           if (window.lenis) {
-            window.lenis.scrollTo(targetEl, { offset: -60, duration: 0.65 });
+            window.lenis.scrollTo(targetEl, { offset: -60, duration: 0.85 });
           } else {
             targetEl.scrollIntoView({ behavior: 'smooth' });
           }
-          history.pushState({ path: normCurrent + targetUrl.hash }, '', normCurrent + targetUrl.hash);
+          history.pushState(null, '', targetUrl.hash);
         }
         return;
       }
@@ -1573,20 +1455,20 @@
         return;
       }
 
-      // Let the browser perform ordinary cross-page document navigation.
-      // This guarantees destination CSS and scripts execute on every visit.
-      return;
+      // Trigger Instant Buttery SPA Navigation!
+      e.preventDefault();
+      navigateSPA(targetUrl);
 
     } catch (err) {}
   });
 
-  // Native browser history and bfcache own back/forward restoration.
-  // Do not swap cached HTML across different full-document pages.
-
   // 6. Back / Forward Cache (bfcache) Restore Cleanup
-  window.addEventListener('pageshow', () => {
+  window.addEventListener('pageshow', (e) => {
     isNavigating = false;
-    revealArrivingPage();
+    const holdStyle = document.getElementById('curtain-initial-hold');
+    if (holdStyle && holdStyle.parentNode) holdStyle.parentNode.removeChild(holdStyle);
+    document.documentElement.classList.remove('appiex-page-entering');
+    if (document.body) document.body.classList.remove('appiex-body-leaving', 'appiex-body-entering');
   });
 })();
 

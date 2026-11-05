@@ -374,7 +374,7 @@
     }
     .services-mega-left {
       width: 250px !important;
-      background: linear-gradient(180deg, rgba(10, 10, 15, 0.42) 0%, rgba(5, 5, 10, 0.95) 100%), url('./images/panther_cover.webp') center/cover no-repeat !important;
+      background: linear-gradient(180deg, rgba(10, 10, 15, 0.42) 0%, rgba(5, 5, 10, 0.95) 100%), url('./images/panther_cover.png') center/cover no-repeat !important;
       padding: 28px 24px !important;
       border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
       display: flex !important;
@@ -654,30 +654,30 @@
       {
         "source": "list",
         "urls": [
-          "/",
-          "/projects",
-          "/services",
-          "/refer",
-          "/partners",
-          "/case-studies",
-          "/web-development",
-          "/ui-ux-3d-design",
-          "/ai-automation",
-          "/seo-marketing",
-          "/digital-strategy",
-          "/blog",
-          "/login",
-          "/team"
+          "index.html",
+          "projects.html",
+          "services.html",
+          "refer.html",
+          "partners.html",
+          "case-studies.html",
+          "web-development.html",
+          "ui-ux-3d-design.html",
+          "ai-automation.html",
+          "seo-marketing.html",
+          "gaming.html",
+          "digital-strategy.html",
+          "team.html",
+          "/"
         ],
         "eagerness": "immediate"
-      },
+      }
+    ],
+    "prefetch": [
       {
         "source": "document",
         "where": {
           "and": [
-            { "href_matches": "/*" },
-            { "not": { "href_matches": "/admin*" } },
-            { "not": { "href_matches": "/gaming*" } }
+            { "href_matches": "/*" }
           ]
         },
         "eagerness": "moderate"
@@ -695,14 +695,101 @@
   <link rel="stylesheet" href="/styles/seo-links.css?v=20261031_restore">
 
   <!-- Buttery Smooth Page Transition Engine (Pre-Paint Curtain Hold + View Transitions) -->
-  
+  <script id="appiex-prepaint-curtain-script">
+    (function() {
+      try {
+        if (sessionStorage.getItem('appiex_curtain_active') === '1') {
+          window.__appiexFadeCurtain = true;
+          document.documentElement.classList.add('appiex-page-entering');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style id="appiex-cuberto-curtain-style">
-    @view-transition { navigation: auto; }
-    ::view-transition-old(root) { animation: none !important; }
-    ::view-transition-new(root) { animation: none !important; }
-    #appiex-cuberto-curtain { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+    @view-transition {
+      navigation: auto;
+    }
+    ::view-transition-old(root) {
+      animation: appiexVtFadeOut 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    ::view-transition-new(root) {
+      animation: appiexVtFadeIn 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes appiexVtFadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.992); }
+    }
+    @keyframes appiexVtFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #appiex-cuberto-curtain {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 99999999 !important;
+      background: #030408 !important;
+      background-image: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255, 42, 77, 0.28) 0%, rgba(185, 28, 28, 0.12) 42%, rgba(3, 4, 8, 0.98) 75%, #030408 100%) !important;
+      pointer-events: none !important;
+      display: block !important;
+      opacity: 0;
+      visibility: hidden;
+      transform: translate3d(0, 0, 0);
+      will-change: opacity, visibility;
+      transition: opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.52s;
+    }
+    .appiex-curtain-ambient {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      width: min(90vw, 76rem);
+      height: 36rem;
+      background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(255, 42, 77, 0.34) 0%, rgba(185, 28, 28, 0.15) 42%, transparent 75%);
+      filter: blur(55px);
+      pointer-events: none;
+      opacity: 0.9;
+      transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    html.appiex-page-entering #appiex-cuberto-curtain,
+    #appiex-cuberto-curtain.is-holding {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transition: none !important;
+    }
+    #appiex-cuberto-curtain.is-active {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s !important;
+    }
+    #appiex-cuberto-curtain.is-active .appiex-curtain-ambient {
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+    #appiex-cuberto-curtain.is-fading {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transition: opacity 0.54s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.54s !important;
+    }
+    body.appiex-body-leaving > main,
+    body.appiex-body-leaving > section,
+    body.appiex-body-leaving > article {
+      opacity: 0.25 !important;
+      transform: translate3d(0, -6px, 0) scale(0.994) !important;
+      transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), transform 0.24s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    }
+    body.appiex-body-entering > main,
+    body.appiex-body-entering > section,
+    body.appiex-body-entering > article {
+      animation: appiexMainReveal 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes appiexMainReveal {
+      0% { opacity: 0.01; transform: translate3d(0, 10px, 0); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
   </style>
-  <script src="/scripts/instant-nav.js?v=20261105_0001s" defer></script>
+  <script src="/scripts/instant-nav.js?v=20261031_morph_x6" defer></script>
 
 <style>
 @media (min-width: 768px) {
@@ -776,10 +863,10 @@
   </div>
 
   <!-- HOMEPAGE BACKGROUND VIDEO & RED COLOR OVERLAY (EXACT SAME AS HOMEPAGE) -->
-  <video class="pointer-events-none fixed inset-0 h-screen w-screen object-cover object-center" autoplay loop muted playsinline webkit-playsinline preload="metadata" aria-hidden="true" style="filter: grayscale(1) contrast(1.3) brightness(0.95); opacity: 0.42; z-index: 0; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;" poster="./assets/posters/vde-poster.webp">
-              <source src="./assets/static/vde.webm" type="video/webm">
-              <source src="./assets/static/vde.mp4" type="video/mp4">
-            </video>
+  <video class="pointer-events-none fixed inset-0 h-screen w-screen object-cover object-center" autoplay loop muted playsinline webkit-playsinline preload="none" aria-hidden="true" style="filter: grayscale(1) contrast(1.3) brightness(0.95); opacity: 0.42; z-index: 0; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;">
+    <source src="./assets/static/vde.webm" type="video/webm">
+    <source src="./assets/static/vde.mp4" type="video/mp4">
+  </video>
   <div class="pointer-events-none fixed inset-0 h-screen w-screen" style="mix-blend-mode: color; background-color: #ff0000; opacity: 0.85; z-index: 0; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;" aria-hidden="true"></div>
 
   <!-- APPIEX SIGNATURE FLOATING CAPSULE NAVBAR -->
@@ -787,17 +874,17 @@
     <div class="rafsan-nav-container">
       
       <!-- 1. Brand Logo (Left) -->
-      <a href="/#home" class="rafsan-brand" aria-label="appiex">
+      <a href="index.html#home" class="rafsan-brand" aria-label="appiex">
         <img src="./images/appiex-wordmark-white.png" alt="appiex" class="brand-wordmark-img" style="height: 28px; width: auto; object-fit: contain; display: block;">
       </a>
 
       <!-- 2. Floating Capsule Navbar (Center) -->
       <nav class="rafsan-capsule-nav" aria-label="Main Navigation">
-        <a href="/#home" class="rafsan-nav-item" data-section="home">Home</a>
+        <a href="index.html#home" class="rafsan-nav-item" data-section="home">Home</a>
         
         <!-- Services Dropdown with Caret -->
         <div class="services-nav-wrap" id="services-nav-wrap">
-          <a href="/services" class="rafsan-nav-item" data-section="services" style="display: inline-flex; align-items: center;">
+          <a href="services.html" class="rafsan-nav-item" data-section="services" style="display: inline-flex; align-items: center;">
             Services
             <span class="services-caret" aria-hidden="true">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
@@ -813,37 +900,37 @@
                 <span class="services-mega-badge">EXCLUSIVE</span>
                 <h4 class="services-mega-title">EXPLORE OUR SERVICES CURATIONS</h4>
               </div>
-              <a href="/services" class="services-mega-btn">SEE OVERVIEW</a>
+              <a href="services.html" class="services-mega-btn">SEE OVERVIEW</a>
             </div>
             <div class="services-mega-right">
               <span class="services-mega-subtitle">CORE DISCIPLINES</span>
               <div class="services-mega-grid">
-                <a href="/digital-strategy" class="services-mega-item">DIGITAL STRATEGY</a>
-                <a href="/web-development" class="services-mega-item">WEB DEVELOPMENT (FULL-STACK)</a>
-                <a href="/ui-ux-3d-design" class="services-mega-item">UI/UX &amp; 3D DESIGN</a>
-                <a href="/ai-automation" class="services-mega-item">AI AUTOMATION</a>
-                <a href="/seo-marketing" class="services-mega-item">SEO &amp; MARKETING</a>
-              <a href="/gaming" class="services-mega-item">GAMING &amp; 3D WORLDS</a>
+                <a href="digital-strategy.html" class="services-mega-item">DIGITAL STRATEGY</a>
+                <a href="web-development.html" class="services-mega-item">WEB DEVELOPMENT (FULL-STACK)</a>
+                <a href="ui-ux-3d-design.html" class="services-mega-item">UI/UX &amp; 3D DESIGN</a>
+                <a href="ai-automation.html" class="services-mega-item">AI AUTOMATION</a>
+                <a href="seo-marketing.html" class="services-mega-item">SEO &amp; MARKETING</a>
+              <a href="gaming.html" class="services-mega-item">GAMING &amp; 3D WORLDS</a>
               </div>
             </div>
           </div>
         </div>
 
-        <a href="/refer" class="rafsan-nav-item" data-section="refer">Refer</a>
-        <a href="/partners" class="rafsan-nav-item" data-section="partners">Partnership</a>
-        <a href="/projects" class="rafsan-nav-item active" data-section="projects">Projects</a>
-        <a href="/#contact" class="rafsan-nav-item" data-section="contact">Contact</a>
+        <a href="refer.html" class="rafsan-nav-item" data-section="refer">Refer</a>
+        <a href="partners.html" class="rafsan-nav-item" data-section="partners">Partnership</a>
+        <a href="projects.html" class="rafsan-nav-item active" data-section="projects">Projects</a>
+        <a href="index.html#contact" class="rafsan-nav-item" data-section="contact">Contact</a>
       </nav>
 
       <!-- 3. Action Buttons (Right) -->
       <div class="rafsan-nav-actions">
-        <a href="/blog" class="rafsan-blog-btn" aria-label="Blog">Blog</a>
-        <a href="/login" class="rafsan-hire-btn" id="nav-login-btn">Login</a>
+        <a href="blog.html" class="rafsan-blog-btn" aria-label="Blog">Blog</a>
+        <a href="login.html" class="rafsan-hire-btn" id="nav-login-btn">Login</a>
       </div>
 
       <!-- Mobile Hamburger -->
       <div class="rafsan-mobile-wrap">
-        <a href="/login" class="rafsan-hire-btn" id="mobile-wrap-login-btn">Login</a>
+        <a href="login.html" class="rafsan-hire-btn" id="mobile-wrap-login-btn">Login</a>
         <button type="button" class="rafsan-mobile-toggle" id="rafsan-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
         <span class="hamburger-box">
           <span class="hamburger-line line-top"></span>
@@ -937,7 +1024,7 @@
                   </div>
                   <div class="flex flex-wrap items-center gap-3">
                     <a
-                      href="/case-studies"
+                      href="case-studies.html"
                       class="inline-flex items-center gap-2.5 px-8 py-4 bg-[#FF2A4D] text-white font-semibold text-xs md:text-sm rounded-full hover:bg-red-600 transition-all duration-300 shadow-lg shadow-red-900/30 group"
                     >
                       <span>View Case Study</span>
@@ -946,7 +1033,7 @@
                       </svg>
                     </a>
                     <a
-                      href="/#contact"
+                      href="index.html#contact"
                       class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                     >
                       <span>Build Similar Store</span>
@@ -959,18 +1046,19 @@
               <!-- Right Column: Video Mockup -->
               <div class="project-showcase-right relative flex items-center justify-center p-0 group overflow-hidden rounded-[1.8rem]">
                 <video
-                  poster="./assets/posters/watch24bd-poster.webp"
+                  src="./assets/watch24bd-showcase.mp4"
+                  poster="./images/watch24bd.jpg"
                   class="w-full h-auto rounded-[1.8rem] shadow-2xl object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   loop
                   muted
                   playsinline
                   webkit-playsinline
+                  autoplay
                   preload="none"
                   style="box-shadow: 0 20px 45px rgba(0,0,0,0.75);"
                 >
-              <source src="./assets/watch24bd-showcase.webm" type="video/webm">
-              <source src="./assets/watch24bd-showcase.mp4" type="video/mp4">
-            </video>
+                  <source src="./assets/watch24bd-showcase.mp4" type="video/mp4">
+                </video>
               </div>
 
             </div>
@@ -987,11 +1075,11 @@
               <!-- Left Column: Image Mockup -->
               <div class="project-showcase-left relative flex items-center justify-center p-0 group overflow-hidden rounded-[1.8rem]">
                 <img
-                  src="./images/timedune.webp"
+                  src="./images/timedune.jpg"
                   alt="TimeDune Luxury Horology Store"
                   class="w-full h-auto rounded-[1.8rem] shadow-2xl object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   loading="lazy"
-                 decoding="async">
+                >
               </div>
 
               <!-- Right Column: Details & CTA -->
@@ -1052,7 +1140,7 @@
                       </svg>
                     </a>
                     <a
-                      href="/case-studies"
+                      href="case-studies.html"
                       class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                     >
                       <span>Case Study</span>
@@ -1076,18 +1164,19 @@
               <!-- Left Column: Video Mockup -->
               <div class="project-showcase-left relative flex items-center justify-center p-0 group overflow-hidden rounded-[1.8rem]">
                 <video
-                  poster="./assets/posters/libasnafs-poster.webp"
+                  src="./assets/libasnafs-showcase.mp4"
+                  poster="./images/libas-nafs.jpg"
                   class="w-full h-auto rounded-[1.8rem] shadow-2xl object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   loop
                   muted
                   playsinline
                   webkit-playsinline
+                  autoplay
                   preload="none"
                   style="box-shadow: 0 20px 45px rgba(0,0,0,0.75);"
                 >
-              <source src="./assets/libasnafs-showcase.webm" type="video/webm">
-              <source src="./assets/libasnafs-showcase.mp4" type="video/mp4">
-            </video>
+                  <source src="./assets/libasnafs-showcase.mp4" type="video/mp4">
+                </video>
               </div>
 
               <!-- Right Column: Details & Highlights -->
@@ -1148,7 +1237,7 @@
                       </svg>
                     </a>
                     <a
-                      href="/case-studies"
+                      href="case-studies.html"
                       class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                     >
                       <span>Case Study</span>
@@ -1227,7 +1316,7 @@
                       </svg>
                     </a>
                     <a
-                      href="/case-studies"
+                      href="case-studies.html"
                       class="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition-all duration-300"
                     >
                       <span>Case Study</span>
@@ -1240,18 +1329,19 @@
               <!-- Right Column: Video Mockup -->
               <div class="project-showcase-right relative flex items-center justify-center p-0 group overflow-hidden rounded-[1.8rem]">
                 <video
-                  poster="./assets/posters/mamunwifi-poster.webp"
+                  src="./assets/mamunwifi-showcase.mp4"
+                  poster="./images/mamun-wifi.jpg"
                   class="w-full h-auto rounded-[1.8rem] shadow-2xl object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   loop
                   muted
                   playsinline
                   webkit-playsinline
+                  autoplay
                   preload="none"
                   style="box-shadow: 0 20px 45px rgba(0,0,0,0.75);"
                 >
-              <source src="./assets/mamunwifi-showcase.webm" type="video/webm">
-              <source src="./assets/mamunwifi-showcase.mp4" type="video/mp4">
-            </video>
+                  <source src="./assets/mamunwifi-showcase.mp4" type="video/mp4">
+                </video>
               </div>
 
             </div>
@@ -1268,11 +1358,11 @@
               <!-- Left Column: Image Mockup -->
               <div class="project-showcase-left relative flex items-center justify-center p-0 group overflow-hidden rounded-[1.8rem]">
                 <img
-                  src="./images/ghorerbazar.webp"
+                  src="./images/ghorerbazar.jpg"
                   alt="Ghorer Bazar 2.0 Organic Superfoods"
                   class="w-full h-auto rounded-[1.8rem] shadow-2xl object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   loading="lazy"
-                 decoding="async">
+                >
               </div>
 
               <!-- Right Column: Details & Highlights -->
@@ -1410,11 +1500,11 @@
               <!-- Right Column: Image Mockup -->
               <div class="project-showcase-right relative flex items-center justify-center p-0 group overflow-hidden rounded-[1.8rem]">
                 <img
-                  src="./assets/projects/watch24/screenshot/1.webp"
+                  src="./assets/projects/watch24/screenshot/1.jpg"
                   alt="TimeHouse BD Collector Showcase"
                   class="w-full h-auto rounded-[1.8rem] shadow-2xl object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   loading="lazy"
-                 decoding="async">
+                >
               </div>
 
             </div>
@@ -1464,10 +1554,10 @@
             From 3D luxury storefronts to enterprise automation systems, our senior engineering team builds platforms that dominate search results and maximize revenue.
           </p>
           <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="/#contact" class="px-8 py-4 rounded-full bg-[#FF2A4D] hover:bg-red-600 text-white font-semibold text-sm transition-all duration-300 shadow-xl shadow-red-900/40 w-full sm:w-auto">
+            <a href="index.html#contact" class="px-8 py-4 rounded-full bg-[#FF2A4D] hover:bg-red-600 text-white font-semibold text-sm transition-all duration-300 shadow-xl shadow-red-900/40 w-full sm:w-auto">
               Book a Strategy Call
             </a>
-            <a href="/services" class="px-8 py-4 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 text-white font-semibold text-sm transition-all duration-300 w-full sm:w-auto">
+            <a href="services.html" class="px-8 py-4 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 text-white font-semibold text-sm transition-all duration-300 w-full sm:w-auto">
               Explore Our Services
             </a>
           </div>
@@ -1490,11 +1580,11 @@
             PLATFORMS
           </h4>
           <ul class="space-y-3 text-sm text-slate-400">
-            <li><a href="/web-development" class="hover:text-white transition-colors">E-Commerce Speed Stores</a></li>
-            <li><a href="/web-development" class="hover:text-white transition-colors">SaaS &amp; Application Portals</a></li>
-            <li><a href="/ui-ux-3d-design" class="hover:text-white transition-colors">3D Interactive Spikes</a></li>
-            <li><a href="/ai-automation" class="hover:text-white transition-colors">AI Automation Workflows</a></li>
-            <li><a href="/case-studies" class="hover:text-white transition-colors">Performance Lab</a></li>
+            <li><a href="web-development.html" class="hover:text-white transition-colors">E-Commerce Speed Stores</a></li>
+            <li><a href="web-development.html" class="hover:text-white transition-colors">SaaS &amp; Application Portals</a></li>
+            <li><a href="ui-ux-3d-design.html" class="hover:text-white transition-colors">3D Interactive Spikes</a></li>
+            <li><a href="ai-automation.html" class="hover:text-white transition-colors">AI Automation Workflows</a></li>
+            <li><a href="case-studies.html" class="hover:text-white transition-colors">Performance Lab</a></li>
           </ul>
         </div>
 
@@ -1504,11 +1594,11 @@
             COMPANY
           </h4>
           <ul class="space-y-3 text-sm text-slate-400">
-            <li><a href="/case-studies" class="hover:text-white transition-colors">About APPIEX Systems</a></li>
-            <li><a href="/ui-ux-3d-design" class="hover:text-white transition-colors">UI/UX Biomechanics</a></li>
-            <li><a href="/services" class="hover:text-white transition-colors">Services Overview</a></li>
-            <li><a href="/collections" class="hover:text-white transition-colors">Curated Collections</a></li>
-            <li><a href="/partners" class="hover:text-white transition-colors">Agency Partnerships</a></li>
+            <li><a href="case-studies.html" class="hover:text-white transition-colors">About APPIEX Systems</a></li>
+            <li><a href="ui-ux-3d-design.html" class="hover:text-white transition-colors">UI/UX Biomechanics</a></li>
+            <li><a href="services.html" class="hover:text-white transition-colors">Services Overview</a></li>
+            <li><a href="collections.html" class="hover:text-white transition-colors">Curated Collections</a></li>
+            <li><a href="partners.html" class="hover:text-white transition-colors">Agency Partnerships</a></li>
           </ul>
         </div>
 
@@ -1519,10 +1609,10 @@
           </h4>
           <ul class="space-y-3 text-sm text-slate-400">
             <li><a href="https://github.com/monacogo001-ops" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">GitHub Repository</a></li>
-            <li><a href="/refer" class="hover:text-white transition-colors">15% Referral Program</a></li>
-            <li><a href="/web-development" class="hover:text-white transition-colors">Tech Stack Matrix</a></li>
-            <li><a href="/#contact" class="hover:text-white transition-colors">Contact Engineering</a></li>
-            <li><a href="/#contact" class="hover:text-white transition-colors">Client FAQ</a></li>
+            <li><a href="refer.html" class="hover:text-white transition-colors">15% Referral Program</a></li>
+            <li><a href="web-development.html" class="hover:text-white transition-colors">Tech Stack Matrix</a></li>
+            <li><a href="index.html#contact" class="hover:text-white transition-colors">Contact Engineering</a></li>
+            <li><a href="index.html#contact" class="hover:text-white transition-colors">Client FAQ</a></li>
           </ul>
         </div>
 
@@ -1559,8 +1649,8 @@
       <div class="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
         <p>© 2026 APPIEX Systems. All rights reserved.</p>
         <div class="flex items-center gap-6">
-          <a href="/privacy-policy" class="hover:text-slate-300 transition-colors">Privacy Policy</a>
-          <a href="/terms-of-service" class="hover:text-slate-300 transition-colors">Terms of Service</a>
+          <a href="/privacy-policy.html" class="hover:text-slate-300 transition-colors">Privacy Policy</a>
+          <a href="/terms-of-service.html" class="hover:text-slate-300 transition-colors">Terms of Service</a>
           <a href="sitemap.xml" class="hover:text-slate-300 transition-colors">Sitemap</a>
         </div>
       </div>
@@ -1581,7 +1671,8 @@
       if (typeof Lenis !== 'undefined') {
         const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (!prefersReduced) {
-          lenis = (window.innerWidth <= 1024 || ("ontouchstart" in window)) ? null : new Lenis({ duration: 0.75,
+          lenis = new Lenis({
+        duration: 1.0,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         orientation: 'vertical',
         gestureOrientation: 'vertical',
@@ -1595,7 +1686,7 @@
           window.lenis = lenis;
 
           if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            lenis && lenis.on('scroll', ScrollTrigger.update);
+            lenis.on('scroll', ScrollTrigger.update);
             if (lenis) { gsap.ticker.add((time) => { lenis.raf(time * 1000); }); }
             gsap.ticker.lagSmoothing(500, 33);
           } else {
@@ -1703,7 +1794,7 @@
 
           function transformToProfileCircle(el) {
             if (!el) return;
-            el.href = '/profile';
+            el.href = 'profile.html';
             el.title = userName + ' - Profile';
             el.setAttribute('aria-label', userName + ' Profile');
             el.innerText = '';
@@ -1785,7 +1876,7 @@
       </div>
 
       <nav class="cyber-nav-list">
-        <a href="/" class="cyber-nav-item active" data-section="home">
+        <a href="/index.html" class="cyber-nav-item active" data-section="home">
           HOME
           <span class="badge-page">PAGE<br>001</span>
         </a>
@@ -1809,11 +1900,11 @@
           </div>
         </div>
 
-        <a href="/refer" class="cyber-nav-item" data-section="refer">REFER</a>
-        <a href="/partners" class="cyber-nav-item" data-section="partners">PARTNERSHIP</a>
-        <a href="/projects" class="cyber-nav-item" data-section="projects">PROJECTS</a>
-        <a href="/#contact" class="cyber-nav-item" data-section="contact">CONTACT</a>
-        <a href="/team" class="cyber-nav-item">ABOUT</a>
+        <a href="/refer.html" class="cyber-nav-item" data-section="refer">REFER</a>
+        <a href="/partners.html" class="cyber-nav-item" data-section="partners">PARTNERSHIP</a>
+        <a href="/projects.html" class="cyber-nav-item" data-section="projects">PROJECTS</a>
+        <a href="/index.html#contact" class="cyber-nav-item" data-section="contact">CONTACT</a>
+        <a href="/team.html" class="cyber-nav-item">ABOUT</a>
       </nav>
 
       <div class="cyber-meta-section">
@@ -1834,8 +1925,8 @@
           <span>ACTIONS</span>
         </div>
         <div class="cyber-meta-content">
-          <a href="/login">LOGIN</a>
-          <a href="/#contact">BOOK A MEETING</a>
+          <a href="/login.html">LOGIN</a>
+          <a href="/index.html#contact">BOOK A MEETING</a>
         </div>
       </div>
 

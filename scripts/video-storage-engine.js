@@ -180,16 +180,13 @@ class VideoStorageEngine {
       : targetElementOrId;
     if (!el) return;
 
-    const canPlayWebM = !!(el.canPlayType && (el.canPlayType('video/webm; codecs="vp9"') || el.canPlayType('video/webm')));
-    const ext = canPlayWebM ? 'webm' : 'mp4';
-
     const defaultMap = {
-      'bento_video': `./assets/bento-showcase.${ext}`,
-      'proj_video_watch24bd': `./assets/watch24bd-showcase.${ext}`,
-      'proj_video_libasnafs': `./assets/libasnafs-showcase.${ext}`,
-      'proj_video_mamunwifi': `./assets/mamunwifi-showcase.${ext}`,
-      'proj_video_timedune': `./assets/watch24bd-showcase.${ext}`,
-      'seo_preview_video': `./assets/seo-top-ranking.${ext}`
+      'bento_video': './assets/bento-showcase.mp4',
+      'proj_video_watch24bd': './assets/watch24bd-showcase.mp4',
+      'proj_video_libasnafs': './assets/libasnafs-showcase.mp4',
+      'proj_video_mamunwifi': './assets/mamunwifi-showcase.mp4',
+      'proj_video_timedune': './assets/watch24bd-showcase.mp4',
+      'seo_preview_video': './assets/seo-top-ranking.mp4'
     };
 
     const resolvedFallback = defaultMap[key] || fallbackSrc;
@@ -198,14 +195,14 @@ class VideoStorageEngine {
     const blobUrl = await this.getVideoBlobUrl(key);
     if (blobUrl) {
       el.src = blobUrl;
-      el.preload = (el.dataset.inView === 'true') ? 'auto' : 'none';
+      el.preload = (el.dataset.inView === 'true' || el.hasAttribute('autoplay')) ? 'auto' : 'metadata';
       el.muted = true;
       el.defaultMuted = true;
       el.playsInline = true;
       el.setAttribute('playsinline', '');
       el.setAttribute('webkit-playsinline', '');
       el.setAttribute('muted', '');
-      if (el.dataset.inView === 'true') {
+      if (el.dataset.inView === 'true' || el.hasAttribute('autoplay')) {
         el.play().catch(() => {});
       } else {
         el.pause();
@@ -217,14 +214,14 @@ class VideoStorageEngine {
     const cloudUrl = localStorage.getItem(`appiex_video_${key}_cloud_url`);
     if (cloudUrl) {
       el.src = cloudUrl;
-      el.preload = (el.dataset.inView === 'true') ? 'auto' : 'none';
+      el.preload = (el.dataset.inView === 'true' || el.hasAttribute('autoplay')) ? 'auto' : 'metadata';
       el.muted = true;
       el.defaultMuted = true;
       el.playsInline = true;
       el.setAttribute('playsinline', '');
       el.setAttribute('webkit-playsinline', '');
       el.setAttribute('muted', '');
-      if (el.dataset.inView === 'true') {
+      if (el.dataset.inView === 'true' || el.hasAttribute('autoplay')) {
         el.play().catch(() => {});
       } else {
         el.pause();
@@ -232,14 +229,13 @@ class VideoStorageEngine {
       return;
     }
 
-    // Fallback to compressed WebM (or MP4 fallback on older Safari)
+    // Fallback to universal MP4 asset so it works on all phones & devices
     if (resolvedFallback) {
       const currentSrc = el.getAttribute('src') || '';
-      const hasSources = el.querySelectorAll('source').length > 0;
-      if (!hasSources && (!currentSrc || currentSrc.includes('developer-coding.mp4'))) {
+      if (!currentSrc || currentSrc.includes('developer-coding.mp4')) {
         el.src = resolvedFallback;
       }
-      el.preload = (el.dataset.inView === 'true') ? 'metadata' : 'none';
+      el.preload = (el.dataset.inView === 'true' || el.hasAttribute('autoplay')) ? 'auto' : 'metadata';
       el.muted = true;
       el.defaultMuted = true;
       el.playsInline = true;
@@ -252,7 +248,7 @@ class VideoStorageEngine {
         if (p !== undefined) {
           p.catch(() => {
             const resumeOnTouch = () => {
-              if (el.dataset.inView === 'true') el.play().catch(() => {});
+              el.play().catch(() => {});
               document.removeEventListener('touchstart', resumeOnTouch);
               document.removeEventListener('scroll', resumeOnTouch);
               document.removeEventListener('click', resumeOnTouch);
@@ -264,7 +260,7 @@ class VideoStorageEngine {
         }
       };
 
-      if (el.dataset.inView === 'true') {
+      if (el.dataset.inView === 'true' || el.hasAttribute('autoplay')) {
         tryPlay();
       } else {
         el.pause();
