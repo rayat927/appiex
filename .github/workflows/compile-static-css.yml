@@ -24,10 +24,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: Install locked dependencies
-        run: npm ci --no-audit --no-fund
       - name: Generate complete local stylesheet
-        run: npx tailwindcss -i styles/tailwind-input.css -o styles/tailwind.generated.css --minify
+        run: npx --yes tailwindcss@3.4.17 -i styles/tailwind-input.css -o styles/tailwind.generated.css --minify
       - name: Verify expected referral layout utilities are present
         run: |
           node - <<'NODE'
