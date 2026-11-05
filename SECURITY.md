@@ -8,7 +8,7 @@ Before promoting the Next.js migration to production, configure these **server-s
 - `APPIEX_ADMIN_USER`: unique dashboard username.
 - `APPIEX_ADMIN_PASSWORD`: a new, strong dashboard password (different from `ADMIN_KEY`).
 
-The admin UI is protected by Next.js middleware using HTTPS Basic authentication. With no credentials configured, admin pages fail closed with HTTP 503. The API rejects privileged GET/DELETE requests without `ADMIN_KEY`. This is a **temporary security control**; migrate to a proper session-based, role-aware authentication system before scaling.
+The admin UI is protected by server-side HTTPS Basic authentication on first login. A short-lived, HMAC-signed, `HttpOnly`/`Secure`/`SameSite=Strict` cookie then allows the browser to use the protected Next.js visitor API without exposing `ADMIN_KEY` to client JavaScript. Cookie-authorized DELETE requests require the exact same origin. With any required credential unset, the admin UI fails closed with HTTP 503, and the protected API cannot be accessed using that missing key. Admin HTML and JSON responses are never publicly cached. This remains a **temporary** authentication design: implement role-aware sessions, revocation, and a private database before scaling.
 
 ## Visitor telemetry privacy
 
@@ -16,7 +16,7 @@ The legacy outbound notification stream was unauthenticated and could contain pe
 
 **Important:** The current in-memory and `/tmp` telemetry store is ephemeral in serverless deployments and is not suitable for reliable multi-instance dashboards or CRM leads. Implement private durable storage (e.g. a managed Postgres database) with authentication, minimal fields and retention policies before treating it as a source of truth. Previously published stream messages might still exist outside this repository; investigate deletion with the provider and assess privacy obligations.
 
-The admin's legacy visitor view may need integration changes to use the new server-only admin authorization; do **not** put the new `ADMIN_KEY` in browser JavaScript.
+Browser visitor-API access now uses the signed admin cookie issued at Basic login; keep `ADMIN_KEY` strictly server-only. The legacy dashboard still needs real preview testing: its historical API paths, on-page widgets and data refresh may not all be compatible. Closing the browser or clearing site data is recommended for ending a Basic-auth session; browsers may retain Basic credentials independently of the signed cookie.
 
 ## Migration preflight
 
