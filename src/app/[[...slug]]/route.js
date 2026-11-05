@@ -62,11 +62,19 @@ export async function GET(request, context) {
 
   if (htmlFile) {
     const htmlContent = fs.readFileSync(htmlFile, 'utf8');
+    // Authenticated admin HTML must never be stored by browsers or CDNs.
+    const isAdminPage = /^admin(?:\/|$|\.html$)/i.test(slug.join('/'));
     return new NextResponse(htmlContent, {
       status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400'
+        'Cache-Control': isAdminPage
+          ? 'private, no-store, max-age=0'
+          : 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400',
+        ...(isAdminPage ? {
+          'X-Robots-Tag': 'noindex, nofollow, noarchive',
+          'Vary': 'Authorization, Cookie'
+        } : {})
       }
     });
   }
