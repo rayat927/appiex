@@ -260,29 +260,6 @@
   <!-- Precompiled Tailwind ensures the original layout works without third-party scripts. -->
   <link rel="stylesheet" href="/styles/tailwind.generated.css">
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            appiexRed: '#FF2A4D',
-            appiexRedDark: '#DC2626',
-            appiexTeal: '#2DD4BF',
-            appiexDark: '#030408',
-            appiexCard: '#080910'
-          },
-          fontFamily: {
-            sans: ['Google Sans', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-            montserrat: ['Montserrat', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-            anton: ['Anton', 'Impact', 'sans-serif']
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
     @font-face {
       font-family: 'Suisse Intl';
@@ -1153,6 +1130,24 @@
     }
   </style>
 
+
+<style id="appiex-refer-type-stability">
+  /* Preserve the original hero while avoiding navbar collisions and oversized line wraps. */
+  body > main { padding-top: clamp(8.75rem, 10vw, 10.5rem) !important; }
+  body > main > .text-center:first-child { max-width: min(100%, 74rem); }
+  body > main > .text-center:first-child h1 {
+    font-family: 'Suisse Intl', 'Google Sans', system-ui, sans-serif !important;
+    font-size: clamp(2rem, 4.2vw, 3.85rem) !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.025em !important;
+    overflow-wrap: normal;
+  }
+  #dyn-hero-title1, #dyn-hero-title2 { text-wrap: balance; line-height: 1.2; }
+  @media (max-width: 640px) {
+    body > main { padding-top: 8rem !important; }
+    body > main > .text-center:first-child h1 { font-size: clamp(1.9rem, 7vw, 2.7rem) !important; }
+  }
+</style>
 </head>
 <body class="min-h-screen bg-[#030408] text-slate-100 flex flex-col justify-between relative selection:bg-red-600 selection:text-white">
   <!-- Cuberto-Style Page Transition Curtain (Appiex Red Ambient Aesthetic) -->

@@ -3174,6 +3174,31 @@
   };
 </script>
 
+
+<style id="appiex-home-typography-stability">
+  /* Keep the original hero and editorial scroll design legible at every viewport. */
+  #home.home-hero-section {
+    margin-top: 0 !important;
+    padding-top: clamp(7.5rem, 10vw, 9rem) !important;
+  }
+  #home h1.font-template-title {
+    font-family: 'Suisse Intl', 'Google Sans', system-ui, sans-serif !important;
+    font-size: clamp(2.1rem, 4.5vw, 4.4rem) !important;
+    line-height: 1.16 !important;
+    letter-spacing: -0.025em !important;
+    text-wrap: balance;
+  }
+  #home > p { line-height: 1.7 !important; text-wrap: pretty; }
+  #story-section #scroll-reveal-paragraph { line-height: 1.35 !important; text-wrap: pretty; }
+  #story-section .reveal-word { color: rgba(255,255,255,0.68) !important; }
+  #story-section .reveal-word.is-lit { color: #fff !important; }
+  #story-section .story-watermark { pointer-events: none; }
+  @media (max-width: 640px) {
+    #home.home-hero-section { padding-top: 7rem !important; }
+    #home h1.font-template-title { font-size: clamp(2rem, 7.6vw, 2.8rem) !important; }
+    #story-section #scroll-reveal-paragraph { font-size: clamp(1.1rem, 4vw, 1.4rem) !important; }
+  }
+</style>
 </head>
     <body class="font-sans antialiased">
   <!-- Cuberto-Style Page Transition Curtain (Appiex Red Ambient Aesthetic) -->
