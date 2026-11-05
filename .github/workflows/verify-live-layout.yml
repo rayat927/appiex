@@ -6,6 +6,9 @@ on:
       - '.github/workflows/verify-live-layout.yml'
       - 'scripts/verify-live-layout.py'
       - 'styles/tailwind.generated.css'
+      - 'refer.html'
+      - 'blog.html'
+      - 'blog/**/*.html'
   workflow_dispatch:
 permissions:
   contents: read
