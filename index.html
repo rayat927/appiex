@@ -2990,43 +2990,7 @@
   </style>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700;800&family=Sora:wght@700;800;900&display=swap" rel="stylesheet">
   <!-- Instant 0.1s Sub-Second Navigation Engine -->
-  <script type="speculationrules">
-  {
-    "prerender": [
-      {
-        "source": "list",
-        "urls": [
-          "/",
-          "/projects",
-          "/services",
-          "/refer",
-          "/partners",
-          "/case-studies",
-          "/web-development",
-          "/ui-ux-3d-design",
-          "/ai-automation",
-          "/seo-marketing",
-          "/digital-strategy",
-          "/blog",
-          "/login",
-          "/team"
-        ],
-        "eagerness": "immediate"
-      },
-      {
-        "source": "document",
-        "where": {
-          "and": [
-            { "href_matches": "/*" },
-            { "not": { "href_matches": "/admin*" } },
-            { "not": { "href_matches": "/gaming*" } }
-          ]
-        },
-        "eagerness": "moderate"
-      }
-    ]
-  }
-  </script>
+  <!-- Lightweight navigation prefetch runs on user intent via instant-nav.js -->
   
   
   
