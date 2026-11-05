@@ -1529,54 +1529,11 @@
   }
 
   // Navigate to URL in 0.001s (Uses Memory Cache if ready, otherwise Native Instant Navigation)
-  function navigateInstant(rawHref, pushHistory = true) {
-    if (isNavigating) return;
-    try {
-      const targetUrl = new URL(rawHref, location.href);
-      const normTarget = toCleanPath(targetUrl.pathname);
-      const cleanTargetHref = normTarget + targetUrl.search + targetUrl.hash;
-
-      // Close mobile drawer if open
-      const curDrawer = document.getElementById('rafsan-mobile-drawer');
-      if (curDrawer && curDrawer.classList.contains('open')) {
-        curDrawer.classList.remove('open');
-        document.body.classList.remove('menu-open');
-      }
-
-      // Exclude 3D gaming / admin pages from SPA swap so their full WebGL canvas boots natively
-      if (normTarget === '/gaming' || normTarget.startsWith('/admin')) {
-        window.location.href = cleanTargetHref;
-        return;
-      }
-
-      const cachedHtml = htmlMemoryCache.get(normTarget);
-      if (cachedHtml) {
-        isNavigating = true;
-        const ok = swapPageFromHtml(cachedHtml, cleanTargetHref, pushHistory);
-        isNavigating = false;
-        if (ok) return;
-      }
-
-      // If fetch is currently in flight, wait up to 80ms; otherwise navigate immediately with zero curtain delay
-      if (pendingFetches.has(normTarget)) {
-        isNavigating = true;
-        pendingFetches.get(normTarget).then(html => {
-          if (html) {
-            const ok = swapPageFromHtml(html, cleanTargetHref, pushHistory);
-            isNavigating = false;
-            if (ok) return;
-          }
-          isNavigating = false;
-          window.location.href = cleanTargetHref;
-        });
-        return;
-      }
-
-      // Direct 0ms native navigation (often served in 0.001s by Chromium Speculation Rules prerender!)
-      window.location.href = cleanTargetHref;
-    } catch (e) {
-      window.location.href = rawHref;
-    }
+  // Legacy pages need their own CSS, scripts and initialization.
+  // Native document navigation is intentional until this site is fully
+  // converted to a single framework-managed client router.
+  function navigateInstant(rawHref) {
+    window.location.assign(new URL(rawHref, location.href).href);
   }
 
   document.addEventListener('click', (e) => {
@@ -1616,24 +1573,15 @@
         return;
       }
 
-      // Cross-page navigation in 0.001s
-      e.preventDefault();
-      const cleanTargetHref = normTarget + targetUrl.search + targetUrl.hash;
-      navigateInstant(cleanTargetHref, true);
+      // Let the browser perform ordinary cross-page document navigation.
+      // This guarantees destination CSS and scripts execute on every visit.
+      return;
 
     } catch (err) {}
   });
 
-  // Handle Browser Back / Forward Buttons in 0.001s
-  window.addEventListener('popstate', () => {
-    const cleanTarget = toCleanPath(location.pathname) + location.search + location.hash;
-    const normTarget = toCleanPath(location.pathname);
-    if (htmlMemoryCache.has(normTarget)) {
-      swapPageFromHtml(htmlMemoryCache.get(normTarget), cleanTarget, false);
-    } else {
-      window.location.reload();
-    }
-  });
+  // Native browser history and bfcache own back/forward restoration.
+  // Do not swap cached HTML across different full-document pages.
 
   // 6. Back / Forward Cache (bfcache) Restore Cleanup
   window.addEventListener('pageshow', () => {
