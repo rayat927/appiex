@@ -5365,7 +5365,7 @@
   <!-- Runtime Motion & Smooth Scroll Suite -->
   
   
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  
 
   <!-- ========================================================
        APPIEX HOME LENIS SMOOTH SCROLL ENGINE
@@ -5373,22 +5373,33 @@
   <script>
     window.initHomeLenis = function() {
       if (window.lenis) return;
+
+      // Native scrolling on touch/reduced-motion/data-saving devices avoids
+      // downloading and executing an otherwise unused scrolling library.
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const isTouch = window.matchMedia('(pointer: coarse)').matches ||
+        ('ontouchstart' in window) || window.innerWidth <= 1024;
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (prefersReduced || isTouch || (connection && connection.saveData)) return;
+
       if (typeof Lenis === 'undefined') {
-        setTimeout(window.initHomeLenis, 60);
+        if (window.__appiexLenisRequested) return;
+        window.__appiexLenisRequested = true;
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js';
+        script.async = true;
+        script.onload = function() {
+          window.__appiexLenisRequested = false;
+          window.initHomeLenis();
+        };
+        script.onerror = function() {
+          window.__appiexLenisRequested = false;
+        };
+        document.head.appendChild(script);
         return;
       }
-
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (prefersReduced) return;
-
       document.documentElement.classList.add('lenis');
 
-      const isTouch = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || ('ontouchstart' in window) || window.innerWidth <= 1024;
-      // On mobile phones/tablets, use 100% native 120Hz hardware scrolling without JS Lenis loop overhead
-      if (isTouch) {
-        document.documentElement.classList.remove('lenis', 'lenis-smooth');
-        return;
-      }
       const lenis = new Lenis({
         duration: 0.75,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -5427,11 +5438,15 @@
         });
       });
     };
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', window.initHomeLenis);
-    } else {
-      window.initHomeLenis();
+    function scheduleSmoothScroll() {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(window.initHomeLenis, { timeout: 2000 });
+      } else {
+        window.setTimeout(window.initHomeLenis, 500);
+      }
     }
+    if (document.readyState === 'complete') scheduleSmoothScroll();
+    else window.addEventListener('load', scheduleSmoothScroll, { once: true });
   </script>
 
 
