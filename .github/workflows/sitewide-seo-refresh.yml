@@ -1,0 +1,20 @@
+name: Appiex sitewide SEO and design QA
+on:
+  push:
+    branches: [feat/sitewide-seo-visual-polish-20261106]
+    paths:
+      - '.github/workflows/sitewide-seo-refresh.yml'
+      - 'scripts/audit-sitewide-seo.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Sitewide SEO inventory
+        run: node scripts/audit-sitewide-seo.mjs
