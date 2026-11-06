@@ -154,6 +154,9 @@ for(const [page,cfg] of Object.entries(configs)){
  const file=path.join(root,page+'.html');
  if(!fs.existsSync(file))throw Error('Missing target page '+page);
  const original=fs.readFileSync(file,'utf8');
+ // A completed V2 module already has the final source structure.
+ // Idempotence matters for CI, deployment and subsequent changes.
+ if(original.includes('appiex-related-services--v2'))continue;
  const legacy=legacyServices(original,page);
  if(legacy.length!==3)throw Error('No valid related services on '+page);
  let html=removeLegacySpecial(original,page);
