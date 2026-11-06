@@ -9,6 +9,7 @@ on:
       - 'index.html'
       - 'styles/appiex-home-sections-v3.css'
       - 'scripts/check-home-sections-v3.mjs'
+      - 'scripts/check-editorial-renderer.mjs'
   workflow_dispatch:
 
 permissions:
