@@ -249,7 +249,7 @@ body.gaming-page{margin:0;min-width:320px;background:#09090b;color:#f4f0f0;font-
 .gx-service-cta i{font-size:18px;font-style:normal}
 .gx-clarity{background:#100d11;padding:0;overflow:hidden;border-top:1px solid #5a3440}
 .gx-clarity-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(42px,6vw,105px);align-items:stretch}
-.gx-clarity-art{position:relative;min-height:680px;margin-left:calc(min(0px,(1440px - 100vw)/2) - 48px);
+.gx-clarity-art{position:relative;min-height:680px;margin-left:-48px;
   background:#1a0c12 url("https://images.unsplash.com/photo-1728457848586-fc2c468b4689?auto=format&fit=crop&w=1150&q=78") center/cover no-repeat;
 }
 .gx-clarity-art::after{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,7,11,.08),rgba(9,7,11,.22) 68%,#100d11)}
@@ -270,7 +270,7 @@ body.gaming-page{margin:0;min-width:320px;background:#09090b;color:#f4f0f0;font-
   .gx-paths-intro{grid-template-columns:1fr;gap:20px}
   .gx-path-grid{grid-template-columns:1fr 1fr}
   .gx-clarity-grid{grid-template-columns:1fr}
-  .gx-clarity-art{min-height:360px;margin-inline:calc((min(1440px,100vw - 56px) - 100vw)/2)}
+  .gx-clarity-art{min-height:360px;margin-inline:-28px}
   .gx-clarity-art::after{background:linear-gradient(0deg,#100d11 0%,transparent 55%)}
   .gx-clarity-copy{padding:35px 0 90px}
 }
