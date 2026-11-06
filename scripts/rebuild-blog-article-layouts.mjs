@@ -130,7 +130,7 @@ function rebuild(original,slug) {
   const canonical = 'https://appiex.com/blog/' + slug;
   if (!original.includes(canonical)) throw Error('Canonical does not match slug');
   const h1 = original.match(/<h1\b[^>]*id=["\x27]cms-article-h1["\x27][^>]*>([\s\S]*?)<\/h1>/i)?.[1];
-  const title = text(h1 || original.match(/<title\b[^>]*>(.*?)<\/title>/i)?.[1]?.replace(/\s*\|\s*Appiex.*$/i,''));
+  const title = text(original.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1]?.replace(/\s*\|\s*Appiex(?: Engineering Blog| Blog)?\s*$/i,'') || h1);
   if (!title) throw Error('No article headline');
   const description = text(original.match(/<meta\b[^>]*name=["\x27]description["\x27][^>]*>/i)?.[0]?.match(/content=["\x27]([^"\x27]+)["\x27]/i)?.[1]);
   if (description.length < 35) throw Error('No usable description');
