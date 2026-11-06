@@ -45,7 +45,7 @@ const faq=graph.find(x=>x['@type']==='FAQPage');
 assert.equal(faq?.mainEntity?.length,5,'FAQ schema must have five questions');
 const visibleFaq=html.slice(html.indexOf('<div class="g-faq-list">'),html.indexOf('</section>',html.indexOf('<div class="g-faq-list">')));
 const visible=[...visibleFaq.matchAll(/<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>/g)]
- .map(m=>({question:decode(m[1].replace(/<[^>]*>/g,'')),answer:decode(m[2].replace(/<[^>]*>/g,''))}));
+ .map(m=>({question:decode(m[1].replace(/<span\b[^>]*>[\s\S]*?<\/span>/gi,'').replace(/<[^>]*>/g,'')),answer:decode(m[2].replace(/<[^>]*>/g,''))}));
 assert.equal(visible.length,5,'Expected five visible accordion FAQs');
 for(let i=0;i<5;i++){
  assert.equal(visible[i].question,faq.mainEntity[i].name,'FAQ question and schema differ: '+i);
