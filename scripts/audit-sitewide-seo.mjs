@@ -46,3 +46,8 @@ console.log('Pages with warnings: '+pages.filter(p=>p.issue.length).length);
 for(const p of pages.filter(p=>p.issue.length)) console.log(JSON.stringify({path:p.path,title:p.title,h1:p.h1,flags:p.issue}));
 console.log('Missing files:',issues.length);
 if(issues.length)console.log(JSON.stringify(issues));
+
+if(process.argv.includes('--strict') && (issues.length || pages.some(page=>page.issue.length))) {
+  console.error('Sitewide SEO audit strict mode found outstanding metadata or accessibility warnings');
+  process.exitCode=1;
+}
