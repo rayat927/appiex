@@ -365,10 +365,8 @@
   "/gaming": {
     "primary": "game development and interactive 3D experiences in Bangladesh",
     "supporting": [
-      "custom game development company",
-      "WebGL and browser game development",
-      "interactive 3D websites",
-      "virtual showrooms and gamification for brands"
+      "custom browser game development and WebGL",
+      "interactive 3D websites, virtual showrooms and brand gamification"
     ],
     "description": "Appiex builds custom browser games, WebGL experiences, interactive 3D websites and virtual showrooms in Bangladesh. Play Rift Shift, our original arcade game.",
     "title": "Game Development & 3D Experiences in Bangladesh | Appiex"
