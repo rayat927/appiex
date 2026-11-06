@@ -5,6 +5,7 @@ const gaming=fs.readFileSync('gaming.html','utf8');
 const home=fs.readFileSync('index.html','utf8');
 const css=fs.readFileSync('styles/gaming-v2.css','utf8');
 const js=fs.readFileSync('scripts/gaming-cta-measure.js','utf8');
+const homeJs=fs.readFileSync('scripts/home-cta-measure.js','utf8');
 const intents=JSON.parse(fs.readFileSync('scripts/data/page-search-intents.json','utf8'));
 const gm=intents['/gaming'],hm=intents['/'];
 const escape=s=>s.replaceAll('&','&amp;');
@@ -51,6 +52,14 @@ assert(css.length<25000,'Avoid unbounded page CSS');
 assert(gaming.length<40000,'Avoid heavyweight HTML');
 assert(home.includes('data-text="Discuss Your Project"')&&home.includes('See Selected Projects'),
   'Homepage above-fold CTAs must state clear next steps');
+assert(home.includes('data-home-cta="discuss-project"')&&home.includes('data-home-cta="see-projects"'),
+  'Track the main homepage hero offers consistently');
+assert(home.includes('/scripts/home-cta-measure.js'),
+  'Homepage CTA measurement script should load');
+assert(homeJs.includes('home_cta_click')&&homeJs.includes('home_cta_view'),
+  'Homepage must measure CTA visibility and actual clicks');
+assert(homeJs.includes('doNotTrack')&&homeJs.includes('ga-disable-'),
+  'Homepage measurement must respect privacy opt-outs');
 assert(home.includes('Your Business Growth Agency'),'Retain existing brand positioning');
 const schema=JSON.parse(gaming.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i)?.[1]||'{}')['@graph'];
 assert(schema.some(n=>n['@type']==='Service'&&n.serviceType.includes('3D Product Configurators')),
