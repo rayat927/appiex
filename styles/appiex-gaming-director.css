@@ -130,6 +130,7 @@
 .gaming-page .g-service-card p{color:#b2a8ac}
 .gaming-page .g-service-keywords{color:#91858a;border-color:#46383d}
 /* Real imagery throughout; remove CSS-drawn devices, fake "3D renders," emoji boxes. */
+.gaming-page .gd-photo-art{position:relative;overflow:hidden;isolation:isolate;margin:0;}
 .gaming-page .gs-platforms,.gaming-page .gs-concepts,.gaming-page .gs-partnership,.gaming-page .gs-engines,.gaming-page .gs-budget,.gaming-page .g-world-selector,.gaming-page .g-method,.gaming-page .g-seo,.gaming-page .g-faq,.gaming-page .g-related{
   background:#0e0c0e;border-color:#30272b;
 }
