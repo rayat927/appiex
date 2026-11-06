@@ -14,7 +14,7 @@ assert(html.includes('href="#arcade"'), 'No visible navigation to playable game'
 assert(html.includes('styles/appiex-gaming-arcade.css'), 'Cinematic background stylesheet missing');
 assert(html.includes('scripts/appiex-rift-shift.js'), 'Game JS missing');
 assert(html.includes('href="https://appiex.com/gaming"'), 'Canonical must be preserved');
-assert.equal((html.match(/<h1\\b/gi) || []).length,1,'One H1 only');
+assert.equal((html.match(/<h1\b/gi) || []).length,1,'One H1 only');
 assert(html.includes('<title>'+metadata.title.replaceAll('&','&amp;')+'</title>'), 'Title not aligned to search intent');
 assert(html.includes('name="description" content="'+metadata.description+'"'), 'Description not aligned to search intent');
 assert(!/meta[^>]*name="keywords"/i.test(html),'Avoid unused meta keywords');
@@ -22,10 +22,10 @@ assert(css.includes('max-width:650px')&&css.includes('prefers-reduced-motion:red
 assert(game.includes('localStorage.setItem'),'Local personal best missing');
 assert(game.includes('visibilitychange'),'Pause when tab is hidden');
 assert(game.includes('pointerup')&&game.includes('keydown'),'Touch and keyboard controls missing');
-assert(!/fetch\\s*\\(|XMLHttpRequest|WebSocket|setInterval\\s*\\(/.test(game),'Game must not send data or run background timers');
+assert(!/fetch\s*\(|XMLHttpRequest|WebSocket|setInterval\s*\(/.test(game),'Game must not send data or run background timers');
 assert(game.length < 17000, 'Game bundle exceeds source budget');
 assert(css.length < 13000, 'Arcade CSS exceeds source budget');
-const graph=JSON.parse(html.match(/<script type="application\\/ld\\+json">([\\s\\S]*?)<\\/script>/)[1])['@graph'];
+const graph=JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])['@graph'];
 const entry=graph.find(node=>node['@type']==='VideoGame');
 assert(entry?.url==='https://appiex.com/gaming#arcade','VideoGame structured data missing');
 
