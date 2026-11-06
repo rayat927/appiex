@@ -6,6 +6,11 @@ on:
       - feat/modernize-all-blog-articles-20261106
     paths:
       - '.github/workflows/generate-modern-blog-layouts.yml'
+      - 'scripts/rebuild-blog-article-layouts.mjs'
+      - 'scripts/check-editorial-renderer.mjs'
+      - 'scripts/check-blog-layout-v2.mjs'
+      - 'src/lib/appiex-html-polish.mjs'
+      - 'styles/appiex-blog-v2.css'
   workflow_dispatch:
 
 permissions:
