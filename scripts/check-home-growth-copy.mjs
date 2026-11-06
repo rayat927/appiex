@@ -30,7 +30,7 @@ const org=data.find(x=>x['@type']==='Organization');
 const agency=data.find(x=>x['@type']==='ProfessionalService');
 assert.equal(site?.name,title,'WebPage schema title out of sync');
 assert.equal(site?.description,description,'WebPage schema description out of sync');
-assert(agency?.description?.includes('digital growth agency'),'ProfessionalService should reflect agency positioning');
+assert(agency?.description?.includes('business growth agency'),'ProfessionalService should reflect agency positioning');
 const offered=new Set(org?.hasOfferCatalog?.itemListElement?.map(x=>x.itemOffered?.url));
 for(const route of ['/digital-strategy','/web-development','/ui-ux-3d-design','/ai-automation','/seo-marketing','/gaming'])
   assert(offered.has('https://appiex.com'+route),'Service missing from schema: '+route);
