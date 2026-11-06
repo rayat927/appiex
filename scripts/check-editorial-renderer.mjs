@@ -28,19 +28,20 @@ for (const file of articleFiles) {
   const sourceCanonical = (original.match(/<link\s+rel="canonical"[^>]*>/i) || [])[0] || '';
   const resultingCanonical = (html.match(/<link\s+rel="canonical"[^>]*>/i) || [])[0] || '';
   const headings = [...html.matchAll(/<h1\b/gi)];
-  const stylesheet = html.match(new RegExp('/styles/' + styleName.replace('.', '\\.').replace('.', '\\.'), 'g')) || [];
+  const stylesheet = html.split('/styles/' + styleName).length - 1;
   if (headings.length !== 1) errors.push(slug + ': expected one H1, got ' + headings.length);
   if (!title) errors.push(slug + ': title missing');
   if (sourceRobots !== resultingRobots) errors.push(slug + ': robots directive was changed');
   if (sourceCanonical !== resultingCanonical) errors.push(slug + ': canonical changed');
-  if (stylesheet.length !== 1) errors.push(slug + ': stylesheet missing or repeated');
+  if (stylesheet !== 1) errors.push(slug + ': stylesheet missing or repeated');
   if (!html.includes('appiex-editorial-page')) errors.push(slug + ': editorial class missing');
   if (!html.includes('appiex-reading-meter')) errors.push(slug + ': reading progress missing');
   if (html.includes('id="cms-article-body"')) {
     legacy++;
     const visible = (html.match(/<h1\b[^>]*id="cms-article-h1"[^>]*>([\s\S]*?)<\/h1>/i) || [])[1] || '';
     const expected = title.replace(/\s*\|\s*Appiex(?: Engineering Blog| Blog)?\s*$/i, '').trim();
-    if (!visible || !visible.includes(expected.slice(0, Math.min(25, expected.length)))) errors.push(slug + ': visible article heading differs from title');
+    const normalized = input => input.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g,' ').trim().toLowerCase();
+    if (!normalized(visible).startsWith(normalized(expected).slice(0, Math.min(25, expected.length)))) errors.push(slug + ': visible article heading differs from title');
   } else {
     modern++;
   }
