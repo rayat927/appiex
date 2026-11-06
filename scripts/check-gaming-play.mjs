@@ -42,6 +42,8 @@ const idsRequired=['g-game-canvas','g-game-intro','g-game-finish','g-game-start'
 'g-game-restart','g-game-pause','g-game-score','g-game-time','g-game-mission',
 'g-game-status','g-game-finish-title','g-game-finish-copy','g-game-finish-kicker'];
 const elements=new Map(idsRequired.map(id=>[id,element(id)]));
+// Model the server-rendered status text before progressive enhancement initializes.
+elements.get('g-game-status').textContent='Awaiting launch. Press Start Mission to play.';
 const gradient={addColorStop(){}};
 const ctx={createLinearGradient(){return gradient},createRadialGradient(){return gradient}};
 for(const method of ['fillRect','strokeRect','setTransform','save','restore','beginPath','moveTo',
