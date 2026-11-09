@@ -1162,6 +1162,9 @@
     if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('speculationrules')) return;
     try {
       const spec = document.createElement('script');
+      // Restrict prefetches to known public routes. Avoid broad document
+      // wildcards (/*, /admin*, /gaming*) and avoid prefetching login pages.
+      // This reduces unnecessary requests and misleading crawled URL patterns.
       spec.type = 'speculationrules';
       spec.id = 'appiex-clean-speculation-rules';
       spec.textContent = JSON.stringify({
@@ -1180,21 +1183,9 @@
               '/ai-automation',
               '/seo-marketing',
               '/blog',
-              '/login',
               '/team',
               '/case-studies'
             ],
-            eagerness: 'immediate'
-          },
-          {
-            source: 'document',
-            where: {
-              and: [
-                { href_matches: '/*' },
-                { not: { href_matches: '/admin*' } },
-                { not: { href_matches: '/gaming*' } }
-              ]
-            },
             eagerness: 'moderate'
           }
         ]
