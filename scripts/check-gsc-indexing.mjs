@@ -65,7 +65,11 @@ const nav=fs.readFileSync('scripts/instant-nav.js','utf8');
 assert(nav.includes("spec.type = 'speculationrules'"),'Keep curated prefetch');
 assert(!nav.includes('href_matches:'),
   'Avoid dynamic path wildcards appearing as misleading crawled URLs');
-assert(!nav.includes("'\/login',"),'Do not prefetch the private login route');
+const specStart=nav.indexOf("spec.type = 'speculationrules'");
+const specEnd=nav.indexOf('document.head.appendChild(spec)',specStart);
+assert(specEnd>specStart,'SpeculationRules block missing');
+const specRules=nav.slice(specStart,specEnd);
+assert(!specRules.includes("'/login',"),'Do not prefetch the private login route');
 
 // Confirm absent, unrelated legacy URLs are not redirected to the homepage.
 // Google's recommended response for genuinely gone content is 404/410.
