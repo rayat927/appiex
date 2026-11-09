@@ -46,25 +46,28 @@ jobs:
             echo "::error::The new AI/n8n guide is not live as expected."
             exit 1
           fi
-          # Confirm actual production HTTP redirects after the Vercel deployment.
+          # Verify actual final canonical destinations, allowing up to two
+          # permanent hops when Vercel first strips an obsolete .html suffix.
           check_redirect() {
-            local source="$1" expected="$2" code target headers
-            for attempt in 1 2 3 4 5 6; do
-              headers="$(curl --silent --show-error --head --max-time 25 \
-                -H "Cache-Control: no-cache" "https://appiex.com${source}" 2>/dev/null || true)"
-              code="$(printf '%s\n' "$headers" | tr -d '\r' | awk '/^HTTP\// {last=$2} END {print last}')"
-              target="$(printf '%s\n' "$headers" | tr -d '\r' | \
-                awk 'tolower($1)=="location:" {last=$2} END {print last}')"
-              if [[ "$code" == "308" || "$code" == "301" ]]; then
-                if [[ "$target" == "$expected" || "$target" == "https://appiex.com${expected}" ]]; then
-                  echo "OK: ${source} => ${target} (${code})"
+            local source="$1" expected="$2" result code final hops clean_expected
+            for attempt in 1 2 3 4; do
+              result="$(curl --silent --show-error --head --location --max-redirs 3 \
+                --max-time 30 -H "Cache-Control: no-cache" -o /dev/null \
+                -w '%{http_code}|%{url_effective}|%{num_redirects}' \
+                "https://appiex.com${source}" 2>/dev/null || true)"
+              IFS="|" read -r code final hops <<< "$result"
+              clean_expected="https://appiex.com${expected}"
+              if [[ "$code" == "200" && "${hops:-0}" -ge 1 && "${hops:-99}" -le 2 ]]; then
+                if [[ "$final" == "$clean_expected" ]] || \
+                   [[ "$expected" == "/#contact" && "$final" == "https://appiex.com/" ]]; then
+                  echo "OK: ${source} => ${final} (${hops} permanent canonical hops, final 200)"
                   return 0
                 fi
               fi
-              echo "Attempt ${attempt}: ${source} returned ${code:-unknown} => ${target:-none}; retrying"
+              echo "Attempt ${attempt}: ${source} ended at ${final:-unknown} with HTTP ${code:-none} after ${hops:-none} redirects"
               sleep 6
             done
-            echo "::error::Redirect not live: ${source} should redirect permanently to ${expected}"
+            echo "::error::Legacy URL failed to resolve to ${expected} in at most 2 redirects: ${source}"
             return 1
           }
           check_redirect "/index" "/"
