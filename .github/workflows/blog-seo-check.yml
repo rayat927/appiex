@@ -37,6 +37,9 @@ on:
       - 'seo-marketing.html'
       - 'best-software-agency.html'
       - 'scripts/check-site-seo.mjs'
+      - 'scripts/check-gsc-indexing.mjs'
+      - 'scripts/instant-nav.js'
+      - 'next.config.mjs'
       - 'scripts/seo-conversion-tracker.js'
       - 'scripts/check-lead-tracking.mjs'
   push:
@@ -57,6 +60,9 @@ on:
       - 'sitemap.xml'
       - 'scripts/check-blog-seo.mjs'
       - 'scripts/check-site-seo.mjs'
+      - 'scripts/check-gsc-indexing.mjs'
+      - 'scripts/instant-nav.js'
+      - 'next.config.mjs'
       - 'seo-marketing.html'
       - 'best-software-agency.html'
       - 'scripts/seo-conversion-tracker.js'
@@ -132,6 +138,8 @@ jobs:
           node --check scripts/gaming-cta-measure.js
           node --check scripts/home-cta-measure.js
           node scripts/check-gaming-conversion.mjs
+      - name: Validate redirects, indexability and stale GSC exclusions
+        run: node scripts/check-gsc-indexing.mjs
       - name: Audit SEO for all public sitemap pages
         run: node scripts/audit-sitewide-seo.mjs --strict
       - name: Check sitemap pages follow the approved metadata and linking policy
