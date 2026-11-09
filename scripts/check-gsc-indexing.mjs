@@ -35,11 +35,11 @@ for(const route of ['/pages/product-design.html','/pages/contacts.html']) {
     'Direct redirect must come before generic .html rule: '+route);
 }
 const sitemap = fs.readFileSync('sitemap.xml','utf8');
-const urls=[...sitemap.matchAll(/<loc>(.*?)<\\/loc>/g)].map(m=>m[1]);
+const urls=[...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(m=>m[1]);
 assert(urls.length>=45,'Sitemap needs a curated set of indexable pages');
 assert.equal(new Set(urls).size,urls.length,'No duplicate sitemap URLs');
 for(const url of urls) {
-  assert(!/\\.html(?:$|\\?)/.test(url),'Keep .html aliases out of sitemap: '+url);
+  assert(!/\.html(?:$|\?)/.test(url),'Keep .html aliases out of sitemap: '+url);
   assert(!url.includes('?'),'Keep query variants out of sitemap: '+url);
   assert(!url.includes('/index'),'Do not list duplicate /index route');
 }
