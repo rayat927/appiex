@@ -4,6 +4,12 @@ name: Verify live Appiex SEO deployment
 # the daily schedule detects when production drifts from reviewed SEO content.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'next.config.mjs'
+      - 'scripts/instant-nav.js'
+      - '.github/workflows/live-seo-deployment-check.yml'
   schedule:
     - cron: '17 3 * * *'
 
@@ -40,4 +46,36 @@ jobs:
             echo "::error::The new AI/n8n guide is not live as expected."
             exit 1
           fi
+          # Confirm actual production HTTP redirects after the Vercel deployment.
+          check_redirect() {
+            local source="$1" expected="$2" code target headers
+            for attempt in 1 2 3 4 5 6; do
+              headers="$(curl --silent --show-error --head --max-time 25 \
+                -H "Cache-Control: no-cache" "https://appiex.com${source}" 2>/dev/null || true)"
+              code="$(printf '%s\n' "$headers" | tr -d '\r' | awk '/^HTTP\// {last=$2} END {print last}')"
+              target="$(printf '%s\n' "$headers" | tr -d '\r' | \
+                awk 'tolower($1)=="location:" {last=$2} END {print last}')"
+              if [[ "$code" == "308" || "$code" == "301" ]]; then
+                if [[ "$target" == "$expected" || "$target" == "https://appiex.com${expected}" ]]; then
+                  echo "OK: ${source} => ${target} (${code})"
+                  return 0
+                fi
+              fi
+              echo "Attempt ${attempt}: ${source} returned ${code:-unknown} => ${target:-none}; retrying"
+              sleep 6
+            done
+            echo "::error::Redirect not live: ${source} should redirect permanently to ${expected}"
+            return 1
+          }
+          check_redirect "/index" "/"
+          check_redirect "/legal/legal-license" "/terms-of-service"
+          check_redirect "/pages/product-design.html" "/ui-ux-3d-design"
+          check_redirect "/pages/contacts.html" "/#contact"
+          fetch "https://appiex.com/gaming" /tmp/gaming.html
+          if ! grep -Fq '<meta name="robots" content="index, follow' /tmp/gaming.html || \
+             ! grep -Fq 'rel="canonical" href="https://appiex.com/gaming"' /tmp/gaming.html; then
+            echo "::error::Gaming is not indexable/canonical on production"
+            exit 1
+          fi
+          echo "GSC technical live checks passed. Google still controls recrawling and indexing."
           echo "Live SEO deployment checks passed. This does NOT prove indexing or rankings."
