@@ -25,9 +25,28 @@ const nextConfig = {
         destination: '/',
         permanent: true
       },
+      // Google Search Console found /index as a duplicate of the homepage.
+      // Redirect it permanently instead of serving another 200 + canonical.
+      {
+        source: '/index',
+        destination: '/',
+        permanent: true
+      },
       {
         source: '/index.html',
         destination: '/',
+        permanent: true
+      },
+      // Direct one-hop redirects for historic .html service aliases.
+      // These must precede the catch-all .html rule below.
+      {
+        source: '/pages/product-design.html',
+        destination: '/ui-ux-3d-design',
+        permanent: true
+      },
+      {
+        source: '/pages/contacts.html',
+        destination: '/#contact',
         permanent: true
       },
       {
@@ -78,6 +97,12 @@ const nextConfig = {
       {
         source: '/legal/privacy-policy',
         destination: '/privacy-policy',
+        permanent: true
+      },
+      // Legacy legal page now covered by the IP/licensing terms.
+      {
+        source: '/legal/legal-license',
+        destination: '/terms-of-service',
         permanent: true
       },
       {
