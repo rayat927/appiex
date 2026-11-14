@@ -50,9 +50,9 @@ assert(css.includes('max-width:610px'),'Responsive mobile fallback missing');
 assert(css.includes('prefers-reduced-motion:reduce'),'Reduced motion safety missing');
 assert(css.replace(/\r\n/g, '\n').length<25000,'Avoid unbounded page CSS');
 assert(gaming.length<40000,'Avoid heavyweight HTML');
-assert(home.includes('data-text="Discuss Your Project"')&&home.includes('See Selected Projects'),
+assert(home.includes('data-text="Discuss Your Project"')&&home.includes('Our Team'),
   'Homepage above-fold CTAs must state clear next steps');
-assert(home.includes('data-home-cta="discuss-project"')&&home.includes('data-home-cta="see-projects"'),
+assert(home.includes('data-home-cta="discuss-project"')&&home.includes('data-home-cta="our-team"'),
   'Track the main homepage hero offers consistently');
 assert(home.includes('/scripts/home-cta-measure.js'),
   'Homepage CTA measurement script should load');
