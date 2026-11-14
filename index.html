@@ -204,7 +204,7 @@
   pointer-events: none;
   background: transparent !important;
   font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  transition: all 0.35s ease;
+  transition: padding 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
 .rafsan-navbar-shell.scrolled {
@@ -267,7 +267,7 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  transition: all 0.35s ease;
+  transition: padding 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
 @media (min-width: 1025px) {
@@ -2679,6 +2679,85 @@
     ::view-transition-old(root) { animation: none !important; }
     ::view-transition-new(root) { animation: none !important; }
     #appiex-cuberto-curtain { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+  </style>
+  <style id="appiex-cuberto-entry-style">
+    /* Cuberto-style 60fps GPU-composited opening sequence (zero layout thrash) */
+    @keyframes apxCubertoNavIn {
+      0% { opacity: 0; transform: translate3d(0, -18px, 0) scale(0.97); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+    }
+    @keyframes apxCubertoCapsuleIn {
+      0% { opacity: 0; transform: translate3d(-50%, -20px, 0) scale(0.96); }
+      100% { opacity: 1; transform: translate3d(-50%, 0, 0) scale(1); }
+    }
+    @keyframes apxCubertoMaskRise {
+      0% { opacity: 0; transform: translate3d(0, 44px, 0); clip-path: inset(0 0 100% 0); }
+      18% { opacity: 1; }
+      100% { opacity: 1; transform: translate3d(0, 0, 0); clip-path: inset(0 0 0% 0); }
+    }
+    @keyframes apxCubertoFadeUp {
+      0% { opacity: 0; transform: translate3d(0, 28px, 0) scale(0.985); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+    }
+    #home { contain: layout style; }
+    #rafsan-navbar .rafsan-brand {
+      will-change: transform, opacity;
+      animation: apxCubertoNavIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+    }
+    @media (min-width: 1025px) {
+      #rafsan-navbar .rafsan-capsule-nav {
+        will-change: transform, opacity;
+        animation: apxCubertoCapsuleIn 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+      }
+    }
+    #rafsan-navbar .rafsan-nav-actions,
+    #rafsan-navbar .rafsan-mobile-wrap {
+      will-change: transform, opacity;
+      animation: apxCubertoNavIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
+    }
+    #home > .fade-up:first-of-type {
+      will-change: transform, opacity;
+      animation: apxCubertoFadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
+    }
+    #home h1 .hero-gradient-text {
+      display: inline-block;
+      will-change: transform, opacity, clip-path;
+    }
+    #home h1 .hero-gradient-text:first-of-type {
+      animation: apxCubertoMaskRise 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
+    }
+    #home h1 .hero-gradient-text:last-of-type {
+      animation: apxCubertoMaskRise 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.34s both;
+    }
+    #home > p.fade-up {
+      will-change: transform, opacity;
+      animation: apxCubertoFadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.44s both;
+    }
+    #home #hero-buttons-wrap {
+      will-change: transform, opacity;
+      animation: apxCubertoFadeUp 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.56s both;
+    }
+    #home-logo-section {
+      will-change: transform, opacity;
+      animation: apxCubertoFadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.68s both;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #rafsan-navbar .rafsan-brand,
+      #rafsan-navbar .rafsan-capsule-nav,
+      #rafsan-navbar .rafsan-nav-actions,
+      #rafsan-navbar .rafsan-mobile-wrap,
+      #home > .fade-up:first-of-type,
+      #home h1 .hero-gradient-text,
+      #home > p.fade-up,
+      #home #hero-buttons-wrap,
+      #home-logo-section {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        clip-path: none !important;
+        will-change: auto !important;
+      }
+    }
   </style>
   <script src="/scripts/instant-nav.js?v=20261105_v5_speed" defer></script>
 
