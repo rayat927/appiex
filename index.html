@@ -2691,48 +2691,49 @@
       100% { opacity: 1; transform: translate3d(-50%, 0, 0) scale(1); }
     }
     @keyframes apxCubertoFadeUp {
-      0% { opacity: 0; transform: translate3d(0, 32px, 0) scale(0.985); }
+      0% { opacity: 0; transform: translate3d(0, 38px, 0) scale(0.985); }
       100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
     }
     #home { contain: layout style; }
-    /* Step 1: Eyebrow & Main Title (unbroken single unit) */
-    #home > .fade-up:first-of-type {
-      will-change: transform, opacity;
-      animation: apxCubertoFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
-    }
+    /* Step 1: Main Title (Your Business Growth Agency / From Earth to Jupiter) */
     #home h1 {
       will-change: transform, opacity;
-      animation: apxCubertoFadeUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+      animation: apxCubertoFadeUp 1.35s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both !important;
     }
-    /* Step 2: Subtitle */
+    /* Step 2: Subtitle (Make it easier for customers...) */
     #home > p.fade-up {
       will-change: transform, opacity;
-      animation: apxCubertoFadeUp 1.35s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both;
+      animation: apxCubertoFadeUp 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both !important;
     }
-    /* Step 3: Home Bar & Home Capsule */
+    /* Step 3: Eyebrow (BUILT FOR GROWTH) */
+    #home > .fade-up:first-of-type {
+      will-change: transform, opacity;
+      animation: apxCubertoFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.95s both !important;
+    }
+    /* Step 4: Home Bar & Home Capsule */
     #rafsan-navbar .rafsan-brand {
       will-change: transform, opacity;
-      animation: apxCubertoNavIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
+      animation: apxCubertoNavIn 1.15s cubic-bezier(0.16, 1, 0.3, 1) 1.2s both;
     }
     @media (min-width: 1025px) {
       #rafsan-navbar .rafsan-capsule-nav {
         will-change: transform, opacity;
-        animation: apxCubertoCapsuleIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.98s both;
+        animation: apxCubertoCapsuleIn 1.15s cubic-bezier(0.16, 1, 0.3, 1) 1.28s both;
       }
     }
     #rafsan-navbar .rafsan-nav-actions,
     #rafsan-navbar .rafsan-mobile-wrap {
       will-change: transform, opacity;
-      animation: apxCubertoNavIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.05s both;
+      animation: apxCubertoNavIn 1.15s cubic-bezier(0.16, 1, 0.3, 1) 1.35s both;
     }
-    /* Step 4: Action Buttons & Logo Marquee */
+    /* Step 5: Action Buttons & Logo Marquee */
     #home #hero-buttons-wrap {
       will-change: transform, opacity;
-      animation: apxCubertoFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.25s both;
+      animation: apxCubertoFadeUp 1.15s cubic-bezier(0.16, 1, 0.3, 1) 1.5s both !important;
     }
     #home-logo-section {
       will-change: transform, opacity;
-      animation: apxCubertoFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.45s both;
+      animation: apxCubertoFadeUp 1.15s cubic-bezier(0.16, 1, 0.3, 1) 1.65s both;
     }
     @media (prefers-reduced-motion: reduce) {
       #rafsan-navbar .rafsan-brand,
