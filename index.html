@@ -2690,56 +2690,49 @@
       0% { opacity: 0; transform: translate3d(-50%, -20px, 0) scale(0.96); }
       100% { opacity: 1; transform: translate3d(-50%, 0, 0) scale(1); }
     }
-    @keyframes apxCubertoMaskRise {
-      0% { opacity: 0; transform: translate3d(0, 44px, 0); clip-path: inset(0 0 100% 0); }
-      18% { opacity: 1; }
-      100% { opacity: 1; transform: translate3d(0, 0, 0); clip-path: inset(0 0 0% 0); }
-    }
     @keyframes apxCubertoFadeUp {
-      0% { opacity: 0; transform: translate3d(0, 28px, 0) scale(0.985); }
+      0% { opacity: 0; transform: translate3d(0, 32px, 0) scale(0.985); }
       100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
     }
     #home { contain: layout style; }
+    /* Step 1: Eyebrow & Main Title (unbroken single unit) */
+    #home > .fade-up:first-of-type {
+      will-change: transform, opacity;
+      animation: apxCubertoFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+    }
+    #home h1 {
+      will-change: transform, opacity;
+      animation: apxCubertoFadeUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+    }
+    /* Step 2: Subtitle */
+    #home > p.fade-up {
+      will-change: transform, opacity;
+      animation: apxCubertoFadeUp 1.35s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both;
+    }
+    /* Step 3: Home Bar & Home Capsule */
     #rafsan-navbar .rafsan-brand {
       will-change: transform, opacity;
-      animation: apxCubertoNavIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+      animation: apxCubertoNavIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
     }
     @media (min-width: 1025px) {
       #rafsan-navbar .rafsan-capsule-nav {
         will-change: transform, opacity;
-        animation: apxCubertoCapsuleIn 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        animation: apxCubertoCapsuleIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.98s both;
       }
     }
     #rafsan-navbar .rafsan-nav-actions,
     #rafsan-navbar .rafsan-mobile-wrap {
       will-change: transform, opacity;
-      animation: apxCubertoNavIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
+      animation: apxCubertoNavIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.05s both;
     }
-    #home > .fade-up:first-of-type {
-      will-change: transform, opacity;
-      animation: apxCubertoFadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
-    }
-    #home h1 .hero-gradient-text {
-      display: inline-block;
-      will-change: transform, opacity, clip-path;
-    }
-    #home h1 .hero-gradient-text:first-of-type {
-      animation: apxCubertoMaskRise 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
-    }
-    #home h1 .hero-gradient-text:last-of-type {
-      animation: apxCubertoMaskRise 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.34s both;
-    }
-    #home > p.fade-up {
-      will-change: transform, opacity;
-      animation: apxCubertoFadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.44s both;
-    }
+    /* Step 4: Action Buttons & Logo Marquee */
     #home #hero-buttons-wrap {
       will-change: transform, opacity;
-      animation: apxCubertoFadeUp 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.56s both;
+      animation: apxCubertoFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.25s both;
     }
     #home-logo-section {
       will-change: transform, opacity;
-      animation: apxCubertoFadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.68s both;
+      animation: apxCubertoFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.45s both;
     }
     @media (prefers-reduced-motion: reduce) {
       #rafsan-navbar .rafsan-brand,
@@ -2747,14 +2740,13 @@
       #rafsan-navbar .rafsan-nav-actions,
       #rafsan-navbar .rafsan-mobile-wrap,
       #home > .fade-up:first-of-type,
-      #home h1 .hero-gradient-text,
+      #home h1,
       #home > p.fade-up,
       #home #hero-buttons-wrap,
       #home-logo-section {
         animation: none !important;
         opacity: 1 !important;
         transform: none !important;
-        clip-path: none !important;
         will-change: auto !important;
       }
     }
