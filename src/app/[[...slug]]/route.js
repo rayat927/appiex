@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
 import { improveHtml } from '../../lib/appiex-html-polish.mjs';
+import { installTagManager } from '../../lib/appiex-tag-manager.mjs';
 
 export const runtime = 'nodejs';
 
@@ -54,7 +55,7 @@ export async function GET(request, context) {
   const htmlFile = resolveHtmlPath(slug);
 
   if (htmlFile) {
-    const htmlContent = improveHtml(fs.readFileSync(htmlFile, 'utf8'), slug);
+    const htmlContent = installTagManager(improveHtml(fs.readFileSync(htmlFile, 'utf8'), slug), slug);
     return new NextResponse(htmlContent, {
       status: 200,
       headers: {
@@ -67,7 +68,7 @@ export async function GET(request, context) {
   // Fallback to custom 404.html if route doesn't exist
   const notFoundFile = resolveHtmlPath(['404']);
   if (notFoundFile) {
-    const html404 = fs.readFileSync(notFoundFile, 'utf8');
+    const html404 = installTagManager(fs.readFileSync(notFoundFile, 'utf8'), ['404']);
     return new NextResponse(html404, {
       status: 404,
       headers: {
