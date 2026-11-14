@@ -18,24 +18,31 @@
     /^\/(?:admin|login|profile|gaming|collections|resume|rafsan_page|scratch_cuberto_live)(?:\/|\.html$|$)/i
       .test(window.location.pathname);
 
-  // Homepage already initializes GA4.
-  if (!excludedPage && typeof window.gtag !== 'function') {
-    window.gtag = function () {
-      window.dataLayer.push(arguments);
-    };
+  // GTM also creates gtag(); its presence does not mean that GA4 is configured.
+  // Detect an existing GA4 config so the homepage keeps its single pageview.
+  var ga4Configured = window.dataLayer.some(function (entry) {
+    return entry && entry[0] === 'config' && entry[1] === ga4Id;
+  });
 
-    window.gtag('js', new Date());
+  if (!excludedPage && !ga4Configured) {
+    if (typeof window.gtag !== 'function') {
+      window.gtag = function () {
+        window.dataLayer.push(arguments);
+      };
+      window.gtag('js', new Date());
+    }
+
     window.gtag('config', ga4Id);
 
-    var ga4Script = document.createElement('script');
-    ga4Script.async = true;
-    ga4Script.src =
-      'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
-
-    document.head.appendChild(ga4Script);
+    // A GTM container and a GA4 gtag.js script have different jobs.
+    // Keep the existing GA4 collection working without loading gtag.js twice.
+    if (!document.querySelector('script[src*="gtag/js?id=' + ga4Id + '"]')) {
+      var ga4Script = document.createElement('script');
+      ga4Script.async = true;
+      ga4Script.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
+      document.head.appendChild(ga4Script);
+    }
   }
-
-  
 
   function trackConversionEvent(eventName, params) {
     var safeParams = Object.assign(
