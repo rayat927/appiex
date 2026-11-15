@@ -6,6 +6,10 @@
 - [Best Digital & Software Agency in the World Framework (2026 Guide)](https://appiex.com/best-agency-in-the-world): Global buyer benchmark and architectural evaluation framework explaining how to choose top web, 3D WebGL, software, and AI engineering agencies worldwide, plus Appiex verified capabilities and delivery standards.
 - [Best Software Agency For You (2026 Bangladesh Guide)](https://appiex.com/best-software-agency): Comprehensive guide & comparison matrix comparing top software companies in Bangladesh and highlighting Appiex capabilities for modern Next.js web applications, 3D WebGL experiences, and custom AI automations.
 
+## AI Search Resources (human-readable, not a ranking or indexing mechanism)
+- [AI Search Optimization (SEO, AEO & GEO)](https://appiex.com/ai-search-optimization): Service scope and limitations for technical SEO, answer quality, AI search readiness and measurement.
+- [Free 14-Point AI Search Readiness Checklist](https://appiex.com/ai-search-readiness-checklist): Reproducible audit of indexability, business identity, evidence, content, structured data and referrals.
+
 ## Core Services
 - [Ecommerce Website Development](https://appiex.com/ecommerce-development): Custom D2C and multi-showroom online stores in Bangladesh & globally with bKash, Nagad, SSLCOMMERZ 0% EMI, and courier automation.
 - [n8n Workflow Automation](https://appiex.com/n8n-automation): Self-hosted n8n deployments, CRM integrations, AI agents, and automated executive reporting.
