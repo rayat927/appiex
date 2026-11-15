@@ -1,0 +1,33 @@
+name: Verify live SEO release
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/check-live-seo-release.mjs'
+      - '.github/workflows/verify-live-seo-release.yml'
+      - 'ai-search-optimization.html'
+      - 'ai-search-readiness-checklist.html'
+      - 'seo-marketing.html'
+      - 'ai-automation.html'
+      - 'web-development.html'
+      - 'index.html'
+      - 'sitemap.xml'
+
+permissions:
+  contents: read
+
+jobs:
+  check-public-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify deployed pages, sitemap and robots
+        run: node scripts/check-live-seo-release.mjs
