@@ -8,7 +8,7 @@ const intents=JSON.parse(fs.readFileSync('scripts/data/page-search-intents.json'
 const urls=[...fs.readFileSync('sitemap.xml','utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
 const paths=urls.map(x=>new URL(x).pathname);
 const normalize=x=>String(x||'').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&#x27;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim();
-const getContent=tag=>normalize(tag?.match(/\bcontent=["']([^"']+)["']/i)?.[1]||'');
+const getContent=tag=>normalize(tag?.match(/\bcontent\s*=\s*(["'])([\s\S]*?)\1/i)?.[2]||'');
 const readMeta=(head,kind,key)=>getContent([...head.matchAll(/<meta\b[^>]*>/gi)].find(m=>new RegExp('\\b'+kind+'=["\\x27]'+key+'["\\x27]','i').test(m[0]))?.[0]);
 const errors=[];
 if(paths.length<45)errors.push('Expected at least 45 curated public URLs; got '+paths.length);
