@@ -10,7 +10,7 @@ const pages = [
 for (const [slug, title] of pages) {
   const html = read(slug + '.html');
   const canonical = 'https://appiex.com/' + slug;
-  assert(html.includes('<title>' + title + '</title>'), slug + ': title missing');
+  assert(html.includes('<title>' + title.replaceAll('&', '&amp;') + '</title>'), slug + ': title missing');
   assert(html.includes('<link rel="canonical" href="' + canonical + '">'), slug + ': canonical missing');
   assert(/<meta name="robots" content="index, follow/.test(html), slug + ': noindex or missing robots');
   assert.equal((html.match(/<h1\b/g) || []).length, 1, slug + ': expected exactly one H1');
