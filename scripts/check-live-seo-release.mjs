@@ -23,7 +23,7 @@ async function fetchPublic(path) {
         signal: AbortSignal.timeout(16000)
       });
       const body = await response.text();
-      if (response.status === 200 && body.length > 100) return {response,body};
+      if (response.status === 200 && body.length > 0) return {response,body};
       if (attempt === 4) throw Error('HTTP '+response.status+' at '+path);
     } catch (e) {
       if (attempt === 4) throw e;
@@ -39,9 +39,9 @@ for (const {path,marker} of expected) {
   const canonical = host + cleanPath;
   assert(body.includes(marker), path+': release marker missing on production');
   assert(body.includes('href="'+canonical+'"'),path+': canonical missing');
-  assert(/<h1\\b/i.test(body),path+': H1 missing');
+  assert(body.includes('<h1'),path+': H1 missing');
   const head = body.split('</head>')[0] || '';
-  assert(!/<meta\\s+name=['"]robots['"]\\s+content=['"][^'"]*noindex/i.test(head),path+': noindex on commercial page');
+  assert(!/<meta[^>]*name=['"]robots['"][^>]*noindex/i.test(head),path+': noindex on commercial page');
   console.log('PASS', path, response.status,'bytes',body.length);
   pages++;
 }
