@@ -14,8 +14,8 @@
       "custom AI agents",
       "business workflow automation"
     ],
-    "description": "Automate customer enquiries, CRM follow-ups and support with AI agents and human approval. Explore Appiex business workflow automation and request a scoped proposal.",
-    "title": "AI Automation Agency | Business AI Agents & Workflows | Appiex"
+    "description": "Automate WhatsApp FAQs, lead routing and CRM follow-ups with Appiex AI workflows and human escalation. Compare options and scope a practical first phase.",
+    "title": "AI Automation Services | WhatsApp, CRM & Agents | Appiex"
   },
   "/ai-search-optimization": {
     "primary": "AI search optimization services",
@@ -321,7 +321,8 @@
       "ecommerce projects",
       "software case studies"
     ],
-    "description": "Browse Appiex website development, ecommerce, web application and interactive design projects. Explore portfolio examples before planning a similar project."
+    "description": "Explore Appiex projects in website development, ecommerce, software and interactive design. Find relevant examples, then scope your project or try our free tool.",
+    "title": "Website & Software Projects Portfolio | Appiex"
   },
   "/refer": {
     "primary": "digital services referral program",
@@ -347,7 +348,8 @@
       "web development services",
       "SEO consulting"
     ],
-    "description": "Explore Appiex services for website development, ecommerce, SaaS, AI workflow automation, UI/UX design, technical SEO and digital strategy for businesses."
+    "description": "Compare Appiex services for business websites, custom software, AI automation and SEO. Review projects, explore free tools and scope a solution that fits.",
+    "title": "Website, Software, AI Automation & SEO Services | Appiex"
   },
   "/team": {
     "primary": "Appiex team and leadership",
@@ -381,7 +383,17 @@
       "custom web applications",
       "business website development"
     ],
-    "description": "Get a scoped quote for business websites, ecommerce, SaaS and custom web apps from a Bangladesh-based development team. See Appiex's deliverables and process."
+    "description": "Build a responsive business website, ecommerce store or SaaS app with Appiex in Bangladesh. Review our project scope and portfolio before requesting a quote.",
+    "title": "Website Development Bangladesh | Business Sites & SaaS | Appiex"
+  },
+  "/website-lead-calculator": {
+    "primary": "website lead conversion calculator",
+    "supporting": [
+      "website conversion rate calculator",
+      "qualified lead calculator"
+    ],
+    "title": "Website Lead Conversion Calculator | Free Tool | Appiex",
+    "description": "Free website lead conversion calculator: estimate enquiries, qualified leads and possible sales from your traffic and conversion assumptions. No signup needed."
   },
   "/website-redesign": {
     "primary": "website redesign and SEO migration",
