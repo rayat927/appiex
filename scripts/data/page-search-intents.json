@@ -8,23 +8,32 @@
     "description": "Appiex is a global business growth agency from Bangladesh building websites, 3D WebGL, custom software, AI automation & SEO for worldwide brands.",
     "title": "Global Business Growth Agency | Web, 3D, AI & SEO | Appiex"
   },
-  "/best-agency-in-the-world": {
-    "primary": "best digital agency in the world",
-    "supporting": [
-      "best agency in the world",
-      "how to evaluate a global software agency"
-    ],
-    "description": "Discover how to evaluate the best digital, software, 3D WebGL, and AI agency in the world. Compare global models, engineering proof, IP rights & Appiex.",
-    "title": "Best Digital, Web & AI Agency in the World Guide | Appiex"
-  },
   "/ai-automation": {
     "primary": "AI automation services",
     "supporting": [
       "custom AI agents",
       "business workflow automation"
     ],
-    "description": "Explore Appiex AI automation services for CRM workflows, lead qualification, customer support and custom AI agents with secure integrations and human review.",
-    "title": "AI Automation Services & Custom AI Agents | Appiex"
+    "description": "Automate customer enquiries, CRM follow-ups and support with AI agents and human approval. Explore Appiex business workflow automation and request a scoped proposal.",
+    "title": "AI Automation Agency | Business AI Agents & Workflows | Appiex"
+  },
+  "/ai-search-optimization": {
+    "primary": "AI search optimization services",
+    "supporting": [
+      "answer engine optimization",
+      "generative engine optimization"
+    ],
+    "description": "AI search optimization services for businesses: technical SEO, answer-focused content, GEO readiness, entity consistency and measurement. Explore Appiex's audit.",
+    "title": "AI Search Optimization (AEO & GEO) Services | Appiex"
+  },
+  "/ai-search-readiness-checklist": {
+    "primary": "AI search readiness checklist",
+    "supporting": [
+      "technical SEO audit",
+      "answer and GEO readiness"
+    ],
+    "description": "Free 14-point AI search readiness checklist: audit crawling, indexability, entity clarity, answer quality, structured data, backlinks and Google Search Console.",
+    "title": "AI Search Readiness Checklist: SEO, GEO & AEO | Appiex"
   },
   "/authors/adil-alim": {
     "primary": "Adil Alim Appiex founder",
@@ -52,6 +61,15 @@
     ],
     "description": "Explore technical SEO and digital growth articles by Appiex author Tanvir Rahman, covering website audits, search visibility, analytics and content architecture."
   },
+  "/best-agency-in-the-world": {
+    "primary": "best digital agency in the world",
+    "supporting": [
+      "best agency in the world",
+      "how to evaluate a global software agency"
+    ],
+    "description": "Discover how to evaluate the best digital, software, 3D WebGL, and AI agency in the world. Compare global models, engineering proof, IP rights & Appiex.",
+    "title": "Best Digital, Web & AI Agency in the World Guide | Appiex"
+  },
   "/best-software-agency": {
     "primary": "software company selection Bangladesh",
     "supporting": [
@@ -68,6 +86,14 @@
       "SaaS planning"
     ],
     "description": "Browse Appiex articles on website development, software costs, ecommerce, SaaS, AI agents, workflow automation and technical SEO, organized by practical topic."
+  },
+  "/blog/ai-agents-vs-n8n-automation-for-business": {
+    "primary": "AI agents vs n8n automation",
+    "supporting": [
+      "AI workflow vs agent",
+      "business automation comparison"
+    ],
+    "description": "Compare AI agents, n8n workflows and hybrid automation by business use case, reliability, operating cost and human oversight needs."
   },
   "/blog/ai-automation": {
     "primary": "AI automation guides",
@@ -118,6 +144,14 @@
     ],
     "description": "Explore game development and interactive 3D web topics including WebGL, Three.js, product configurators, real-time rendering and design trade-offs."
   },
+  "/blog/how-long-does-it-take-to-build-a-saas-product": {
+    "primary": "SaaS development timeline",
+    "supporting": [
+      "SaaS MVP duration",
+      "SaaS launch planning"
+    ],
+    "description": "Learn how long SaaS development may take, from discovery and multi-tenant architecture through billing integrations, testing, launch and post-launch planning."
+  },
   "/blog/how-much-does-a-custom-website-cost-in-2026": {
     "primary": "custom website development cost",
     "supporting": [
@@ -125,6 +159,14 @@
       "business website budget"
     ],
     "description": "What affects custom website development cost? Compare scope, design, content, integrations and maintenance before budgeting or requesting development proposals."
+  },
+  "/blog/how-much-does-ai-automation-cost": {
+    "primary": "AI automation cost",
+    "supporting": [
+      "AI agents pricing",
+      "automation monthly costs"
+    ],
+    "description": "Estimate AI automation setup and ongoing costs, including model APIs, hosting, integrations, quality review and maintenance with a practical budget example."
   },
   "/blog/how-to-automate-customer-support-with-ai": {
     "primary": "AI customer support automation",
@@ -191,6 +233,14 @@
     ],
     "description": "Explore website development costs in Bangladesh for business sites, ecommerce stores and custom web apps, including scope, payment integration and ongoing support."
   },
+  "/blog/website-redesign-process": {
+    "primary": "website redesign process",
+    "supporting": [
+      "SEO migration checklist",
+      "website redesign timeline"
+    ],
+    "description": "Follow a website redesign process covering discovery, content audit, URL mapping, redirects, accessibility, analytics and post-launch search visibility checks."
+  },
   "/case-studies": {
     "primary": "Watch24 BD ecommerce case study",
     "supporting": [
@@ -223,6 +273,15 @@
       "content corrections"
     ],
     "description": "Understand how Appiex reviews, updates and corrects its technical articles about web development, software engineering, SEO and AI automation."
+  },
+  "/gaming": {
+    "primary": "game development company in Bangladesh",
+    "supporting": [
+      "WebGL browser games and HTML5 game development",
+      "interactive 3D websites and virtual product showrooms"
+    ],
+    "description": "Looking for a game development company in Bangladesh? Explore Appiex browser games, WebGL and interactive 3D showrooms. Play the original Rift Shift demo.",
+    "title": "Game Development Company in Bangladesh | WebGL & 3D | Appiex"
   },
   "/isp-software-development": {
     "primary": "ISP billing software development",
@@ -279,7 +338,8 @@
       "SEO website audit",
       "SEO migration"
     ],
-    "description": "Improve website search visibility with technical SEO services covering crawlability, canonical tags, structured data, site architecture, internal links and redirects."
+    "description": "Improve search visibility with technical SEO, AI search readiness (AEO/GEO), crawlability, structured content and conversion measurement. Request an Appiex audit.",
+    "title": "Technical SEO, AEO & GEO Services | Appiex"
   },
   "/services": {
     "primary": "software development and AI services",
@@ -321,7 +381,7 @@
       "custom web applications",
       "business website development"
     ],
-    "description": "Work with a website development company in Bangladesh for responsive business websites, custom web apps, SaaS products, integrations and structured handover."
+    "description": "Get a scoped quote for business websites, ecommerce, SaaS and custom web apps from a Bangladesh-based development team. See Appiex's deliverables and process."
   },
   "/website-redesign": {
     "primary": "website redesign and SEO migration",
@@ -338,46 +398,5 @@
       "CRM messaging integration"
     ],
     "description": "Explore WhatsApp Business automation and chatbot development for lead handling, support workflows, CRM integration and customer handoff to human agents."
-  },
-  "/blog/how-much-does-ai-automation-cost": {
-    "primary": "AI automation cost",
-    "supporting": [
-      "AI agents pricing",
-      "automation monthly costs"
-    ],
-    "description": "Estimate AI automation setup and ongoing costs, including model APIs, hosting, integrations, quality review and maintenance with a practical budget example."
-  },
-  "/blog/how-long-does-it-take-to-build-a-saas-product": {
-    "primary": "SaaS development timeline",
-    "supporting": [
-      "SaaS MVP duration",
-      "SaaS launch planning"
-    ],
-    "description": "Learn how long SaaS development may take, from discovery and multi-tenant architecture through billing integrations, testing, launch and post-launch planning."
-  },
-  "/blog/website-redesign-process": {
-    "primary": "website redesign process",
-    "supporting": [
-      "SEO migration checklist",
-      "website redesign timeline"
-    ],
-    "description": "Follow a website redesign process covering discovery, content audit, URL mapping, redirects, accessibility, analytics and post-launch search visibility checks."
-  },
-  "/blog/ai-agents-vs-n8n-automation-for-business": {
-    "primary": "AI agents vs n8n automation",
-    "supporting": [
-      "AI workflow vs agent",
-      "business automation comparison"
-    ],
-    "description": "Compare AI agents, n8n workflows and hybrid automation by business use case, reliability, operating cost and human oversight needs."
-  },
-  "/gaming": {
-    "primary": "game development company in Bangladesh",
-    "supporting": [
-      "WebGL browser games and HTML5 game development",
-      "interactive 3D websites and virtual product showrooms"
-    ],
-    "description": "Looking for a game development company in Bangladesh? Explore Appiex browser games, WebGL and interactive 3D showrooms. Play the original Rift Shift demo.",
-    "title": "Game Development Company in Bangladesh | WebGL & 3D | Appiex"
   }
 }
