@@ -1,0 +1,44 @@
+name: Submit updated SEO URLs via IndexNow
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'edc774626e87396624f82617c4d6500e36b43d4b.txt'
+      - 'scripts/check-indexnow-config.mjs'
+      - 'scripts/submit-indexnow.mjs'
+      - '.github/workflows/submit-indexnow.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'edc774626e87396624f82617c4d6500e36b43d4b.txt'
+      - 'scripts/submit-indexnow.mjs'
+      - '.github/workflows/submit-indexnow.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check scripts/submit-indexnow.mjs
+      - run: node scripts/check-indexnow-config.mjs
+
+  notify:
+    if: github.event_name == 'push'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify production key then notify IndexNow
+        run: node scripts/submit-indexnow.mjs
