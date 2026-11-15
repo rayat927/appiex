@@ -1,0 +1,27 @@
+name: Verify live organic growth resource
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'website-lead-calculator.html'
+      - 'styles/website-lead-calculator.css'
+      - 'scripts/website-lead-calculator.js'
+      - 'scripts/check-live-website-calculator.mjs'
+      - '.github/workflows/verify-live-website-calculator.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-production-resource:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify the published tool, assets, sitemap and contextual links
+        run: node scripts/check-live-website-calculator.mjs
