@@ -96,6 +96,10 @@ try {
       trackConversionEvent('form_submit', { form_id: id });
     }, { passive: true });
 
+    // Count a lead only after the API confirms durable receipt, never for merely opening WhatsApp.
+    window.addEventListener('appiex:lead_received', function () {
+      trackConversionEvent('generate_lead', { method: 'website_form', receipt: 'confirmed' });
+    });
     window.addEventListener('appiex:contact_prepared', function () {
       trackConversionEvent('contact_form_prepared', { channel: 'whatsapp' });
     });
