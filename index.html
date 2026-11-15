@@ -4046,8 +4046,8 @@
   function handleContactSubmit(e) {
     e.preventDefault();
     const form = e.target;
-    const name = (form.querySelector('input[name="name"]')?.value || 'Inbound Prospect').trim();
-    const email = (form.querySelector('input[name="email"]')?.value || 'client@example.com').trim();
+    const name = (form.querySelector('input[name="name"]')?.value || '').trim();
+    const email = (form.querySelector('input[name="email"]')?.value || '').trim();
     const mess = (form.querySelector('textarea[name="mess"]')?.value || 'Inquiry from Appiex homepage').trim();
     const checkedCheckboxes = Array.from(form.querySelectorAll('input[name="service[]"]:checked'));
     const checkedServices = checkedCheckboxes.map(function(el) {
@@ -4055,7 +4055,7 @@
       return (label ? label.innerText.trim() : el.value) || el.value;
     });
     const checkedBudgetEl = form.querySelector('input[name="budget"]:checked');
-    const checkedBudget = checkedBudgetEl ? (checkedBudgetEl.closest('label')?.innerText.trim() || checkedBudgetEl.value) : '$10k-$20k';
+    const checkedBudget = checkedBudgetEl ? (checkedBudgetEl.closest('label')?.innerText.trim() || checkedBudgetEl.value) : 'Not specified';
 
     const servicesText = checkedServices.length > 0 ? checkedServices.join(', ') : 'Custom Digital Architecture';
 
