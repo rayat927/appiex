@@ -3897,9 +3897,7 @@
         date: new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' }) + ' ' + new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Dhaka', hour: '2-digit', minute: '2-digit' }),
         timestamp: Date.now()
       };
-      const existing = JSON.parse(localStorage.getItem('appiex_client_orders') || '[]');
-      existing.unshift(orderPayload);
-      localStorage.setItem('appiex_client_orders', JSON.stringify(existing));
+      // Submit only to the server; never keep customer names and emails in browser storage.
       fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
