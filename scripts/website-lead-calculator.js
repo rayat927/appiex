@@ -9,6 +9,18 @@
   const error = output('calc-error');
   const summaryButton = output('copy-results');
   const feedback = output('copy-feedback');
+  // Aggregate, consent-respecting interaction signals only: never send form numbers.
+  const track = event => {
+    try {
+      if (typeof window === 'undefined') return;
+      if (typeof navigator !== 'undefined' && navigator.doNotTrack === '1') return;
+      if (window['ga-disable-G-DF198MPZGT']) return;
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({event,resource_name:'website_lead_calculator'});
+    } catch (_) {}
+  };
+  let interactionTracked = false;
+
   const integer = new Intl.NumberFormat('en-US',{maximumFractionDigits:0});
   const decimal = new Intl.NumberFormat('en-US',{maximumFractionDigits:1});
   const currency = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
@@ -66,7 +78,10 @@
   }
 
   ids.forEach(id=>{
-    fields[id].addEventListener('input',render);
+    fields[id].addEventListener('input',()=>{
+      if (!interactionTracked) {interactionTracked = true; track('appiex_calculator_interaction');}
+      render();
+    });
     fields[id].addEventListener('change',render);
   });
   form.addEventListener('reset',()=>requestAnimationFrame(render));
@@ -98,6 +113,8 @@
       feedback.textContent='Copy unavailable in this browser. You can select your results above instead.';
     }
   });
+  const enquiryCta = output('lead-calculator-cta');
+  if (enquiryCta) enquiryCta.addEventListener('click',()=>track('appiex_calculator_to_funnel'));
   render();
 
   // Pageview can be tracked by the site analytics integration. This calculator
