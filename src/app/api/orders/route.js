@@ -123,6 +123,19 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  const ip = (req.headers.get('x-forwarded-for') || 'unknown').split(',')[0].trim().slice(0, 60);
+  const limits = globalThis.__appiexLeadRateLimits ||= new Map();
+  const now = Date.now();
+  const last = limits.get(ip) || { count: 0, until: now + 60000 };
+  if (last.until < now) { last.count = 0; last.until = now + 60000; }
+  last.count++;
+  limits.set(ip, last);
+  if (limits.size > 5000) {
+    for (const [key, entry] of limits) if (entry.until < now) limits.delete(key);
+  }
+  if (last.count > 5) {
+    return NextResponse.json({ success: false, error: 'Too many inquiries. Please use WhatsApp.' }, { status: 429 });
+  }
   try {
     if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
       return NextResponse.json({ success: false, error: 'Lead storage temporarily unavailable. Please contact us on WhatsApp.' }, { status: 503 });
