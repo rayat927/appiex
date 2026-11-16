@@ -11,6 +11,7 @@ export function sitemapEntries(xml) {
     let url;
     try {url=new URL(loc);} catch {continue;}
     if (url.origin!==HOST || url.search || url.hash || url.pathname.endsWith('.html')) continue;
+    if (/^\/(?:admin|login|profile|start-project|collections|resume|rafsan_page)(?:\/|$)/i.test(url.pathname)) continue;
     const normalized=HOST+url.pathname;
     const lastmod=urlXml.match(/<lastmod>\s*([^<]+)\s*<\/lastmod>/i)?.[1]?.trim()||'';
     records.set(normalized,lastmod);
@@ -21,6 +22,7 @@ export function sitemapEntries(xml) {
 export function sourceToCanonical(filename) {
   const file=String(filename||'').replaceAll('\\','/');
   if (file==='index.html') return HOST+'/';
+  if (/^(?:admin|pages|login|profile|start-project|collections|resume|rafsan_page|scratch_cuberto_live)(?:\/|\.html$)/i.test(file)) return null;
   if (!/^(?:blog\/|authors\/)?[a-z0-9][a-z0-9/-]*\.html$/i.test(file)) return null;
   const path=file.slice(0,-'.html'.length);
   if (path.includes('/index')) return null;
