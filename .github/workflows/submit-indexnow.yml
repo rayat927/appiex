@@ -1,22 +1,41 @@
-name: Submit updated SEO URLs via IndexNow
+name: Notify Bing and participating engines via IndexNow
 
 on:
+  workflow_dispatch:
+    inputs:
+      all_urls:
+        description: Notify all canonical public sitemap URLs (manual resubmission)
+        type: boolean
+        required: false
+        default: true
   pull_request:
     branches: [main]
     paths:
-      - 'edc774626e87396624f82617c4d6500e36b43d4b.txt'
-      - 'scripts/check-indexnow-config.mjs'
+      - 'sitemap.xml'
+      - 'robots.txt'
+      - '**/*.html'
       - 'scripts/submit-indexnow.mjs'
+      - 'scripts/lib/indexnow-url-changes.mjs'
+      - 'scripts/check-indexnow-automation.mjs'
       - '.github/workflows/submit-indexnow.yml'
   push:
     branches: [main]
     paths:
-      - 'edc774626e87396624f82617c4d6500e36b43d4b.txt'
+      - 'sitemap.xml'
+      - 'robots.txt'
+      - '**/*.html'
       - 'scripts/submit-indexnow.mjs'
+      - 'scripts/lib/indexnow-url-changes.mjs'
+      - 'src/lib/appiex-html-polish.mjs'
+      - 'scripts/apply-sitewide-seo.mjs'
       - '.github/workflows/submit-indexnow.yml'
 
 permissions:
   contents: read
+
+concurrency:
+  group: appiex-indexnow-automated
+  cancel-in-progress: false
 
 jobs:
   validate:
@@ -27,18 +46,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --check scripts/submit-indexnow.mjs
-      - run: node scripts/check-indexnow-config.mjs
+      - name: Validate IndexNow script and canonical selection
+        run: |
+          node --check scripts/submit-indexnow.mjs
+          node scripts/check-indexnow-config.mjs
+          node scripts/check-indexnow-automation.mjs
 
   notify:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify production key then notify IndexNow
+      - name: Verify ownership, public release, and notify IndexNow
+        env:
+          INDEXNOW_ALL: ${{ github.event_name == 'workflow_dispatch' && inputs.all_urls || false }}
         run: node scripts/submit-indexnow.mjs
