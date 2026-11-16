@@ -34,7 +34,8 @@ export function URLsToNotify({current,previous,changedFiles,all=false}) {
     'scripts/submit-indexnow.mjs',
     'scripts/lib/indexnow-url-changes.mjs',
     'src/lib/appiex-html-polish.mjs',
-    'scripts/apply-sitewide-seo.mjs'
+    'scripts/apply-sitewide-seo.mjs',
+    'robots.txt'
   ].some(p=>changed.has(p));
 
   if(all||globalChange) return [...current.keys()].sort();
