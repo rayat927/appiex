@@ -4,7 +4,7 @@ import { isAdminAuthorized, adminUnauthorized } from '../../../lib/admin-auth.mj
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 const KEY = 'appiex:referrals:v1';
-const emailPattern = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const maxLen = (v, n) => String(v == null ? '' : v).trim().slice(0, n);
 const response = (status, payload) => NextResponse.json(payload, {
   status,
@@ -32,7 +32,7 @@ export async function POST(req) {
   // Only consented referrals from our own website may use this endpoint.
   const origin = req.headers.get('origin');
   if (!origin || !/^https:\/\/(?:www\.)?appiex\.com$/i.test(origin) &&
-      !/^http:\/\/localhost(?::\\d+)?$/i.test(origin)) {
+      !/^http:\/\/localhost(?::\d+)?$/i.test(origin)) {
     return response(403, { success: false, error: 'Request origin not allowed.' });
   }
   const ip = (req.headers.get('x-forwarded-for') || 'unknown').split(',')[0].trim().slice(0, 80);
