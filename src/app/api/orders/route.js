@@ -166,7 +166,7 @@ export async function POST(req) {
       service: String(body.service || 'Digital Services').slice(0, 240),
       budget: String(body.budget || 'Not provided').slice(0, 60),
       message: String(body.message || '').slice(0, 5000),
-      channel: 'Website Contact Form',
+      channel: body.channel === 'Project Fit Wizard' ? 'Project Fit Wizard' : 'Website Contact Form',
       status: 'new',
       date: body.date || new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' }),
       timestamp: body.timestamp || Date.now()
