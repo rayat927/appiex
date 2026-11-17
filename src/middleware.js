@@ -1,7 +1,21 @@
+import { adminAuthConfigured, isAdminAuthorized, adminUnauthorized } from './lib/admin-auth.mjs';
 import { NextResponse } from 'next/server';
 
 export function middleware(request) {
   const { pathname, search } = request.nextUrl;
+
+  // Server-side gate protects the dashboard, assets and sensitive APIs.
+  // The public contact form may POST new inquiries, but cannot read or edit them.
+  const protectedRoute =
+    /^\/admin(?:\/|\.html$|$)/i.test(pathname) ||
+    /^\/api\/sales(?:\/|$)/i.test(pathname) ||
+    (/^\/api\/orders(?:\/|$)/i.test(pathname) && !['POST', 'OPTIONS'].includes(request.method)) ||
+    (/^\/api\/visitors(?:\/|$)/i.test(pathname) && !['POST', 'OPTIONS'].includes(request.method));
+  if (protectedRoute) {
+    if (!adminAuthConfigured() || !isAdminAuthorized(request)) {
+      return adminUnauthorized();
+    }
+  }
 
   // Block sensitive dotfiles or backup extensions (OWASP / Cloudflare Security)
   if (/^\/(?:\.env.*|.*\.(?:bak|sql|log|md)|scratch\/.*|\.git.*)$/i.test(pathname)) {
