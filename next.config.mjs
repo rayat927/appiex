@@ -36,6 +36,13 @@ const nextConfig = {
         permanent: true
       },
       {
+        // Explicit single-segment blog redirect: preserve one extensionless canonical
+        // for legacy article URLs reported by Google Search Console.
+        source: '/blog/:slug\\.html',
+        destination: '/blog/:slug',
+        permanent: true
+      },
+      {
         source: '/:path((?!google[a-zA-Z0-9]+).+)\\.html',
         destination: '/:path',
         permanent: true
