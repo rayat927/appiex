@@ -25,7 +25,9 @@ assert(html.includes('mailto:contact@appiex.com'), 'Email contact option must re
 assert(js.includes('appiex_funnel_step_complete') && js.includes('appiex_funnel_contact_handoff'), 'Funnel event tracking missing');
 assert(js.includes('Do not call generate_lead here'), 'Outbound click is not a confirmed lead');
 assert(!js.includes('localStorage') && !js.includes('sessionStorage'), 'Never persist contact details in browser storage');
-assert(!js.includes('fetch('), 'Funnel must not POST PII to unverified APIs');
+assert(js.includes("fetch('/api/orders'"), 'Secure funnel submission route missing');
+assert(js.includes('appiex_funnel_lead_received'), 'Confirmed lead event missing');
+assert(html.includes('id="funnel-consent"') && html.includes('id="funnel-submit"'), 'Consent-based submission missing');
 assert(!js.includes("track('generate_lead'"), 'Do not double count handoff as a lead');
 assert(!html.includes('guaranteed results'), 'No unsupported conversion promise');
 assert(css.includes('@media(max-width:620px)'), 'Responsive mobile styles missing');
