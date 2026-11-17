@@ -155,7 +155,7 @@
     directSubmit.addEventListener('click', async () => {
       if (!validate(3)) return;
       const email = read('email');
-      if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         submitStatus.textContent = 'Enter a valid work email on step 4 to submit securely. You can still choose WhatsApp or email.';
         return;
       }
