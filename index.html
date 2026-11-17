@@ -3843,7 +3843,7 @@
 
       <!-- Privacy and Terms -->
       <div class="terms" data-astro-cid-3n3oggwk="">
-        This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+        We use the details you submit only to discuss your enquiry. By sending, you agree to our <a href="/privacy-policy">privacy policy</a>. Please do not include passwords or sensitive personal information.
       </div>
     </form>
 
@@ -3852,8 +3852,8 @@
       <div class="backdrop" data-astro-cid-hebhjodz="" onclick="document.getElementById('modal-contact-success').close()" style="position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);"></div>
       <div class="content flex flex-col items-center justify-center p-8 border rounded-3xl shadow-2xl max-w-lg mx-auto my-auto text-center" style="position: fixed; inset: 0; width: 90%; max-width: 520px; height: fit-content; z-index: 99999; background: #ffffff !important; color: #000000 !important; border-color: rgba(0,0,0,0.1) !important;" data-astro-cid-hebhjodz="">
         <div class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-4 font-bold" style="background-color: #d1fae5 !important; border: 2.5px solid #10b981 !important; color: #059669 !important;">✓</div>
-        <div class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2" style="color: #000000 !important; font-family: 'Figtree', sans-serif !important;">WhatsApp Message Ready</div>
-        <div class="text-center text-base sm:text-lg mb-6 leading-relaxed" style="color: #111827 !important; font-weight: 600; font-family: 'Figtree', sans-serif !important;">Your project details are ready for our WhatsApp hotline (01917-354847). Please press Send inside WhatsApp to deliver your enquiry. If WhatsApp did not open, use the button below:</div>
+        <div class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2" style="color: #000000 !important; font-family: 'Figtree', sans-serif !important;" id="modal-contact-status-title">WhatsApp Message Ready</div>
+        <div class="text-center text-base sm:text-lg mb-6 leading-relaxed" style="color: #111827 !important; font-weight: 600; font-family: 'Figtree', sans-serif !important;"><span id="modal-contact-status-body">Your enquiry is prepared for WhatsApp. Please press Send inside WhatsApp to deliver it.</span></div>
         <a id="modal-wa-btn" href="https://wa.me/8801917354847" target="_blank" rel="noopener noreferrer" class="w-full mb-3 py-3.5 px-6 rounded-full font-bold text-sm tracking-wide transition flex items-center justify-center gap-2 shadow-lg cursor-pointer" style="background-color: #25D366 !important; color: #ffffff !important; text-decoration: none;">
           <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
           <span>Open in WhatsApp &rarr;</span>
@@ -3880,90 +3880,78 @@
     }
   }
 
-  function handleContactSubmit(e) {
+  async function handleContactSubmit(e) {
     e.preventDefault();
-    const form = e.target;
-    const name = (form.querySelector('input[name="name"]')?.value || 'Inbound Prospect').trim();
-    const email = (form.querySelector('input[name="email"]')?.value || 'client@example.com').trim();
-    const mess = (form.querySelector('textarea[name="mess"]')?.value || 'Inquiry from Appiex homepage').trim();
-    const checkedCheckboxes = Array.from(form.querySelectorAll('input[name="service[]"]:checked'));
-    const checkedServices = checkedCheckboxes.map(function(el) {
+    const form = e.currentTarget;
+    if (typeof form.reportValidity === 'function' && !form.reportValidity()) return;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+    const name = (form.querySelector('input[name="name"]')?.value || '').trim();
+    const email = (form.querySelector('input[name="email"]')?.value || '').trim();
+    const mess = (form.querySelector('textarea[name="mess"]')?.value || '').trim();
+    const checkedServices = Array.from(form.querySelectorAll('input[name="service[]"]:checked')).map(el => {
       const label = el.closest('label');
       return (label ? label.innerText.trim() : el.value) || el.value;
     });
-    const checkedBudgetEl = form.querySelector('input[name="budget"]:checked');
-    const checkedBudget = checkedBudgetEl ? (checkedBudgetEl.closest('label')?.innerText.trim() || checkedBudgetEl.value) : '$10k-$20k';
-
-    const servicesText = checkedServices.length > 0 ? checkedServices.join(', ') : 'Custom Digital Architecture';
-
-    // Synchronously record client order into Appiex Admin Order Engine
-    try {
-      const orderPayload = {
-        id: 'ord_' + Date.now(),
-        name: name,
-        email: email,
-        phone: '',
-        service: servicesText,
-        budget: checkedBudget,
-        message: mess,
-        channel: 'Homepage Contact Form',
-        status: 'new',
-        date: new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' }) + ' ' + new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Dhaka', hour: '2-digit', minute: '2-digit' }),
-        timestamp: Date.now()
-      };
-      // Submit only to the server; never keep customer names and emails in browser storage.
-      fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderPayload)
-      }).catch(function() {});
-    } catch (orderErr) {
-      console.warn('Order dispatch error:', orderErr);
+    const budgetEl = form.querySelector('input[name="budget"]:checked');
+    const checkedBudget = budgetEl ? (budgetEl.closest('label')?.innerText.trim() || budgetEl.value) : 'Not specified';
+    const servicesText = checkedServices.length ? checkedServices.join(', ') : 'General business enquiry';
+    if (!name || !email || !mess) {
+      alert('Please enter your name, email and project details.');
+      if (submitBtn) submitBtn.disabled = false;
+      return;
     }
-    const waText = 
-      `*New Project Request | Appiex*\n\n` +
-      `👤 *Name:* ${name}\n` +
-      `📧 *Email:* ${email}\n` +
-      `🛠️ *Services:* ${servicesText}\n` +
-      (checkedBudget ? `💰 *Budget:* ${checkedBudget}\n\n` : '\n') +
-      `📝 *Project Details:*\n${mess}`;
-
-    const waNumber = '8801917354847';
-    const waUrl = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(waText);
-
-    // Synchronously open WhatsApp directly on user click
-    let whatsappOpened = false;
-    try {
-      const popup = window.open(waUrl, '_blank');
-      whatsappOpened = Boolean(popup);
-    } catch(err) {
-      console.warn('WhatsApp popup could not open:', err);
-    }
-    // Count intent only; no PII and no claim that WhatsApp message was sent.
-    try {
-      window.dispatchEvent(new CustomEvent('appiex:contact_prepared', { detail: { channel: 'whatsapp' } }));
-      if (whatsappOpened) window.dispatchEvent(new CustomEvent('appiex:whatsapp_handoff', { detail: { source: 'contact_form' } }));
-    } catch (err) {
-      // Analytics must not interrupt a project enquiry.
-    }
-
-    // No server-side inbox is configured. A visitor's local browser is
-    // not a shared CRM; the message is delivered only when sent in WhatsApp.
-
+    const waText = [
+      '*New Project Request | Appiex*',
+      'Name: ' + name,
+      'Email: ' + email,
+      'Services: ' + servicesText,
+      'Budget: ' + checkedBudget,
+      'Project details: ' + mess
+    ].join('\n\n');
+    const waUrl = 'https://wa.me/8801917354847?text=' + encodeURIComponent(waText);
     const modalWaBtn = document.getElementById('modal-wa-btn');
-    if (modalWaBtn) {
-      modalWaBtn.href = waUrl;
+    if (modalWaBtn) modalWaBtn.href = waUrl;
+
+    let confirmed = false;
+    try {
+      const resp = await fetch('/api/orders', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, email, message: mess, service: servicesText,
+          budget: checkedBudget, channel: 'Homepage Contact Form'
+        })
+      });
+      const result = await resp.json().catch(() => ({}));
+      confirmed = resp.ok && result.success === true;
+    } catch (_) {
+      confirmed = false;
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+    try {
+      window.dispatchEvent(new CustomEvent(confirmed ? 'appiex:lead_received' : 'appiex:contact_prepared', {
+        detail: { channel: confirmed ? 'website_form' : 'whatsapp_fallback' }
+      }));
+    } catch (_) {}
+
+    const title = document.getElementById('modal-contact-status-title');
+    const body = document.getElementById('modal-contact-status-body');
+    if (title) title.textContent = confirmed ? 'Enquiry received' : 'WhatsApp draft ready';
+    if (body) body.textContent = confirmed
+      ? 'Your enquiry has been received for review. You may also send a WhatsApp message if you want to share more details.'
+      : 'We could not confirm website delivery. Your details have been prepared for WhatsApp. Open it and press Send to submit your enquiry.';
+    const modal = document.getElementById('modal-contact-success');
+    if (modal && typeof modal.showModal === 'function') modal.showModal();
+    else alert(body ? body.textContent : (confirmed ? 'Your enquiry was received.' : 'Please send the WhatsApp message.'));
+    if (confirmed) {
+      form.reset();
+      const attachments = document.getElementById('attachment-list');
+      if (attachments) attachments.innerHTML = '';
     }
 
-    const modal = document.getElementById('modal-contact-success');
-    if (modal && typeof modal.showModal === 'function') {
-      modal.showModal();
-    } else {
-      alert('Your WhatsApp message is ready. Please open WhatsApp and press Send to deliver your enquiry.');
-    }
-    e.target.reset();
-    const list = document.getElementById('attachment-list');
-    if (list) list.innerHTML = '';
   }
 </script>
 
