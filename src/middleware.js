@@ -10,6 +10,7 @@ export function middleware(request) {
     /^\/admin(?:\/|\.html$|$)/i.test(pathname) ||
     /^\/api\/sales(?:\/|$)/i.test(pathname) ||
     (/^\/api\/orders(?:\/|$)/i.test(pathname) && !['POST', 'OPTIONS'].includes(request.method)) ||
+    (/^\/api\/referrals(?:\/|$)/i.test(pathname) && !['POST', 'OPTIONS'].includes(request.method)) ||
     (/^\/api\/visitors(?:\/|$)/i.test(pathname) && !['POST', 'OPTIONS'].includes(request.method));
   if (protectedRoute) {
     if (!adminAuthConfigured() || !isAdminAuthorized(request)) {
