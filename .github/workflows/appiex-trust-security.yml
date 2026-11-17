@@ -23,12 +23,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
-      - run: npm ci --ignore-scripts
       - name: Test buyer trust and privacy
         run: node scripts/check-appiex-trust-security.mjs
       - name: Test project-fit lead funnel
         run: node scripts/check-qualified-funnel.mjs
+      - name: Install dependencies for production-build verification
+        run: npm install --ignore-scripts --no-audit --no-fund
       - name: Verify production build
         run: npm run build
