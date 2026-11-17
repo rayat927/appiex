@@ -17,7 +17,7 @@ const referralApi = read('src/app/api/referrals/route.js');
 const middleware = read('src/middleware.js');
 const privacy = read('privacy-policy.html');
 
-assert.equal((home.match(/<h1\\b/g) || []).length, 1, 'Homepage must retain one H1');
+assert.equal((home.match(/<h1\b/g) || []).length, 1, 'Homepage must retain one H1');
 assert(home.includes('Websites, Ecommerce &amp; AI Automation'), 'Homepage buyer-focused hero missing');
 assert(home.includes("appiex:lead_received"), 'Confirmed-homepage lead event missing');
 assert(home.includes('const resp = await fetch(\'/api/orders\''), 'Homepage lead response not awaited');
@@ -58,7 +58,7 @@ assert(referralApi.includes('HSET') && referralApi.includes('isAdminAuthorized')
 assert(referralApi.includes('body.consent !== true'), 'Referral API must enforce permission');
 assert(!referralApi.includes('ntfy.sh'), 'Referral API broadcasts PII');
 assert(middleware.includes('protectedRoute'), 'Missing admin access middleware');
-assert(middleware.includes('/api'), 'API middleware routing missing');
+assert(middleware.includes('referrals'), 'Referral API middleware routing missing');
 assert(!read('admin.html').includes('rtx5090'), 'Client-side admin password exposed');
 assert(!read('admin/index.html').includes('rtx5090'), 'Client-side admin password exposed');
 
@@ -66,7 +66,7 @@ for (const [name, html, handler] of [
   ['homepage', home, 'handleContactSubmit'],
   ['referral', referral, 'handleReferralSubmit']
 ]) {
-  const scripts = [...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)]
+  const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
     .map(match => match[1]).filter(source => source.includes('function ' + handler));
   assert.equal(scripts.length, 1, 'Expected a single inline ' + name + ' handler');
   new vm.Script(scripts[0], { filename: name + '-inline.js' });
