@@ -6,13 +6,12 @@
 
 import fs from 'fs';
 import { NextResponse } from 'next/server';
+import { isAdminAuthorized, adminUnauthorized } from '../../../lib/admin-auth.mjs';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const TMP_FILE = '/tmp/appiex_client_orders_shared_v2.json';
-const STREAM_TOPIC = 'appiex_orders_stream_v2_rtx5090';
-const STREAM_URL = 'https://ntfy.sh/' + STREAM_TOPIC;
 const REDIS_KEY = 'appiex:client_orders:v2';
 
 // Default initial state: clean 0 orders
@@ -77,94 +76,38 @@ async function readFromUpstash() {
 async function writeToUpstash(payload) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return;
-  try {
-    await fetch(`${url}/set/${REDIS_KEY}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-  } catch (e) {}
+  if (!url || !token) throw new Error('Durable lead storage is not configured');
+  const response = await fetch(`${url}/set/${REDIS_KEY}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    cache: 'no-store'
+  });
+  if (!response.ok) throw new Error('Durable lead storage request failed');
+  const result = await response.json();
+  if (result.error) throw new Error('Durable lead storage rejected the request');
 }
 
+// Do not publish customer contact details to public ntfy topics.
 async function publishOrdersSnapshot(store) {
-  const snapshot = {
+  await writeToUpstash({
     updatedAt: store.updatedAt,
     orders: store.orders,
     deletedIds: store.deletedIds || []
-  };
-  await writeToUpstash(snapshot);
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
-    await fetch(STREAM_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain;charset=UTF-8',
-        'X-Cache': 'yes'
-      },
-      body: JSON.stringify(snapshot),
-      signal: controller.signal
-    }).catch(() => {});
-    clearTimeout(timer);
-  } catch (e) {}
+  });
 }
-
-async function hydrateFromCloudStream(mem, force = false) {
-  const now = Date.now();
-  if (!force && now - (globalThis.__APPIEX_ORDERS_LAST_HYDRATE || 0) < 2500) {
-    return;
-  }
-  globalThis.__APPIEX_ORDERS_LAST_HYDRATE = now;
-
-  const redisData = await readFromUpstash();
-  if (redisData && redisData.updatedAt && redisData.updatedAt > (mem.updatedAt || 0)) {
-    mem.updatedAt = redisData.updatedAt;
-    if (Array.isArray(redisData.orders)) mem.orders = redisData.orders;
-    if (Array.isArray(redisData.deletedIds)) mem.deletedIds = redisData.deletedIds;
+async function hydrateFromCloudStream(mem) {
+  const saved = await readFromUpstash();
+  if (saved && saved.updatedAt && saved.updatedAt > (mem.updatedAt || 0)) {
+    mem.updatedAt = saved.updatedAt;
+    if (Array.isArray(saved.orders)) mem.orders = saved.orders;
+    if (Array.isArray(saved.deletedIds)) mem.deletedIds = saved.deletedIds;
     saveMemStore(mem);
-    return;
   }
-
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2500);
-    const resp = await fetch(STREAM_URL + '/json?poll=1&since=12h', {
-      signal: controller.signal,
-      headers: { 'Cache-Control': 'no-store' }
-    });
-    clearTimeout(timer);
-    if (!resp.ok) return;
-    const text = await resp.text();
-    const lines = text.split('\n').filter(Boolean);
-    let updated = false;
-    for (const line of lines) {
-      try {
-        const env = JSON.parse(line);
-        if (env.event !== 'message' || !env.message) continue;
-        const payload = JSON.parse(env.message);
-        if (payload && payload.updatedAt && payload.updatedAt > (mem.updatedAt || 0)) {
-          mem.updatedAt = payload.updatedAt;
-          mem.lastCloudPublishAt = Math.max(mem.lastCloudPublishAt || 0, (env.time || 0) * 1000);
-          if (Array.isArray(payload.orders)) mem.orders = payload.orders;
-          if (Array.isArray(payload.deletedIds)) mem.deletedIds = payload.deletedIds;
-          updated = true;
-        }
-      } catch (e) {}
-    }
-    if (updated) saveMemStore(mem);
-
-    if (mem.orders && mem.orders.length > 0 && now - (mem.lastCloudPublishAt || 0) > 5 * 3600 * 1000) {
-      mem.lastCloudPublishAt = now;
-      await publishOrdersSnapshot(mem);
-    }
-  } catch (e) {}
 }
 
-export async function GET() {
+export async function GET(req) {
+  if (!isAdminAuthorized(req)) return adminUnauthorized();
   const store = getMemStore();
   await hydrateFromCloudStream(store, false);
   return NextResponse.json({
@@ -174,32 +117,57 @@ export async function GET() {
     updatedAt: store.updatedAt
   }, {
     headers: {
-      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-      'Access-Control-Allow-Origin': '*'
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
     }
   });
 }
 
 export async function POST(req) {
+  const ip = (req.headers.get('x-forwarded-for') || 'unknown').split(',')[0].trim().slice(0, 60);
+  const limits = globalThis.__appiexLeadRateLimits ||= new Map();
+  const now = Date.now();
+  const last = limits.get(ip) || { count: 0, until: now + 60000 };
+  if (last.until < now) { last.count = 0; last.until = now + 60000; }
+  last.count++;
+  limits.set(ip, last);
+  if (limits.size > 5000) {
+    for (const [key, entry] of limits) if (entry.until < now) limits.delete(key);
+  }
+  if (last.count > 5) {
+    return NextResponse.json({ success: false, error: 'Too many inquiries. Please use WhatsApp.' }, { status: 429 });
+  }
   try {
+    if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+      return NextResponse.json({ success: false, error: 'Lead storage temporarily unavailable. Please contact us on WhatsApp.' }, { status: 503 });
+    }
+    const origin = req.headers.get('origin');
+    if (origin && !/^https:\/\/(?:www\.)?appiex\.com$/i.test(origin) && !/^http:\/\/localhost(?::\d+)?$/i.test(origin)) {
+      return NextResponse.json({ success: false, error: 'Origin not allowed' }, { status: 403 });
+    }
+    if (Number(req.headers.get('content-length') || 0) > 16000) {
+      return NextResponse.json({ success: false, error: 'Request too large' }, { status: 413 });
+    }
     const body = await req.json();
-    if (!body) {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
       return NextResponse.json({ success: false, error: 'Empty payload' }, { status: 400 });
     }
 
+    if (typeof body.email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email) || typeof body.name !== 'string' || !body.name.trim()) {
+      return NextResponse.json({ success: false, error: 'A valid name and email are required' }, { status: 400 });
+    }
     const store = getMemStore();
     await hydrateFromCloudStream(store, true);
 
     const newOrder = {
-      id: body.id || ('ord_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
-      name: (body.name || 'Inbound Prospect').trim(),
-      email: (body.email || '').trim(),
-      phone: (body.phone || '').trim(),
-      service: body.service || 'Web Development & UI/UX',
-      budget: body.budget || '$5k-$10k',
-      message: (body.message || '').trim(),
-      channel: body.channel || 'Website Contact Form',
-      status: body.status || 'new',
+      id: crypto.randomUUID(),
+      name: body.name.trim().slice(0, 120),
+      email: body.email.trim().slice(0, 160),
+      phone: String(body.phone || '').slice(0, 35),
+      service: String(body.service || 'Digital Services').slice(0, 240),
+      budget: String(body.budget || 'Not provided').slice(0, 60),
+      message: String(body.message || '').slice(0, 5000),
+      channel: body.channel === 'Project Fit Wizard' ? 'Project Fit Wizard' : 'Website Contact Form',
+      status: 'new',
       date: body.date || new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' }),
       timestamp: body.timestamp || Date.now()
     };
@@ -216,12 +184,7 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      order: newOrder,
-      totalOrders: store.orders.length
-    }, {
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      }
+      orderId: newOrder.id
     });
   } catch (err) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
@@ -229,6 +192,7 @@ export async function POST(req) {
 }
 
 export async function PUT(req) {
+  if (!isAdminAuthorized(req)) return adminUnauthorized();
   try {
     const body = await req.json();
     if (!body || !body.id) {
@@ -239,7 +203,7 @@ export async function PUT(req) {
     await hydrateFromCloudStream(store, true);
     const idx = store.orders.findIndex(o => o.id === body.id);
     if (idx !== -1) {
-      store.orders[idx] = Object.assign({}, store.orders[idx], body);
+      store.orders[idx] = { ...store.orders[idx], status: ['new', 'discussion', 'confirmed', 'completed'].includes(body.status) ? body.status : store.orders[idx].status };
       store.updatedAt = Math.max(Date.now(), (store.updatedAt || 0) + 1);
       store.lastCloudPublishAt = store.updatedAt;
       saveMemStore(store);
@@ -253,6 +217,7 @@ export async function PUT(req) {
 }
 
 export async function DELETE(req) {
+  if (!isAdminAuthorized(req)) return adminUnauthorized();
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');

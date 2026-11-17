@@ -24,12 +24,8 @@
     <script>
       // Check admin authorization early to avoid flash of gate for authed sessions
       (function() {
-        var AUTH_KEY = 'appiex_admin_authed';
-        try {
-          if (sessionStorage.getItem(AUTH_KEY) === 'rtx5090_verified' || localStorage.getItem(AUTH_KEY) === 'rtx5090_verified') {
-            document.documentElement.classList.add('admin-authorized');
-          }
-        } catch(e) {}
+        // Access is verified by server-side Basic authentication before HTML is served.
+        document.documentElement.classList.add('admin-authorized');
       })();
 
       // Compatibility shim for browser extensions/iframes that reassign window.fetch
@@ -348,7 +344,7 @@
           </form>
 
           <div style="margin-top: 24px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #64748b; font-size: 11px;">
-            <span>🛡️ Hardware Key / Encrypted Session</span>
+            <span>🛡️ Server-verified administrator access</span>
             <span>•</span>
             <span>v4.2</span>
           </div>
@@ -360,14 +356,11 @@
     <script>
       (function() {
         var AUTH_KEY = 'appiex_admin_authed';
-        var REQUIRED_PASS = 'rtx5090';
+        var REQUIRED_PASS = '__disabled_browser_gate__';
 
         window.lockAdminSession = function() {
-          try {
-            sessionStorage.removeItem(AUTH_KEY);
-            localStorage.removeItem(AUTH_KEY);
-          } catch(e) {}
-          window.location.reload();
+          // Basic authentication is browser-managed; close the browser session to clear it.
+          window.location.assign('/');
         };
 
         window.togglePasswordVisibility = function() {
@@ -430,8 +423,8 @@
             }
 
             try {
-              sessionStorage.setItem(AUTH_KEY, 'rtx5090_verified');
-              localStorage.setItem(AUTH_KEY, 'rtx5090_verified');
+              sessionStorage.setItem(AUTH_KEY, 'server_authenticated');
+              localStorage.setItem(AUTH_KEY, 'server_authenticated');
             } catch(err) {}
 
             document.documentElement.classList.add('admin-authorized');

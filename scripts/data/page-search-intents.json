@@ -1,12 +1,12 @@
 {
   "/": {
-    "primary": "global business growth agency",
+    "primary": "website ecommerce and AI automation agency",
     "supporting": [
-      "worldwide web AI and 3D agency",
-      "international SEO and software engineering"
+      "custom ecommerce storefront development",
+      "AI business workflow automation"
     ],
-    "description": "Appiex is a global business growth agency from Bangladesh building websites, 3D WebGL, custom software, AI automation & SEO for worldwide brands.",
-    "title": "Global Business Growth Agency | Web, 3D, AI & SEO | Appiex"
+    "title": "Website, Ecommerce & AI Automation Agency | Appiex",
+    "description": "Appiex builds ecommerce websites, business software and AI automation to improve sales workflows and daily operations. Explore our services and discuss your project."
   },
   "/ai-automation": {
     "primary": "AI automation services",

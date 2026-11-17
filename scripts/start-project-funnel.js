@@ -148,6 +148,55 @@
     // Do not call generate_lead here: opening a chat/email is not delivery.
   };
 
+  const directSubmit = document.getElementById('funnel-submit');
+  const submitStatus = document.getElementById('funnel-submit-status');
+  const consent = document.getElementById('funnel-consent');
+  if (directSubmit && submitStatus && consent) {
+    directSubmit.addEventListener('click', async () => {
+      if (!validate(3)) return;
+      const email = read('email');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        submitStatus.textContent = 'Enter a valid work email on step 4 to submit securely. You can still choose WhatsApp or email.';
+        return;
+      }
+      if (!consent.checked) {
+        submitStatus.textContent = 'Please confirm consent before sending your details to Appiex.';
+        return;
+      }
+      if (directSubmit.dataset.confirmed === 'true') return;
+      directSubmit.disabled = true;
+      submitStatus.textContent = 'Submitting your enquiry securely...';
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: read('client-name'), email,
+            service: chosen('service'), budget: read('budget'),
+            channel: 'Project Fit Wizard',
+            message: createMessage().slice(0, 5000)
+          })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.success !== true) throw new Error('Lead storage unavailable');
+        directSubmit.dataset.confirmed = 'true';
+        directSubmit.textContent = 'Enquiry received';
+        submitStatus.textContent = 'Your enquiry has been received for review. Our team can now follow up using the email you supplied.';
+        track('appiex_funnel_lead_received', {
+          service: chosen('service'), budget_band: read('budget'), channel: 'secure_form'
+        });
+        try {
+          window.dispatchEvent(new CustomEvent('appiex:lead_received', { detail: { channel: 'project_fit' } }));
+        } catch (_) {}
+      } catch (_) {
+        submitStatus.textContent = 'Unable to confirm delivery to our secure inbox. Please open WhatsApp or email and press Send there to reach Appiex.';
+      } finally {
+        if (directSubmit.dataset.confirmed !== 'true') directSubmit.disabled = false;
+      }
+    });
+  }
+
   next.addEventListener('click', () => {
     if (!validate(step)) return;
     track('appiex_funnel_step_complete', { step_number: step + 1, service: chosen('service') || 'not_selected' });

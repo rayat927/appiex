@@ -3,13 +3,12 @@
 // POST /api/sales -> saves/updates sales, merges safely, and synchronizes across all admins
 import fs from 'fs';
 import { NextResponse } from 'next/server';
+import { isAdminAuthorized, adminUnauthorized } from '../../../lib/admin-auth.mjs';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const TMP_FILE = '/tmp/appiex_monthly_sales_shared_v2.json';
-const STREAM_TOPIC = 'appiex_sales_ledger_sync_v2_rtx5090';
-const STREAM_URL = 'https://ntfy.sh/' + STREAM_TOPIC;
 const REDIS_KEY = 'appiex:monthly_sales:v2';
 
 // Default initial state starts clean at $0
@@ -117,9 +116,9 @@ async function readFromUpstash() {
 async function writeToUpstash(payload) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return;
+  if (!url || !token) throw new Error('Durable sales storage not configured');
   try {
-    await fetch(`${url}/set/${REDIS_KEY}`, {
+    const response = await fetch(`${url}/set/${REDIS_KEY}`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -127,93 +126,28 @@ async function writeToUpstash(payload) {
       },
       body: JSON.stringify(payload)
     });
-  } catch (e) {}
+    if (!response.ok) throw new Error('Durable sales storage failed');
+  } catch (e) { throw e; }
 }
 
-async function hydrateFromCloudStream(mem, force = false) {
-  const now = Date.now();
-  if (!force && now - (globalThis.__APPIEX_SALES_LAST_HYDRATE || 0) < 2500) {
-    return;
-  }
-  globalThis.__APPIEX_SALES_LAST_HYDRATE = now;
-
-  // 1. Try Upstash Redis if configured
-  const redisData = await readFromUpstash();
-  if (redisData && redisData.updatedAt && redisData.updatedAt > (mem.updatedAt || 0)) {
-    mem.updatedAt = redisData.updatedAt;
-    if (redisData.selectedMonthId) mem.selectedMonthId = redisData.selectedMonthId;
-    if (Array.isArray(redisData.months)) mem.months = redisData.months;
-    if (Array.isArray(redisData.items)) mem.items = redisData.items;
-    if (Array.isArray(redisData.deletedIds)) mem.deletedIds = redisData.deletedIds;
+// Financial records must never be sent to publicly readable notification topics.
+async function hydrateFromCloudStream(mem) {
+  const saved = await readFromUpstash();
+  if (saved && saved.updatedAt && saved.updatedAt > (mem.updatedAt || 0)) {
+    mem.updatedAt = saved.updatedAt;
+    if (saved.selectedMonthId) mem.selectedMonthId = saved.selectedMonthId;
+    if (Array.isArray(saved.months)) mem.months = saved.months;
+    if (Array.isArray(saved.items)) mem.items = saved.items;
+    if (Array.isArray(saved.deletedIds)) mem.deletedIds = saved.deletedIds;
     saveMemStore(mem);
-    return;
   }
-
-  // 2. Fallback / Primary free cloud stream via ntfy.sh using since=12h (since=all returns empty on ntfy.sh)
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2500);
-    const resp = await fetch(STREAM_URL + '/json?poll=1&since=12h', {
-      signal: controller.signal,
-      headers: { 'Cache-Control': 'no-store' }
-    });
-    clearTimeout(timer);
-    if (!resp.ok) return;
-    const text = await resp.text();
-    const lines = text.split('\n').filter(Boolean);
-    let updated = false;
-    for (const line of lines) {
-      try {
-        const env = JSON.parse(line);
-        if (env.event !== 'message' || !env.message) continue;
-        const payload = JSON.parse(env.message);
-        if (payload && payload.updatedAt && payload.updatedAt > (mem.updatedAt || 0)) {
-          mem.updatedAt = payload.updatedAt;
-          mem.lastCloudPublishAt = Math.max(mem.lastCloudPublishAt || 0, (env.time || 0) * 1000);
-          if (payload.selectedMonthId) mem.selectedMonthId = payload.selectedMonthId;
-          if (Array.isArray(payload.months)) mem.months = payload.months;
-          if (Array.isArray(payload.items)) mem.items = payload.items;
-          if (Array.isArray(payload.deletedIds)) mem.deletedIds = payload.deletedIds;
-          updated = true;
-        }
-      } catch (e) {}
-    }
-    if (updated) {
-      saveMemStore(mem);
-    }
-
-    // Keep-alive: if stored data is > 5 hours old in ntfy, refresh it so 12h TTL never expires
-    if (mem.items && mem.items.length > 0 && now - (mem.lastCloudPublishAt || 0) > 5 * 3600 * 1000) {
-      mem.lastCloudPublishAt = now;
-      await publishToCloudStream({
-        updatedAt: mem.updatedAt,
-        selectedMonthId: mem.selectedMonthId,
-        months: mem.months,
-        items: mem.items,
-        deletedIds: mem.deletedIds || []
-      });
-    }
-  } catch (e) {}
 }
-
-async function publishToCloudStream(payloadObj) {
-  await writeToUpstash(payloadObj);
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2500);
-    await fetch(STREAM_URL, {
-      method: 'POST',
-      body: JSON.stringify(payloadObj),
-      headers: {
-        'Content-Type': 'text/plain;charset=UTF-8',
-        'X-Cache': 'yes'
-      },
-      signal: controller.signal
-    });
-    clearTimeout(timer);
-  } catch (e) {}
+async function publishToCloudStream(payload) {
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+    throw new Error('Durable sales storage is not configured');
+  }
+  await writeToUpstash(payload);
 }
-
 function sendJson(status, body) {
   return new NextResponse(JSON.stringify(body), {
     status,
@@ -224,7 +158,8 @@ function sendJson(status, body) {
   });
 }
 
-export async function GET() {
+export async function GET(request) {
+  if (!isAdminAuthorized(request)) return adminUnauthorized();
   const store = getMemStore();
   await hydrateFromCloudStream(store, false);
   return sendJson(200, {
@@ -238,6 +173,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  if (!isAdminAuthorized(request)) return adminUnauthorized();
   try {
     const body = await request.json();
     const store = getMemStore();

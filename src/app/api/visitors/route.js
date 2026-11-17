@@ -4,11 +4,12 @@
 // DELETE /api/visitors   -> admin only: wipe all history (fresh reset)
 import fs from 'fs';
 import { NextResponse } from 'next/server';
+import { isAdminAuthorized, adminUnauthorized } from '../../../lib/admin-auth.mjs';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const ADMIN_KEY = process.env.ADMIN_KEY || 'rtx5090';
+// Authentication is provided by server-side credentials only.
 // --- OWASP / CLOUDFLARE SECURITY HARDENING ---
 const rateLimitMap = new Map();
 const authFailMap = new Map();
@@ -59,8 +60,6 @@ function getAllowedOrigin(request) {
 }
 
 const TMP_FILE = '/tmp/appiex_visitors_v5.json';
-const STREAM_TOPIC = 'appiex_visitors_stream_v5_rtx5090';
-const STREAM_URL = 'https://ntfy.sh/' + STREAM_TOPIC;
 
 if (!globalThis.__APPIEX_VISITOR_STORE_V5) {
   globalThis.__APPIEX_VISITOR_STORE_V5 = {
@@ -108,68 +107,10 @@ function saveMemStore(mem) {
   } catch (e) {}
 }
 
-async function hydrateFromCloudStream(mem, force = false) {
-  const now = Date.now();
-  if (!force && mem.hydratedAt && (now - mem.hydratedAt) < 4000 && Object.keys(mem.visitors).length > 0) {
-    return;
-  }
-  mem.hydratedAt = now;
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 3500);
-    const resp = await fetch(STREAM_URL + '/json?poll=1&since=all', {
-      signal: controller.signal,
-      headers: { 'Cache-Control': 'no-store' }
-    });
-    clearTimeout(timer);
-    if (!resp.ok) return;
-    const text = await resp.text();
-    const lines = text.split('\n').filter(Boolean);
-    for (const line of lines) {
-      try {
-        const env = JSON.parse(line);
-        if (env.event !== 'message' || !env.message) continue;
-        const payload = JSON.parse(env.message);
-        if (payload.type === 'RESET' && payload.resetAt) {
-          if (payload.resetAt > mem.resetAt) {
-            mem.resetAt = payload.resetAt;
-            for (const k of Object.keys(mem.visitors)) {
-              if ((mem.visitors[k].serverTs || 0) < mem.resetAt) {
-                delete mem.visitors[k];
-              }
-            }
-          }
-        } else if (payload.type === 'VISIT' && payload.record && payload.record.visitorUUID) {
-          const rec = payload.record;
-          const recTs = rec.serverTs || (env.time ? env.time * 1000 : Date.now());
-          rec.serverTs = recTs;
-          if (recTs >= mem.resetAt) {
-            const existing = mem.visitors[rec.visitorUUID];
-            const existingTs = existing ? (existing.serverTs || 0) : 0;
-            if (!existing || recTs >= existingTs) {
-              mem.visitors[rec.visitorUUID] = rec;
-            }
-          }
-        }
-      } catch (e) {}
-    }
-    saveMemStore(mem);
-  } catch (e) {}
-}
-
-async function publishToCloudStream(payloadObj) {
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2500);
-    await fetch(STREAM_URL, {
-      method: 'POST',
-      body: JSON.stringify(payloadObj),
-      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-      signal: controller.signal
-    });
-    clearTimeout(timer);
-  } catch (e) {}
-}
+// Visitor information stays on this deployment; never broadcast PII to public ntfy topics.
+// Durable visitor analytics should be handled by a privacy-reviewed analytics provider.
+async function hydrateFromCloudStream() { return; }
+async function publishToCloudStream() { return; }
 
 function sendJson(request, status, body) {
   const allowedOrigin = request ? getAllowedOrigin(request) : 'https://appiex.com';
@@ -353,8 +294,7 @@ export async function GET(request) {
     return sendJson(request, 403, { ok: false, error: 'Access temporarily blocked due to repeated auth failures.' });
   }
 
-  const key = request.headers.get('x-admin-key');
-  if (key !== ADMIN_KEY) {
+  if (!isAdminAuthorized(request)) {
     recordAuthFailure(clientIp);
     return sendJson(request, 401, { ok: false, error: 'unauthorized' });
   }
@@ -375,7 +315,7 @@ export async function GET(request) {
       serverTime: new Date(nowMs).toISOString(),
       serverTs: nowMs,
       todayDate: dhakaToday,
-      streamTopic: STREAM_TOPIC,
+      streamTopic: null,
       visitors: records
     });
   } catch (err) {
@@ -392,8 +332,7 @@ export async function DELETE(request) {
     return sendJson(request, 403, { ok: false, error: 'Access temporarily blocked due to repeated auth failures.' });
   }
 
-  const key = request.headers.get('x-admin-key');
-  if (key !== ADMIN_KEY) {
+  if (!isAdminAuthorized(request)) {
     recordAuthFailure(clientIp);
     return sendJson(request, 401, { ok: false, error: 'unauthorized' });
   }
