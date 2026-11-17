@@ -1326,7 +1326,7 @@
         <div class="p-5 rounded-2xl bg-white/5 border border-white/10 text-center hover:border-red-500/40 transition">
           <span class="text-xs font-mono text-slate-400 uppercase block mb-1">Custom Portal / SaaS</span>
           <div class="text-sm text-slate-300 mb-2">Example project: <span class="font-bold text-white">$2,500</span></div>
-          <div class="text-2xl font-black text-[#FF2A4D] mb-1">$750 USD</div>
+          <div class="text-2xl font-black text-[#FF2A4D] mb-1">$375 USD</div>
           <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full inline-block">UP TO 15% IF APPROVED</span>
         </div>
 
@@ -1468,6 +1468,9 @@
             </label>
           </div>
 
+          <p class="text-slate-400 text-xs mb-3">You do not need to provide any payout account details now. Referral eligibility, maximum commission rate and payment timing are determined by written agreement and verified client payments.</p>
+          <label class="flex items-start gap-2 text-slate-300 text-xs mb-5"><input type="checkbox" id="ref-consent" required style="margin-top:3px"><span>I have this client's permission to share their business contact details with Appiex for this introduction. I agree to the <a class="underline" href="/privacy-policy">privacy policy</a>.</span></label>
+          <input type="text" id="ref-honeypot" name="website" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-10000px;height:1px;width:1px">
           <div id="lead-submit-status" class="hidden text-center text-xs font-mono text-emerald-400 py-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 my-4"></div>
 
           <!-- Submit CTA Button -->
@@ -1483,80 +1486,40 @@
         <script>
           async function handleReferralSubmit(e) {
             e.preventDefault();
+            const form = e.currentTarget;
+            if (!form.reportValidity()) return;
             const btn = document.getElementById('ref-submit-btn');
             const status = document.getElementById('lead-submit-status');
+            const consent = document.getElementById('ref-consent');
+            if (!consent || !consent.checked) return;
             btn.disabled = true;
-            btn.textContent = 'Submitting to Database...';
-
-            const lead = {
-              referrerName: document.getElementById('ref-name').value.trim(),
-              referrerBkash: document.getElementById('ref-bkash').value.trim(),
-              clientName: document.getElementById('ref-client').value.trim(),
-              clientPhone: document.getElementById('ref-phone').value.trim(),
-              projectType: document.getElementById('ref-service').value
-            };
-
-            if (window.appiexFirebase) {
-              await window.appiexFirebase.saveReferralLead(lead);
-            }
-
-            try {
-              const refRecord = {
-                id: 'ref_' + Date.now().toString().slice(-4),
-                referrerName: lead.referrerName,
-                referrerEmail: lead.referrerBkash,
-                referredCompany: lead.clientName,
-                contactPerson: lead.clientName,
-                contactEmail: lead.clientPhone,
-                serviceRequested: lead.projectType || 'Full-Stack Development',
-                contractedRateBps: 1500,
-                dealValue: 12000,
-                eligibleCommission: 1800,
-                submittedAt: new Date().toISOString(),
-                status: 'submitted',
-                paymentVerified: false,
-                financeApproval1: false,
-                financeApproval2: false,
-                notes: 'Submitted through refer.html affiliate portal (Payout: ' + lead.referrerBkash + ')'
-              };
-
-              const refLead = {
-                id: 'lead_' + Date.now().toString().slice(-4),
-                name: lead.clientName,
-                company: lead.clientName,
-                email: lead.clientPhone.includes('@') ? lead.clientPhone : 'lead@' + lead.clientName.toLowerCase().replace(/[^a-z0-9]/g, '') + '.com',
-                phone: lead.clientPhone,
-                country: 'Global',
-                serviceInterest: 'Web Development',
-                budgetMin: 8000,
-                budgetMax: 20000,
-                currency: 'USD',
-                description: 'Referred by ' + lead.referrerName + ' (Payout Account: ' + lead.referrerBkash + ') for ' + lead.projectType,
-                source: 'Referral',
-                stage: 'new',
-                score: 90,
-                owner: 'Adil Al Alim',
-                expectedValue: 12000,
-                probability: 50,
-                createdAt: new Date().toISOString(),
-                lastContactAt: new Date().toISOString()
-              };
-
-              const existingRefs = JSON.parse(localStorage.getItem('appiex_admin_referrals_v2') || '[]');
-              localStorage.setItem('appiex_admin_referrals_v2', JSON.stringify([refRecord, ...existingRefs]));
-
-              const existingLeads = JSON.parse(localStorage.getItem('appiex_admin_leads_v2') || '[]');
-              localStorage.setItem('appiex_admin_leads_v2', JSON.stringify([refLead, ...existingLeads]));
-            } catch(err) {
-              console.warn('Admin OS referral sync error:', err);
-            }
-
-            status.textContent = '✅ Lead recorded successfully in Firebase database! Rafsan and the Appiex team will contact the client and wire your 15% USD commission upon advance.';
             status.classList.remove('hidden');
-            btn.textContent = 'Submitted Successfully!';
-            btn.classList.add('opacity-75');
-            document.getElementById('lead-referral-form').reset();
-          }
+            status.textContent = 'Submitting your referral securely...';
+            try {
+              const payload = {
+                referrerName: document.getElementById('ref-name').value.trim(),
+                referrerEmail: document.getElementById('ref-email').value.trim(),
+                clientName: document.getElementById('ref-client').value.trim(),
+                clientContact: document.getElementById('ref-phone').value.trim(),
+                projectType: document.getElementById('ref-service').value.trim(),
+                consent: consent.checked,
+                website: document.getElementById('ref-honeypot').value
+              };
+              const response = await fetch('/api/referrals', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok || !result.success) throw new Error(result.error || 'Submission not confirmed.');
+              status.textContent = 'Referral received for review. Reference: ' + result.reference + '. We will contact you by email about eligibility and next steps.';
+              form.reset();
+            } catch (error) {
+              status.textContent = (error && error.message ? error.message : 'Unable to save your referral.') + ' You can also email contact@appiex.com.';
+            } finally {
+              btn.disabled = false;
+            }
         </script>
       </div>
     </section>
