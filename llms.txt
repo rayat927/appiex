@@ -24,7 +24,7 @@
 - [Digital Strategy](https://appiex.com/digital-strategy): Enterprise digital roadmaps, competitive intelligence, and brand positioning.
 
 ## Partnerships & Referral Programs
-- [Client Referral Program](https://appiex.com/refer): Earn up to 15% instant commission in USD by referring clients for custom website design, Next.js engineering, 3D WebGL experiences, and AI workflow automations.
+- [Client Referral Program](https://appiex.com/refer): Earn up to 15% commission on eligible paid projects, subject to approval and written terms, by referring clients for custom website design, Next.js engineering, 3D WebGL experiences, and AI workflow automations.
 - [Agency Partnerships & White Label Development](https://appiex.com/partners): Wholesale white-label web development, overflow sprint engineering, and 100% NDA-protected technical subcontracting for creative agencies and consultancies worldwide.
 
 ## Portfolio & Client Case Studies
