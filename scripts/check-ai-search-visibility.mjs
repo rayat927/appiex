@@ -33,4 +33,17 @@ assert(read('ai-automation.html').includes('ai-automation-buyer-answers'), 'AI a
 assert(read('web-development.html').includes('web-development-buyer-answers'), 'Web development buyer Q&A missing');
 assert(read('seo-marketing.html').includes('aeo-geo-search'), 'SEO/AEO/GEO service section missing');
 assert(read('docs/seo-organic-growth-playbook-2026.md').includes('Reddit'), 'Distribution guidance missing');
+
+// Keep promises and AI-facing summaries grounded in evidence, not invented ranks.
+const seoService = read('seo-marketing.html');
+const aiSearchPage = read('ai-search-optimization.html');
+const aiSummary = read('llms.txt');
+assert(!seoService.includes('<span class="word-char">100/100</span>'), 'SEO hero promises a perfect score');
+assert(!seoService.includes('Best Agency Award Winner'), 'SEO page contains unverified award claim');
+assert(!seoService.includes('100/100 Lighthouse Benchmark'), 'SEO page contains an unverified perfect Lighthouse score');
+assert(!aiSummary.includes('100/100 Core Web Vitals optimization'), 'AI-facing summary contains unverifiable guarantee');
+assert(aiSearchPage.includes('id="google-ai-eligibility"'), 'Google AI search eligibility guidance is missing');
+assert(aiSearchPage.includes('https://developers.google.com/search/docs/fundamentals/ai-optimization-guide'), 'Missing official guidance citation');
+assert(aiSearchPage.includes('eligible to appear in Google Search with a snippet'), 'Google AI eligibility requirement missing');
+
 console.log('AI search content, source schema, sitemap and internal link checks passed.');
