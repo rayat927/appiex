@@ -19,7 +19,7 @@
 - [Website Development Cost in Bangladesh (2026 Guide)](https://appiex.com/blog/website-development-cost-bangladesh): Transparent BDT & USD pricing breakdown for corporate websites, e-commerce stores, and custom web applications.
 - [Custom Web Development](https://appiex.com/web-development): Modern Next.js applications, high-performance headless architectures, and e-commerce platforms.
 - [3D Website Design & UI/UX](https://appiex.com/ui-ux-3d-design): Interactive 3D WebGL canvases, Three.js spatial architectures, and human-centric UI/UX design.
-- [Professional SEO Services](https://appiex.com/seo-marketing): Programmatic SEO, 100/100 Core Web Vitals optimization, and Generative Engine Optimization (GEO).
+- [Professional SEO Services](https://appiex.com/seo-marketing): Technical SEO audits, measurable Core Web Vitals improvements, answer-focused content, and generative search visibility consulting.
 - [AI Workflow Automation](https://appiex.com/ai-automation): Custom AI agents, intelligent messaging automation, and CRM sync.
 - [Digital Strategy](https://appiex.com/digital-strategy): Enterprise digital roadmaps, competitive intelligence, and brand positioning.
 
