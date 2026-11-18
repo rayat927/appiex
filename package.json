@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/sync-nextjs-public.mjs && next dev",
-    "build": "node scripts/sync-nextjs-public.mjs && node scripts/check-appiex-trust-security.mjs && node scripts/check-gsc-noindex-coverage.mjs && node scripts/check-gaming-lenis.mjs && node scripts/check-rift-shift.mjs && node scripts/check-gaming-rebuild.mjs && node scripts/check-gaming-conversion.mjs && node scripts/check-tag-manager.mjs && node scripts/check-ai-search-visibility.mjs && node scripts/check-qualified-funnel.mjs && node scripts/check-website-lead-calculator.mjs && next build",
+    "dev": "node scripts/sync-nextjs-public.mjs && node scripts/generate-referral-og.mjs && next dev",
+    "build": "node scripts/sync-nextjs-public.mjs && node scripts/generate-referral-og.mjs && node scripts/check-referral-og.mjs && node scripts/check-appiex-trust-security.mjs && node scripts/check-gsc-noindex-coverage.mjs && node scripts/check-gaming-lenis.mjs && node scripts/check-rift-shift.mjs && node scripts/check-gaming-rebuild.mjs && node scripts/check-gaming-conversion.mjs && node scripts/check-tag-manager.mjs && node scripts/check-ai-search-visibility.mjs && node scripts/check-qualified-funnel.mjs && node scripts/check-website-lead-calculator.mjs && next build",
     "start": "next start"
   },
   "dependencies": {
@@ -18,7 +18,8 @@
     "next": "^15.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2"
+    "react-router-dom": "^6.26.2",
+    "sharp": "^0.34.4"
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
