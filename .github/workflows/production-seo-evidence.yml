@@ -17,6 +17,8 @@ jobs:
           node-version: '20'
       - name: Check script syntax
         run: node --check scripts/audit-live-indexing.mjs
+      - name: Inventory blog SEO and content overlap
+        run: node scripts/audit-blog-content-inventory.mjs
       - name: Check production sitemap and redirects
         run: node scripts/audit-live-indexing.mjs
       - name: Upload audit evidence even if failures occur
@@ -24,5 +26,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: appiex-live-indexing-evidence
-          path: artifacts/appiex-live-indexing-report.json
+          path: |
+            artifacts/appiex-live-indexing-report.json
+            artifacts/appiex-blog-content-inventory.json
           if-no-files-found: warn
