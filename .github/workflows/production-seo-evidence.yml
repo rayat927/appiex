@@ -1,12 +1,5 @@
 name: Appiex Production SEO Evidence
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'next.config.mjs'
-      - 'vercel.json'
-      - 'scripts/audit-live-indexing.mjs'
-      - '.github/workflows/production-seo-evidence.yml'
   pull_request:
     paths:
       - 'scripts/audit-live-indexing.mjs'
