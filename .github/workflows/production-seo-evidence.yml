@@ -1,5 +1,12 @@
 name: Appiex Production SEO Evidence
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'next.config.mjs'
+      - 'vercel.json'
+      - 'scripts/audit-live-indexing.mjs'
+      - '.github/workflows/production-seo-evidence.yml'
   pull_request:
     paths:
       - 'scripts/audit-live-indexing.mjs'
@@ -20,6 +27,7 @@ jobs:
       - name: Inventory blog SEO and content overlap
         run: node scripts/audit-blog-content-inventory.mjs
       - name: Check production sitemap and redirects
+        if: github.event_name != 'pull_request'
         run: node scripts/audit-live-indexing.mjs
       - name: Upload audit evidence even if failures occur
         if: always()
