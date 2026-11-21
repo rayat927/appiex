@@ -26,6 +26,13 @@ const nextConfig = {
         permanent: true
       },
       {
+        // Hosting can normalize /index.html to /index before Next redirects run.
+        // Keep the normalized legacy alias permanently pointed at the homepage.
+        source: '/index',
+        destination: '/',
+        permanent: true
+      },
+      {
         source: '/index.html',
         destination: '/',
         permanent: true
