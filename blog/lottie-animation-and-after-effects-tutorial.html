@@ -109,7 +109,7 @@
 </tbody></table>
 <p>No single format guarantees a better Lighthouse score. Test the actual asset and page with the final production bundle, including typical mobile devices and constrained networks.</p>
 
-<h2 id="implementation-framework">4. Load Lottie on the web</h2>
+<h2 id="step-by-step-implementation">4. Load Lottie on the web</h2>
 <p>Install a compatible web renderer such as <code>lottie-web</code>, then render into an element with an appropriate label. The example below assumes the animation JSON is hosted at <code>/animations/onboarding.json</code>. For a decorative animation, use an empty accessibility label and hide it from assistive technology instead.</p>
 <pre><code>import lottie from 'lottie-web';
 
@@ -133,7 +133,7 @@ function cleanup() {
 }</code></pre>
 <p>For motion that depends on application state, prefer explicit playback triggers rather than an endlessly looping animation. Destroy the animation instance when its component unmounts to release observers and renderer resources. Handle network failure gracefully by displaying meaningful static content.</p>
 
-<h2 id="evidence-validation">5. Measure performance and accessibility</h2>
+<h2 id="real-project-evidence">5. Measure performance and accessibility</h2>
 <ul>
 <li><strong>Measure transfer and parse cost:</strong> inspect the animation asset size and renderer JavaScript in browser developer tools, and avoid loading an animation that is far below the initial viewport.</li>
 <li><strong>Check rendering:</strong> compare SVG, canvas and any supported alternatives on the devices you actually target. Complex paths, masks and repeated elements can affect frame rate.</li>
@@ -143,7 +143,7 @@ function cleanup() {
 </ul>
 <p>Core Web Vitals are measured for the complete page, not the animation alone. LCP, INP and CLS should be measured with real-user field data where available and supported by repeatable lab tests.</p>
 
-<h2 id="common-mistakes">6. Troubleshoot common Lottie export problems</h2>
+<h2 id="common-pitfalls-to-avoid">6. Troubleshoot common Lottie export problems</h2>
 <ol>
 <li><strong>Missing layers:</strong> verify that the exporter supports the effects, expressions, masks and blend modes actually used. Simplify the composition when necessary.</li>
 <li><strong>Different typography:</strong> check font support, image dependencies and whether shape conversion is appropriate.</li>
@@ -163,7 +163,7 @@ function cleanup() {
                   Calculate Your Custom Project Cost &amp; <span style="color:#FF2A4D;">Sprint Timeline</span>
                 </h3>
                 <p style="font-size: 14.5px; color: #94a3b8; margin-bottom: 28px;">
-                  Select your project parameters below for an instant engineering estimate based on Appiex's 2026 delivery benchmarks.
+                  Select your project parameters below for an instant engineering estimate as an illustrative planning estimate, not a binding quote.
                 </p>
 
                 <!-- Hidden inputs to preserve existing calculator JS logic -->
@@ -329,12 +329,16 @@ function cleanup() {
 <blockquote><p>Reserve an explicit aspect ratio or dimensions for the animation container before loading its asset. Test with slow networks and the final production CSS.</p></blockquote>
 <h3>What if the export looks different from After Effects?</h3>
 <blockquote><p>Check effects, masks, fonts, image dependencies and exporter support; simplify the source composition where necessary.</p></blockquote>
-</div>
+<!-- CONVERSION FEATURE 2: consultation CTA -->
+<div id="free-audit-cta" class="ContactSection">
+  <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:rgba(255,42,77,0.12);border:1px solid rgba(255,42,77,0.3);color:#FF2A4D;font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:14px;">
+    <span>OPTIONAL TECHNICAL CONSULTATION</span>
+  </div>
                 <h3 style="margin: 0 0 10px 0 !important; font-size: 2.6rem !important; font-weight: 700 !important; color: #fff !important; letter-spacing: -0.02em !important;">
-                  Building an interactive 3D configurator, WebGL showcase, or game experience? Speak with our 3D &amp; Graphics Engineers.
+                  Need help exporting, integrating or troubleshooting web animation? Speak with the Appiex team.
                 </h3>
                 <p style="font-size: 14.5px; color: #94a3b8; margin-bottom: 28px;">
-                  Share your project details below. Our engineering team will review your setup, Core Web Vitals, and conversion funnel—and send a custom roadmap within 4 business hours.
+                  Share your animation or website requirements and we can discuss an appropriate implementation scope. A request is not a confirmed booking.
                 </p>
 
                 <form class="form" onsubmit="submitBlogLeadForm(event)" style="max-width:100%;">
