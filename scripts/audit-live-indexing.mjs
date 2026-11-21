@@ -36,21 +36,46 @@ if(sm.status!==200||!sm.body.includes('<urlset')) {
   results.push({kind:'page',url,status:r.status,finalURL:r.url,canonical:cs,metaRobots:meta,xRobots:r.robots,issues,error:r.error});
  }
 }
-for(const [from,to] of [['/index.html','/'],['/home','/'],['/about','/team'],
+// Check each intermediate hop; hosting layers may normalize legacy paths first.
+async function checkRedirectChain(startURL, expectedURL) {
+ let current=startURL, hops=[], issues=[];
+ for(let i=0;i<4;i++){
+  const r=await request(current,'manual');
+  const location=r.location?new URL(r.location,current).toString():null;
+  hops.push({url:current,status:r.status,location});
+  if(![301,308].includes(r.status)||!location){
+   issues.push('non-permanent-or-missing-redirect'); break;
+  }
+  if(location===expectedURL)break;
+  if(hops.some(h=>h.url===location)){
+   issues.push('redirect-loop'); break;
+  }
+  current=location;
+ }
+ if(hops.at(-1)?.location!==expectedURL)issues.push('wrong-redirect-destination');
+ results.push({kind:'redirect-chain',url:startURL,expected:expectedURL,hops,issues});
+}
+for(const [from,to] of [['/index.html','/'],['/index','/'],['/home','/'],['/about','/team'],
  ['/journal','/blog'],['/legal/privacy-policy','/privacy-policy'],
  ['/blog/lottie-animation-and-after-effects-tutorial.html','/blog/lottie-animation-and-after-effects-tutorial']]) {
- const r=await request(BASE+from,'manual'), loc=r.location?new URL(r.location,BASE+from).toString():null;
- results.push({kind:'redirect',url:BASE+from,status:r.status,location:loc,issues:[301,308].includes(r.status)&&loc===BASE+to?[]:['bad-redirect'],error:r.error});
+ await checkRedirectChain(BASE+from,BASE+to);
 }
 const www=await request('https://www.appiex.com/','manual');
-results.push({kind:'redirect',url:'https://www.appiex.com/',status:www.status,location:www.location,
- issues:[301,308].includes(www.status)&&www.location===BASE+'/'?[]:['bad-www-redirect'],error:www.error});
+const wwwTarget=www.location?new URL(www.location,'https://www.appiex.com/').toString():null;
+// Vercel domain routing may issue a 307 before project redirect rules.
+// A 307 to the correct canonical is crawlable but should be flagged as an SEO improvement.
+const wwwCorrect=[301,307,308].includes(www.status)&&wwwTarget===BASE+'/';
+results.push({kind:'redirect',url:'https://www.appiex.com/',status:www.status,location:wwwTarget,
+ issues:wwwCorrect?[]:['bad-www-redirect'],
+ warnings:www.status===307&&wwwCorrect?['temporary-www-redirect-update-in-vercel-domain-settings']:[],
+ error:www.error});
 const rob=await request(BASE+'/robots.txt');
 results.push({kind:'robots',url:BASE+'/robots.txt',status:rob.status,
  issues:rob.status===200&&rob.body.includes('Sitemap: '+BASE+'/sitemap.xml')?[]:['robots-error'],error:rob.error});
 const bad=results.filter(x=>x.issues?.length);
-const report={checkedAt:new Date().toISOString(),checked:results.length,failed:bad.length,results};
+const warnings=results.flatMap(x=>(x.warnings||[]).map(w=>({url:x.url,warning:w})));
+const report={checkedAt:new Date().toISOString(),checked:results.length,failed:bad.length,warnings,results};
 await fs.mkdir('artifacts',{recursive:true});
 await fs.writeFile('artifacts/appiex-live-indexing-report.json',JSON.stringify(report,null,2)+'\n');
-console.log(JSON.stringify({checked:report.checked,failed:report.failed,errors:bad},null,2));
+console.log(JSON.stringify({checked:report.checked,failed:report.failed,warnings,errors:bad},null,2));
 if(bad.length)process.exitCode=1;

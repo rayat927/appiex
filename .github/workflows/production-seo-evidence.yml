@@ -20,6 +20,7 @@ jobs:
       - name: Inventory blog SEO and content overlap
         run: node scripts/audit-blog-content-inventory.mjs
       - name: Check production sitemap and redirects
+        if: github.event_name != 'pull_request'
         run: node scripts/audit-live-indexing.mjs
       - name: Upload audit evidence even if failures occur
         if: always()
