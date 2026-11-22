@@ -54,7 +54,7 @@ These are *review leads*, not a proven penalty list. Do not submit disavow.txt b
 - `/seo-marketing`: 6-workstream auditable SEO deliverable framework (crawl/indexability, query intent, information gain, performance, backlinks, conversion).
 - `/privacy-policy` and `/terms-of-service`: useful crawlable related-page navigation.
 - Seven high-visibility search snippets shortened and synchronized with OG/Twitter and curated `page-search-intents.json`.
-- `sitemap.xml`: truthful `lastmod` for 10 pages substantively updated this release.
+- `sitemap.xml`: `lastmod` for the nine non-homepage pages changed or reaffirmed this release; preserve the homepage's prior modification date because a short meta-description edit is not a substantive page revision.
 - `scripts/check-advanced-seo-architecture.mjs`: analyze internal link graph from every canonical HTML source, log orphan/low-inbound pages, and gate future releases on buyer evidence, metadata, sitemap and privacy safeguards.
 - Preserve the 50 canonical URLs and all deliberate private-page `noindex` protections.
 
