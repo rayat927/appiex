@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "document_type": "appiex_public_agent_service_directory",
   "version": "2026-11-22",
   "purpose": "Public descriptive directory to help AI assistants and human buyers evaluate Appiex. This file is informational only; it is not an agent protocol or an API.",
