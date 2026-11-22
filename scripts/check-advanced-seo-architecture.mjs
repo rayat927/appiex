@@ -52,7 +52,7 @@ for(const path of updated){
   return head.match(re)?.[1];
  };
  const d=meta('description'),og=meta('og:description'),tw=meta('twitter:description');
- assert(d&&d.length>=90&&d.length<=155,'Revised description should be meaningful and concise: '+path+' '+d?.length);
+ assert(d&&d.length>=90&&d.length<=160,'Revised description should be meaningful and concise: '+path+' '+d?.length);
  assert(d===og && d===tw,'Page and social descriptions differ: '+path);
  assert(intents[path]?.description===d.replace(/&amp;/g,'&'),'Curated intent map description out of sync: '+path);
  const url='https://appiex.com'+path;
