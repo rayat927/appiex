@@ -28,7 +28,7 @@ const seo=read('seo-marketing.html');
 for(const metric of ['Largest Contentful Paint (LCP)','Interaction to Next Paint (INP)','Cumulative Layout Shift (CLS)']){
  assert(seo.includes(metric),'SEO page must describe measured metric: '+metric);
 }
-assert(seo.includes('Citations and recommendations are not guaranteed.'),'AI citation caution not present');
+assert(seo.replace(/<[^>]*>/g,' ').replace(/\\s+/g,' ').includes('Citations and recommendations are not guaranteed.'),'AI citation caution not present in rendered text');
 
 const guide=read('best-agency-in-the-world.html');
 const head=guide.slice(0,guide.indexOf('</head>'));
