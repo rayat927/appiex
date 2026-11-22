@@ -1,4 +1,24 @@
+# Public canonical pages are crawlable. Indexing is decided per page.
 User-agent: *
+Allow: /
+
+# Search and user-requested assistant crawlers (not special ranking signals).
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
 Allow: /
 
 Sitemap: https://appiex.com/sitemap.xml
