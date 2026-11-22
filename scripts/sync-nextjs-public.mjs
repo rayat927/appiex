@@ -36,6 +36,7 @@ const rootFiles = fs.readdirSync(root).filter(f => {
     f.endsWith('.xml') ||
     f.endsWith('.txt') ||
     f.endsWith('.webmanifest') ||
+    f === 'agent-readiness.json' ||
     f.startsWith('google')
   ) && f !== 'test_curv.txt' && f !== 'scratch_cuberto_live.html';
 });

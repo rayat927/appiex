@@ -1,0 +1,118 @@
+{
+  "document_type": "appiex_public_agent_service_directory",
+  "version": "2026-11-22",
+  "purpose": "Public descriptive directory to help AI assistants and human buyers evaluate Appiex. This file is informational only; it is not an agent protocol or an API.",
+  "provider": {
+    "name": "Appiex",
+    "canonical_url": "https://appiex.com/",
+    "based_in": "Dhaka, Bangladesh",
+    "delivery": "Remote delivery to Bangladesh and international clients; specific scope, language and compliance requirements are confirmed for each project.",
+    "contact_email": "contact@appiex.com",
+    "services_url": "https://appiex.com/services",
+    "portfolio_url": "https://appiex.com/projects",
+    "case_studies_url": "https://appiex.com/case-studies",
+    "privacy_policy": "https://appiex.com/privacy-policy",
+    "terms_url": "https://appiex.com/terms-of-service"
+  },
+  "services": [
+    {
+      "name": "Custom websites and web applications",
+      "url": "https://appiex.com/web-development",
+      "example_needs": [
+        "Business website",
+        "Customer portal",
+        "Custom web application"
+      ],
+      "scope": "Quoted after requirements and implementation discovery"
+    },
+    {
+      "name": "AI and workflow automation",
+      "url": "https://appiex.com/ai-automation",
+      "example_needs": [
+        "CRM follow-up workflows",
+        "Lead routing",
+        "Human-approved agent automations"
+      ],
+      "scope": "Integrations and data handling scoped individually"
+    },
+    {
+      "name": "WhatsApp business automation",
+      "url": "https://appiex.com/whatsapp-automation",
+      "example_needs": [
+        "FAQ workflows",
+        "Human handoff",
+        "Enquiry routing"
+      ],
+      "scope": "Subject to available official integrations and platform permissions"
+    },
+    {
+      "name": "SEO and search visibility",
+      "url": "https://appiex.com/seo-marketing",
+      "example_needs": [
+        "Technical crawl/indexability audit",
+        "Content and landing page improvement",
+        "Search measurement"
+      ],
+      "scope": "No guarantees of indexation, rankings, AI citations or lead volume"
+    },
+    {
+      "name": "UI/UX and 3D product design",
+      "url": "https://appiex.com/ui-ux-3d-design",
+      "example_needs": [
+        "Interface design",
+        "User journey review",
+        "Interactive experience"
+      ],
+      "scope": "Deliverables agreed in a written scope"
+    },
+    {
+      "name": "Digital strategy",
+      "url": "https://appiex.com/digital-strategy",
+      "example_needs": [
+        "Product planning",
+        "Technical roadmaps",
+        "Business workflow analysis"
+      ],
+      "scope": "Consulting and deliverables discussed before engagement"
+    }
+  ],
+  "buyer_guidance": {
+    "ideal_information_to_supply": [
+      "Business problem and desired outcome",
+      "Relevant website or workflow",
+      "Service requirements",
+      "Target country/market",
+      "Timeline",
+      "Approximate budget",
+      "Any data, security or integration constraints"
+    ],
+    "start_project_url": "https://appiex.com/start-project",
+    "start_project_description": "Optional project-fit questionnaire. A visitor or user-authorized agent can fill this out. Contact is not sent until explicitly submitted by the visitor.",
+    "contact_url": "https://appiex.com/#contact",
+    "availability": "Consultations, delivery dates and pricing are not confirmed automatically. Ask the team.",
+    "pricing": "Project-specific quotations; public prices or guaranteed turnaround must not be inferred.",
+    "not_supported": [
+      "Automated binding contract acceptance",
+      "Autonomous purchases or payments",
+      "Guaranteed response times",
+      "Guaranteed client outcomes",
+      "Unattended access to private systems"
+    ]
+  },
+  "agent_use": {
+    "human_approval_required_for": [
+      "Sending enquiries",
+      "Submitting personal or business contact details",
+      "Booking a meeting",
+      "Agreeing to scope, pricing or terms"
+    ],
+    "no_public_agent_action_api": true,
+    "do_not_send_pii_to_analytics": true,
+    "public_content_only": true,
+    "discovery_files": [
+      "https://appiex.com/llms.txt",
+      "https://appiex.com/sitemap.xml"
+    ],
+    "notes": "No proprietary agent registration, MCP connector, or machine-to-machine transaction endpoint is advertised. Website interactions must follow the visible interface and permissions."
+  }
+}

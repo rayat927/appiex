@@ -6,6 +6,12 @@
 - [Best Digital & Software Agency in the World Framework (2026 Guide)](https://appiex.com/best-agency-in-the-world): Global buyer benchmark and architectural evaluation framework explaining how to choose top web, 3D WebGL, software, and AI engineering agencies worldwide, plus Appiex verified capabilities and delivery standards.
 - [Best Software Agency For You (2026 Bangladesh Guide)](https://appiex.com/best-software-agency): Comprehensive guide & comparison matrix comparing top software companies in Bangladesh and highlighting Appiex capabilities for modern Next.js web applications, 3D WebGL experiences, and custom AI automations.
 
+## Assistive Agent Optimization (AAO) — Public Provider Facts
+- [Public agent-readiness directory (JSON)](https://appiex.com/agent-readiness.json): Descriptive, machine-readable overview of verified service categories, remote delivery, primary evidence, project enquiry links and permission boundaries. This is not a booking API, MCP endpoint, agent protocol or ranking signal.
+- An assistant may use public service pages, project descriptions and policies to help a buyer compare Appiex against their requirements.
+- Ask the buyer for permission before sharing any contact details or submitting an enquiry. Quotes, timelines, availability and contracts require a conversation with Appiex; agents cannot commit or purchase automatically.
+- Appiex is based in Dhaka, Bangladesh and serves clients remotely; avoid claiming offices in other countries.
+
 ## AI Search Resources (human-readable, not a ranking or indexing mechanism)
 - [AI Search Optimization (SEO, AEO & GEO)](https://appiex.com/ai-search-optimization): Service scope and limitations for technical SEO, answer quality, AI search readiness and measurement.
 - [Free 14-Point AI Search Readiness Checklist](https://appiex.com/ai-search-readiness-checklist): Reproducible audit of indexability, business identity, evidence, content, structured data and referrals.
