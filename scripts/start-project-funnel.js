@@ -187,7 +187,7 @@
           service: chosen('service'), budget_band: read('budget'), channel: 'secure_form'
         });
         try {
-          window.dispatchEvent(new CustomEvent('appiex:lead_received', { detail: { channel: 'project_fit' } }));
+          window.dispatchEvent(new CustomEvent('appiex:lead_received', { detail: { channel: 'project_fit', service: chosen('service') } }));
         } catch (_) {}
       } catch (_) {
         submitStatus.textContent = 'Unable to confirm delivery to our secure inbox. Please open WhatsApp or email and press Send there to reach Appiex.';

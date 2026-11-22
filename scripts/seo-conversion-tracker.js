@@ -100,9 +100,25 @@ try {
       trackConversionEvent('contact_form_prepared', { channel: 'whatsapp' });
     });
     // Only a server-confirmed enquiry triggers a lead event. Never count handoff clicks.
-    window.addEventListener('appiex:lead_received', function () {
+    // Do not copy free-text user input or contact details into GA4 parameters.
+    window.addEventListener('appiex:lead_received', function (event) {
+      var detail = event && event.detail || {};
+      var allowedServices = {
+        'Web development': 'web_development',
+        'AI automation': 'ai_automation',
+        'SEO and growth': 'seo_growth',
+        'Custom software and SaaS': 'custom_software',
+        'UI/UX and product design': 'ui_ux_design',
+        'Need guidance': 'general_guidance'
+      };
+      var service = typeof detail.service === 'string' &&
+        Object.prototype.hasOwnProperty.call(allowedServices, detail.service)
+          ? allowedServices[detail.service] : 'unspecified';
+      var channel = detail.channel === 'website_form' ? 'homepage_contact' : 'project_fit';
       trackConversionEvent('generate_lead', {
-        lead_source: 'appiex_project_fit',
+        lead_source: channel,
+        lead_channel: channel,
+        lead_service: service,
         confirmation_type: 'server_acknowledged'
       });
     });
