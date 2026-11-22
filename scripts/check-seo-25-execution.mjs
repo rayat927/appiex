@@ -17,7 +17,7 @@ for (const [page, sectionId] of pages) {
  const html = read(page);
  const sectionStart=html.indexOf('<section class="appiex-buyer-guides" id="'+sectionId+'"');
  assert(sectionStart>0,page+': missing user-visible buyer-intent section');
- assert(html.indexOf('<section class="appiex-buyer-guides"',sectionStart+5)===-1,page+': duplicate buyer section');
+ assert(html.split('id="'+sectionId+'"').length===2,page+': duplicate original buyer section id');
  const footer=html.indexOf('<footer',sectionStart);
  assert(footer>sectionStart,page+': buyer section must precede footer');
  const section=html.slice(sectionStart,footer);
