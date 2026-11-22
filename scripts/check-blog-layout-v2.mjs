@@ -5,6 +5,7 @@ const root=process.cwd();
 const exclude=new Set(['view','ai-automation','web-development','seo-marketing',
   'digital-strategy','ui-ux-3d-design','gaming-3d-worlds']);
 const references=new Set(['website-development-cost-bangladesh','ai-agents-vs-n8n-automation-for-business']);
+const sitemap=new Set([...fs.readFileSync(path.join(root,'sitemap.xml'),'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]));
 const failures=[];
 let modern=0,converted=0,indexable=0,held=0;
 const files=fs.readdirSync(path.join(root,'blog')).filter(f=>f.endsWith('.html'));
@@ -25,7 +26,11 @@ for (const filename of files) {
   if (!robots) failures.push(slug+': robots directive missing');
   if ((html.match(/<h1\b/gi)||[]).length!==1) failures.push(slug+': expected one H1');
   if ((html.match(/<h2\b/gi)||[]).length<2) failures.push(slug+': insufficient H2 structure');
-  if (/noindex/i.test(robots)) held++; else indexable++;
+  const inSitemap=sitemap.has(expected);
+  const isIndexable=!/noindex/i.test(robots);
+  if (inSitemap && !isIndexable) failures.push(slug+': sitemap-listed article is noindex');
+  if (!inSitemap && isIndexable) failures.push(slug+': unreviewed article indexable but absent from sitemap');
+  if (isIndexable) indexable++; else held++;
   for(const match of head.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
     try { JSON.parse(match[1]); } catch(e) {failures.push(slug+': JSON-LD invalid');}
   }
@@ -53,6 +58,7 @@ for (const filename of files) {
 }
 if(converted!==65) failures.push('Expected 65 converted articles; saw '+converted);
 if(modern!==67) failures.push('Expected 67 articles; saw '+modern);
-if(indexable!==13 || held!==54) failures.push('Indexability drift: '+indexable+' indexable, '+held+' noindex (expected 13,54)');
+const intended=files.filter(f=>!exclude.has(f.replace(/\.html$/,'')) && sitemap.has('https://appiex.com/blog/'+f.replace(/\.html$/,''))).length;
+if(indexable!==intended || held!==modern-intended) failures.push('Indexability drift: '+indexable+' indexable, '+held+' held; sitemap expects '+intended+' indexable');
 if(failures.length){console.error('Blog template regression failures:\n- '+failures.join('\n- '));process.exitCode=1;}
 else console.log('Blog v2 validated: '+modern+' articles ('+converted+' new layout + 2 reference articles), '+indexable+' indexable, '+held+' held for editorial review.');

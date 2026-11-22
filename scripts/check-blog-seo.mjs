@@ -46,7 +46,18 @@ for (const slug of priority) {
   indexed++;
 }
 // Other draft pages should not be made indexable by mistake.
-const excluded = new Set([...priority, 'view', 'web-development', 'ai-automation', 'digital-strategy', 'seo-marketing', 'ui-ux-3d-design', 'gaming-3d-worlds']);
+// This article was independently reviewed and approved for indexing in PR #54.
+const reviewed = ['lottie-animation-and-after-effects-tutorial'];
+for (const slug of reviewed) {
+  const file = 'blog/' + slug + '.html';
+  const html = read(file);
+  const preferred = domain + '/blog/' + slug;
+  if (!/<meta name="robots" content="index, follow/i.test(html)) problems.push(slug + ': reviewed article must remain indexable');
+  if (!html.includes('href="' + preferred + '"')) problems.push(slug + ': reviewed article canonical missing');
+  if (!siteURLs.includes(preferred)) problems.push(slug + ': reviewed article missing from sitemap');
+  if (!landing.includes('href="/blog/' + slug + '"')) problems.push(slug + ': reviewed article missing from blog landing');
+}
+const excluded = new Set([...priority, ...reviewed, 'view', 'web-development', 'ai-automation', 'digital-strategy', 'seo-marketing', 'ui-ux-3d-design', 'gaming-3d-worlds']);
 const files = fs.readdirSync(path.join(root, 'blog')).filter((f) => f.endsWith('.html'));
 for (const file of files) {
   const slug = file.slice(0, -5);

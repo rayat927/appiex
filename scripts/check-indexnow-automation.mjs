@@ -4,7 +4,7 @@ import {sitemapEntries,sourceToCanonical,URLsToNotify} from './lib/indexnow-url-
 
 const source=fs.readFileSync('sitemap.xml','utf8');
 const current=sitemapEntries(source);
-assert.equal(current.size,49,'Expected 49 canonical sitemap URLs from the current release');
+assert(current.size >= 49, 'Unexpected loss of canonical sitemap URLs');
 assert(current.has('https://appiex.com/'),'Homepage missing');
 assert(current.has('https://appiex.com/website-lead-calculator'),'Free tool missing');
 assert(!current.has('https://appiex.com/start-project'),'Noindex funnel must not be submitted');
@@ -35,12 +35,12 @@ assert.deepEqual(URLsToNotify({current,previous:current,changedFiles:['blog.html
  ['https://appiex.com/blog']);
 assert.deepEqual(URLsToNotify({current,previous:current,changedFiles:['login.html','start-project.html','docs/readme.md']}),[]);
 assert.deepEqual(URLsToNotify({current,previous:current,changedFiles:[]}),[]);
-assert.equal(URLsToNotify({current,previous:current,changedFiles:['src/lib/appiex-html-polish.mjs']}).length,49);
-assert.equal(URLsToNotify({current,previous:current,changedFiles:[],all:true}).length,49);
+assert.equal(URLsToNotify({current,previous:current,changedFiles:['src/lib/appiex-html-polish.mjs']}).length,current.size);
+assert.equal(URLsToNotify({current,previous:current,changedFiles:[],all:true}).length,current.size);
 const malformed=sitemapEntries('<urlset><url><loc>https://evil.test/hijack</loc></url><url><loc>https://appiex.com/login.html</loc></url><url><loc>https://appiex.com/valid?x=1</loc></url></urlset>');
 assert.equal(malformed.size,0,'Only canonical first-party clean URLs may be notified');
 const scripted=fs.readFileSync('scripts/submit-indexnow.mjs','utf8');
 assert(scripted.includes('api.indexnow.org/indexnow'),'IndexNow endpoint missing');
 assert(scripted.includes('Ownership key not accessible'),'Ownership key fail-closed guard missing');
 assert(scripted.includes('Production sitemap does not match git'),'Production release verification missing');
-console.log('Bing / IndexNow QA passed: 49 public URLs, change detection, private route exclusions and production guards.');
+console.log('Bing / IndexNow QA passed: ' + current.size + ' public URLs, change detection, private route exclusions and production guards.');

@@ -184,6 +184,14 @@
     ],
     "description": "Use a practical checklist to choose a software development agency: assess relevant work, scope, testing, delivery responsibilities, source ownership and handover."
   },
+  "/blog/lottie-animation-and-after-effects-tutorial": {
+    "primary": "Lottie animation After Effects web tutorial",
+    "supporting": [
+      "Bodymovin export and lottie-web integration",
+      "accessible reduced-motion website animations"
+    ],
+    "description": "A practical Lottie and After Effects web animation guide covering Bodymovin export, lottie-web integration, accessibility, performance testing and troubleshooting."
+  },
   "/blog/seo-marketing": {
     "primary": "technical SEO and AI search guides",
     "supporting": [
