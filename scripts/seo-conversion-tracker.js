@@ -99,6 +99,13 @@ try {
     window.addEventListener('appiex:contact_prepared', function () {
       trackConversionEvent('contact_form_prepared', { channel: 'whatsapp' });
     });
+    // Only a server-confirmed enquiry triggers a lead event. Never count handoff clicks.
+    window.addEventListener('appiex:lead_received', function () {
+      trackConversionEvent('generate_lead', {
+        lead_source: 'appiex_project_fit',
+        confirmation_type: 'server_acknowledged'
+      });
+    });
     window.addEventListener('appiex:whatsapp_handoff', function () {
       trackConversionEvent('click_whatsapp', { cta_location: '/#contact', interaction_type: 'window_open' });
     });
