@@ -56,8 +56,13 @@ for(const path of updated){
  assert(d===og && d===tw,'Page and social descriptions differ: '+path);
  assert(intents[path]?.description===d.replace(/&amp;/g,'&'),'Curated intent map description out of sync: '+path);
  const url='https://appiex.com'+path;
- assert(sitemap.includes('<loc>'+url+'</loc><lastmod>2026-11-23</lastmod>'),
-  'Significantly changed URL needs actual lastmod date: '+path);
+ if(path==='/'){
+  assert(sitemap.includes('<loc>https://appiex.com/</loc><lastmod>2026-11-16</lastmod>'),
+    'A meta snippet edit must not falsely advance the homepage lastmod');
+ } else {
+  assert(sitemap.includes('<loc>'+url+'</loc><lastmod>2026-11-23</lastmod>'),
+    'Significantly changed URL needs actual lastmod date: '+path);
+ }
 }
 
 const sections=[
