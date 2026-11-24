@@ -50,3 +50,20 @@ assert(funnel.includes("detail: { channel: 'project_fit', service: chosen('servi
 assert(page.includes('/scripts/seo-conversion-tracker.js'),'GA4 script must load on project funnel');
 assert(page.includes('id="funnel-consent"'),'Lead consent UI missing');
 console.log('GA4 QA passed: configured event dispatch, confirmed-only leads, channel/service categorization and PII exclusion.');
+
+// The partnership lead is distinct from a referral click or a prepared form.
+emit('appiex:lead_received',{channel:'agency_partnership',service:'Agency partnership',email:'sensitive@example.org'});
+const partnerEvent=calls.filter(a=>a[0]==='event'&&a[1]==='generate_lead').at(-1)[2];
+assert.equal(partnerEvent.lead_channel,'agency_partnership');
+assert.equal(partnerEvent.lead_service,'agency_partnership');
+assert(!JSON.stringify(partnerEvent).includes('sensitive@example.org'));
+const partnerPage=read('partners.html');
+const partnerHandler=partnerPage.slice(partnerPage.indexOf('async function handlePartnerSubmit'),partnerPage.indexOf('(function initRafsanNavbar()',partnerPage.indexOf('async function handlePartnerSubmit')));
+assert(partnerPage.includes('id="part-consent" required'),'Partner consent required');
+assert(partnerHandler.includes("fetch('/api/orders'"),'Partner application must use durable lead API');
+assert(partnerHandler.includes('data.success !== true || !data.orderId'),'Partner lead must have receipt');
+assert(!/localStorage|saveReferralLead|ndaSigned/.test(partnerHandler),'Do not store applicant data locally or invent NDA acceptance');
+assert(partnerHandler.indexOf("data.success !== true")<partnerHandler.indexOf("appiex:lead_received"),'No lead event before receipt');
+new vm.Script(partnerHandler,{filename:'partner-handler.js'});
+assert.equal((read('ecommerce-development.html').match(/href="\/start-project\?service=ecommerce"/g)||[]).length,3,'Ecommerce quote CTAs should enter qualified funnel');
+console.log('Partner receipt, consent, attribution and ecommerce funnel QA passed.');
