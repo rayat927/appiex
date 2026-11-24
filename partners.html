@@ -1203,7 +1203,7 @@
           <!-- Group 4: Work Email / WhatsApp -->
           <div class="group">
             <label class="UnderlineInput">
-              <input type="text" id="part-contact" required placeholder="Work email / WhatsApp (you@company.com or +1...)">
+              <input type="email" id="part-contact" required autocomplete="email" placeholder="Work email (you@company.com)">
               <span class="required"></span>
               <span class="line"></span>
             </label>
@@ -1217,7 +1217,8 @@
             </label>
           </div>
 
-          <div id="partner-submit-status" class="hidden text-center text-xs font-mono text-emerald-400 py-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 my-4"></div>
+          <div class="group"><label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5"><input type="checkbox" id="part-consent" required style="accent-color:#FF2A4D;margin-top:4px"><span>I agree that Appiex may use my details to review and respond to this partnership enquiry. Read our <a href="/privacy-policy" style="text-decoration:underline">privacy policy</a>.</span></label><p style="font-size:13px;margin-top:12px">Prefer WhatsApp? <a href="https://wa.me/8801917354847" target="_blank" rel="noopener noreferrer" style="text-decoration:underline">Contact our team directly.</a></p></div>
+<div id="partner-submit-status" role="status" aria-live="polite" class="hidden text-center text-xs font-mono py-3 bg-white/5 rounded-xl border border-white/20 my-4"></div>
 
           <!-- Submit CTA Button -->
           <div class="submit">
@@ -1633,50 +1634,48 @@
   <script>
     async function handlePartnerSubmit(e) {
       e.preventDefault();
+      const form = document.getElementById('partner-form');
       const btn = document.getElementById('part-submit-btn');
       const status = document.getElementById('partner-submit-status');
-      btn.disabled = true;
-      btn.textContent = 'Submitting Application...';
-
-      const payload = {
-        referrerName: document.getElementById('part-name').value.trim(),
-        clientName: document.getElementById('part-company').value.trim(),
-        clientPhone: document.getElementById('part-contact').value.trim(),
-        projectType: 'PARTNERSHIP: ' + document.getElementById('part-model').value,
-        referrerBkash: document.getElementById('part-notes').value.trim()
-      };
-
-      if (window.appiexFirebase && window.appiexFirebase.saveReferralLead) {
-        await window.appiexFirebase.saveReferralLead(payload);
-      }
-
-      // Sync into Appiex Admin OS (Partners & CRM)
-      try {
-        const partnerRecord = {
-          id: 'ptn_' + Date.now().toString().slice(-4),
-          company: payload.clientName || 'Partner Agency',
-          contactName: payload.referrerName || 'Agency Lead',
-          email: payload.clientPhone || 'partner@agency.com',
-          website: 'https://' + (payload.clientName || 'agency').toLowerCase().replace(/[^a-z0-9]/g, '') + '.com',
-          model: 'White Label',
-          country: 'Global',
-          submittedAt: new Date().toISOString(),
-          status: 'applied',
-          notes: 'Specialization: ' + (payload.projectType || 'Engineering Partnership') + ' | Notes: ' + payload.referrerBkash,
-          ndaSigned: true,
-          confidentialityLevel: 'strict_white_label'
-        };
-
-        const existingPartners = JSON.parse(localStorage.getItem('appiex_admin_partners_v2') || '[]');
-        localStorage.setItem('appiex_admin_partners_v2', JSON.stringify([partnerRecord, ...existingPartners]));
-      } catch(err) {
-        console.warn('Admin OS partner sync error:', err);
-      }
-
-      status.textContent = '✅ Partnership application received! Our executive team will contact you within 12 hours.';
+      const label = btn.querySelector('.title span');
+      if (btn.disabled || btn.dataset.confirmed === 'true') return;
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      if (!document.getElementById('part-consent').checked) return;
+      const name = document.getElementById('part-name').value.trim();
+      const company = document.getElementById('part-company').value.trim();
+      const email = document.getElementById('part-contact').value.trim();
+      const model = form.querySelector('input[name="partnerModelRadio"]:checked')?.value || 'White Label Agency Fulfillment';
+      const notes = document.getElementById('part-notes').value.trim();
       status.classList.remove('hidden');
-      btn.textContent = 'Application Submitted!';
-      document.getElementById('partner-form').reset();
+      if (!name || !company || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        status.textContent = 'Please enter your name, agency and a valid work email.';
+        return;
+      }
+      const updateLabel = value => { if (label) { label.textContent = value; label.setAttribute('data-text', value); } };
+      btn.disabled = true;
+      updateLabel('Submitting application...');
+      status.textContent = 'Sending your application securely...';
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name, email, service: 'Agency partnership', budget: 'Not provided',
+            message: ['Agency: ' + company, 'Partnership model: ' + model, 'Notes: ' + notes].join('\n').slice(0, 5000)
+          })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.success !== true || !data.orderId) throw new Error('Unconfirmed submission');
+        btn.dataset.confirmed = 'true';
+        updateLabel('Application received');
+        status.textContent = 'Your application has been received for review. We can now follow up at the work email you provided.';
+        form.reset();
+        try { window.dispatchEvent(new CustomEvent('appiex:lead_received', { detail: { channel: 'agency_partnership', service: 'Agency partnership' } })); } catch (_) {}
+      } catch (_) {
+        status.textContent = 'We could not confirm receipt. Please retry or contact us directly on WhatsApp or email.';
+        updateLabel('Submit Partnership Application →');
+        btn.disabled = false;
+      }
     }
 
     (function initRafsanNavbar() {

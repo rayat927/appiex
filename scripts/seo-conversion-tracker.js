@@ -109,12 +109,14 @@ try {
         'SEO and growth': 'seo_growth',
         'Custom software and SaaS': 'custom_software',
         'UI/UX and product design': 'ui_ux_design',
-        'Need guidance': 'general_guidance'
+        'Need guidance': 'general_guidance',
+        'Agency partnership': 'agency_partnership'
       };
       var service = typeof detail.service === 'string' &&
         Object.prototype.hasOwnProperty.call(allowedServices, detail.service)
           ? allowedServices[detail.service] : 'unspecified';
-      var channel = detail.channel === 'website_form' ? 'homepage_contact' : 'project_fit';
+      var channel = detail.channel === 'website_form' ? 'homepage_contact' :
+        detail.channel === 'agency_partnership' ? 'agency_partnership' : 'project_fit';
       trackConversionEvent('generate_lead', {
         lead_source: channel,
         lead_channel: channel,
@@ -178,6 +180,7 @@ if (href.indexOf('mailto:') === 0) {
         // CTA click indicates interest, not a confirmed consultation
         if (
           href.indexOf('#contact') !== -1 ||
+          href.indexOf('/start-project') === 0 ||
           href.indexOf('/contact') !== -1 ||
           /book|consult|start a project|discuss|get a quote|strategy call|inquire/i.test(text)
         ) {
