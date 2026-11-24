@@ -1,20 +1,10 @@
 name: Deploy Appiex to Vercel production
 
+# Manual only. Production deploys come from Vercel's GitHub integration
+# (status check "Vercel – appiex"), so running this on every push caused a
+# duplicate deploy attempt that failed and marked main red.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'vercel.json'
-      - 'next.config.mjs'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'src/**'
-      - 'blog/**'
-      - 'styles/**'
-      - 'scripts/**'
-      - 'index.html'
-      - '.github/workflows/vercel-production-deploy.yml'
 
 permissions:
   contents: read
