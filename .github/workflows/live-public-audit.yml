@@ -1,0 +1,40 @@
+name: Live public crawl and browser audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/live-public-audit.mjs'
+      - '.github/workflows/live-public-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test dependencies
+        run: |
+          mkdir -p /tmp/appiex-audit
+          cp scripts/live-public-audit.mjs /tmp/appiex-audit/
+          cd /tmp/appiex-audit
+          npm install --no-save --ignore-scripts playwright @axe-core/playwright
+          npx playwright install --with-deps chromium
+      - name: Crawl live public site and test browsers
+        run: |
+          cd /tmp/appiex-audit
+          mkdir -p screenshots
+          node live-public-audit.mjs
+      - name: Preserve evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: appiex-public-crawl-browser-evidence
+          path: |
+            /tmp/appiex-audit/crawl-results.json
+            /tmp/appiex-audit/browser-results.json
+            /tmp/appiex-audit/screenshots/
+          if-no-files-found: warn
